@@ -6,6 +6,8 @@ import { toast } from 'react-hot-toast';
 import { useState } from 'react';
 import Link from 'next/link';
 import SpinnerMini from '@/components/SpinnerMini';
+import { useRouter } from 'next/navigation';
+import Button from '@/components/Button';
 
 interface LoginFormData {
   id: string;
@@ -14,6 +16,8 @@ interface LoginFormData {
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const { replace } = useRouter();
+
   const {
     register,
     handleSubmit,
@@ -31,6 +35,7 @@ export default function LoginPage() {
       toast.error('Login failed. Please try again.');
     } finally {
       setIsLoading(false);
+      replace('/dashboard');
     }
   };
 
@@ -153,14 +158,7 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <button
-                type='submit'
-                disabled={isLoading}
-                className='flex w-full justify-center rounded-md bg-primary-600 px-3 py-2
-                         text-sm font-semibold text-white shadow-sm hover:bg-primary-500
-                         focus-visible:outline-offset-2 focus-visible:outline-primary-600
-                         disabled:opacity-50 disabled:cursor-not-allowed'
-              >
+              <Button type='submit' disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <span className=' mr-2'>Signing in</span>
@@ -169,7 +167,7 @@ export default function LoginPage() {
                 ) : (
                   'Sign in'
                 )}
-              </button>
+              </Button>
             </div>
           </form>
 

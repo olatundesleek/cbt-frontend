@@ -7,6 +7,7 @@ const publicPaths = ['/', '/admin/login'];
 // const adminPaths = ['/admin', '/admin/dashboard'];
 
 export async function middleware(request: NextRequest) {
+  /*
   const { pathname } = request.nextUrl;
 
   // Allow public paths
@@ -57,6 +58,8 @@ export async function middleware(request: NextRequest) {
     }
     return NextResponse.redirect(new URL('/', request.url));
   }
+*/
+  return NextResponse.next();
 }
 
 

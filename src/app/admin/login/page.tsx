@@ -38,7 +38,7 @@ export default function AdminLoginPage() {
       {/* Image Section - Hidden on mobile */}
       <div className='hidden lg:flex lg:w-1/2 relative'>
         <Image
-          src='/images/studentloginimage.png'
+          src='/images/adminloginimage.png'
           alt='Admin Login'
           fill
           className='object-cover'
