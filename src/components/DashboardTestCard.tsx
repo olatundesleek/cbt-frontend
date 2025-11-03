@@ -10,7 +10,7 @@ interface TestCardProps {
   onStart?: () => void;
 }
 
-export default function TestCard({
+export default function DashboardTestCard({
   testName,
   totalQuestions,
   durationMinutes,

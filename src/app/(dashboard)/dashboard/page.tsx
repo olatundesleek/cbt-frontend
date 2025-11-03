@@ -2,7 +2,7 @@ import Calender from '@/components/Calender';
 import ExamTips from '@/components/ExamTips';
 import NotificationsSection from '@/components/NotificationSection';
 import RecentResultsTable from '@/components/RecentResultsTable';
-import TestCard from '@/components/TestCard';
+import DashboardTestCard from '@/components/DashboardTestCard';
 
 export default function StudentDashboardPage() {
   return (
@@ -18,14 +18,14 @@ export default function StudentDashboardPage() {
         <div className='space-y-4'>
           <h1 className='text-2xl'>Active and upcoming tests</h1>
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
-            <TestCard
+            <DashboardTestCard
               testName='Web Development'
               testStatus='active'
               totalQuestions={60}
               durationMinutes={60}
               progressStatus='not-started'
             />
-            <TestCard
+            <DashboardTestCard
               testName='Web Development'
               testStatus='active'
               totalQuestions={60}
@@ -49,7 +49,7 @@ export default function StudentDashboardPage() {
 
       {/* Notifications and calender */}
 
-      <div className='w-68 space-y-6 border-neutral-200 pl-2 border-l'>
+      <div className='w-68 space-y-6 border-neutral-200 pl-2 md:border-l'>
         {/* Notification */}
         <div className='space-y-2'>
           <h1 className='text-2xl'>Notifications</h1>

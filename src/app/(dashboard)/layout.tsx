@@ -11,7 +11,7 @@ export default function StudentDashboardLayout({
       <header className='bg-primary-50 shadow'>
         <StudentDashboardHeader />
       </header>
-      <main className='container mx-auto px-4 py-8'>{children}</main>
+      <main className='container mx-auto  px-4 py-8'>{children}</main>
     </div>
   );
 }
