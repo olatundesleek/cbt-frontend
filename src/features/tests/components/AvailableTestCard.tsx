@@ -1,9 +1,13 @@
 import { TestStatus } from '@/lib/constants';
-import Button from './Button';
+import Button from '@/components/ui/Button';
 import { FaRegClock } from 'react-icons/fa';
 import { TiStopwatch } from 'react-icons/ti';
+// import { useRouter } from 'next/router';
+import { useTest } from '@/context/TestContext';
+import { useRouter } from 'next/navigation';
 
 interface AvailableTestCardProps {
+  id: number;
   title: string;
   status: TestStatus;
   duration: string;
@@ -11,12 +15,17 @@ interface AvailableTestCardProps {
   description: string;
 }
 export default function AvailableTestCard({
+  id,
   title,
   status,
   duration,
   totalQuestions,
   description,
 }: AvailableTestCardProps) {
+  const { push } = useRouter();
+
+  const { setSelectedTest } = useTest();
+
   const computeStatusClass = () => {
     switch (status) {
       case 'active':
@@ -28,6 +37,18 @@ export default function AvailableTestCard({
       default:
         return '';
     }
+  };
+
+  const handleViewTest = () => {
+    setSelectedTest({
+      title,
+      status,
+      duration,
+      totalQuestions,
+      description,
+      id: 1,
+    }); // example id
+    push(`/tests/${id}/summary`);
   };
 
   return (
@@ -63,7 +84,7 @@ export default function AvailableTestCard({
 
         <div>
           {status === 'active' ? (
-            <Button label={'Start Test'} />
+            <Button label={'View Test'} onClick={handleViewTest} />
           ) : (
             <Button label={'View Details'} />
           )}

@@ -1,8 +1,9 @@
-export default function StudentProfilePage() {
+import StudentProfilePage from '@/features/profile/components/StudentProfilePage';
+
+export default function Page() {
   return (
-    <div>
-      <h1 className="text-2xl font-semibold">Your Profile</h1>
-      {/* Add profile form here */}
-    </div>
+    <>
+      <StudentProfilePage />
+    </>
   );
 }

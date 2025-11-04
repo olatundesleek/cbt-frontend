@@ -1,5 +1,5 @@
 import { PiNotepadFill } from 'react-icons/pi';
-import Button from './Button';
+import Button from '@/components/ui/Button';
 
 interface TestCardProps {
   testName: string;

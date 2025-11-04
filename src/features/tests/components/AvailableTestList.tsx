@@ -114,6 +114,7 @@ export default function AvailableTestList() {
               <div className='grid gap-4 '>
                 {tests.map((test) => (
                   <AvailableTestCard
+                    id={test.id}
                     key={test.id}
                     title={test.title}
                     status={test.status}

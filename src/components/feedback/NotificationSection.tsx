@@ -1,6 +1,6 @@
 'use client';
 
-import NotificationCard from '@/components/NotificationCard';
+import NotificationCard from '@/components/feedback/NotificationCard';
 
 // 🧠 Dummy Data (replace with API data later)
 const notifications = [
