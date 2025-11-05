@@ -2,9 +2,9 @@
 import { redirect } from 'next/navigation';
 
 interface Params {
-  params: { sessionId: string; id: string };
+  params: { sessionId: string };
 }
 
 export default function Page({ params }: Params) {
-  redirect(`/tests/${params.id}/attempt/${params.sessionId}`);
+  redirect(`/attempt/${params.sessionId}`);
 }

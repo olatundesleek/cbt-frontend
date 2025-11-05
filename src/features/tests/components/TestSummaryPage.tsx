@@ -8,8 +8,8 @@ export default function TestSummaryPage() {
   const { selectedTest } = useTest();
   const { push } = useRouter();
 
-  const handleAttemptTest = function (id: number) {
-    push(`/tests/${id}/attempt/123`);
+  const handleAttemptTest = function () {
+    push(`/attempt/123`);
   };
 
   if (!selectedTest)
@@ -85,10 +85,7 @@ export default function TestSummaryPage() {
       </div>
       <div className='w-full flex justify-end'>
         <div>
-          <Button
-            label='Start Test'
-            onClick={() => handleAttemptTest(selectedTest.id)}
-          />
+          <Button label='Start Test' onClick={() => handleAttemptTest()} />
         </div>
       </div>
       <p className='text-xs text-neutral-400 text-center'>
