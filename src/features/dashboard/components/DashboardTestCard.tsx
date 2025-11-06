@@ -1,5 +1,5 @@
 import { PiNotepadFill } from 'react-icons/pi';
-import Button from './Button';
+import Button from '@/components/ui/Button';
 
 interface TestCardProps {
   testName: string;
@@ -10,7 +10,7 @@ interface TestCardProps {
   onStart?: () => void;
 }
 
-export default function TestCard({
+export default function DashboardTestCard({
   testName,
   totalQuestions,
   durationMinutes,

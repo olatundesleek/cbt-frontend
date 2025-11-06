@@ -2,7 +2,7 @@ import { FaLightbulb, FaClock, FaBookOpen } from 'react-icons/fa';
 
 export default function ExamTips() {
   return (
-    <aside className='bg-white rounded-2xl shadow-sm p-6 mt-6 w-full lg:w-80'>
+    <aside className='bg-white rounded-2xl shadow-sm p-6 mt-6 w-full'>
       <h2 className='text-lg font-semibold flex items-center gap-2 text-gray-800 mb-4'>
         <FaLightbulb className='text-yellow-500' />
         Exam Tips

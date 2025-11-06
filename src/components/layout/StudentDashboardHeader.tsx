@@ -2,11 +2,10 @@
 
 import Logo from './Logo';
 import Link from 'next/link';
-import ProfilePic from './ProfilePic';
+import ProfilePic from '../../features/profile/components/ProfilePic';
 import { usePathname } from 'next/navigation';
 import { IoIosNotifications } from 'react-icons/io';
-import { BsFillMoonFill } from 'react-icons/bs';
-import ButtonIcon from './ButtonIcon';
+import ButtonIcon from '../ui/ButtonIcon';
 import toast from 'react-hot-toast';
 import { ThemeToggle } from './ThemeToggle';
 

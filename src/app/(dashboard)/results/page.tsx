@@ -1,8 +1,10 @@
-export default function StudentResultsPage() {
+import StudentResultsPage from '@/features/results/components/StudentResultsPage';
+import React from 'react';
+
+export default function Page() {
   return (
-    <div>
-      <h1 className="text-2xl font-semibold">Your Results</h1>
-      {/* Add results list here */}
-    </div>
+    <>
+      <StudentResultsPage />
+    </>
   );
 }

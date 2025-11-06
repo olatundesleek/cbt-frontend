@@ -1,8 +1,10 @@
-export default function StudentExamsPage() {
+import StudentTestPage from '@/features/tests/components/StudentTestPage';
+import React from 'react';
+
+export default function Page() {
   return (
-    <div>
-      <h1 className="text-2xl font-semibold">Available Exams</h1>
-      {/* Add exams list here */}
-    </div>
+    <>
+      <StudentTestPage />
+    </>
   );
 }
