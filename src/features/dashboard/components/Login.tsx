@@ -2,12 +2,10 @@
 
 import Image from 'next/image';
 import { useForm } from 'react-hook-form';
-import { toast } from 'react-hot-toast';
-import { useState } from 'react';
 import Link from 'next/link';
 import SpinnerMini from '@/components/ui/SpinnerMini';
-import { useRouter } from 'next/navigation';
 import Button from '@/components/ui/Button';
+import useLogin from '@/hooks/useLogin';
 
 interface LoginFormData {
   id: string;
@@ -15,8 +13,7 @@ interface LoginFormData {
 }
 
 export default function Login() {
-  const [isLoading, setIsLoading] = useState(false);
-  const { replace } = useRouter();
+  const { login, isLoginPending } = useLogin();
 
   const {
     register,
@@ -24,19 +21,8 @@ export default function Login() {
     formState: { errors },
   } = useForm<LoginFormData>();
 
-  const onSubmit = async (data: LoginFormData) => {
-    try {
-      setIsLoading(true);
-      // TODO: Implement actual login logic
-      console.log('Login data:', data);
-      toast.success('Login successful!');
-    } catch (error) {
-      console.error(error);
-      toast.error('Login failed. Please try again.');
-    } finally {
-      setIsLoading(false);
-      replace('/dashboard');
-    }
+  const onSubmit = async ({ id, password }: LoginFormData) => {
+    login({ username: id, password: password });
   };
 
   return (
@@ -76,18 +62,15 @@ export default function Login() {
                 <input
                   id='id'
                   type='text'
-                  autoComplete='off'
+                  // autoComplete='off'
                   placeholder='1a209s97s655'
-                  required
-                  className='block w-full rounded-md border border-neutral-300 px-3 py-2 shadow-sm 
-                           focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500
-                           bg-background text-foreground'
+                  className='block w-full rounded-md border border-neutral-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 bg-background text-foreground'
                   {...register('id', {
                     required: 'ID is required',
-                    // pattern: {
-                    //   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    //   message: 'Invalid email address',
-                    // },
+                    maxLength: {
+                      value: 10,
+                      message: 'ID cannot be more than 10 characters',
+                    },
                   })}
                 />
                 {errors.id && (
@@ -158,8 +141,8 @@ export default function Login() {
             </div>
 
             <div>
-              <Button type='submit' disabled={isLoading}>
-                {isLoading ? (
+              <Button type='submit' disabled={isLoginPending}>
+                {isLoginPending ? (
                   <>
                     <span className=' mr-2'>Signing in</span>
                     <SpinnerMini />

@@ -2,8 +2,7 @@ export type UserRole = 'student' | 'admin' | 'teacher';
 
 export interface User {
   id: string;
-  name: string;
-  email: string;
+  username: string;
   role: UserRole;
 }
 
@@ -13,12 +12,16 @@ export interface AuthState {
   isLoading: boolean;
 }
 
-export interface LoginCredentials {
-  email: string;
+export interface LoginPayload {
+  username: string;
   password: string;
 }
 
-export interface AuthResponse {
-  user: User;
-  // Token is handled by HTTP-only cookie
+export interface LoginResponse {
+  success: boolean;
+  message: string;
+  data: {
+    user: User;
+  };
+  token: string;
 }
