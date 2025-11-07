@@ -74,7 +74,7 @@ export default function StudentDashboardPage() {
         {/* Student Info and welcome */}
         <div className='space-y-2'>
           <h1 className='text-3xl font-semibold'>
-            Welcome back, {studentName} 👋
+            Welcome back, <span className='capitalize'>{studentName}</span> 👋
           </h1>
           <p className='font-light'>Ready to ace your next test today?</p>
         </div>
@@ -123,7 +123,7 @@ export default function StudentDashboardPage() {
         <div className='space-y-2'>
           <h1 className='text-2xl'>Notifications</h1>
 
-           <NotificationsSection notifications={notifications} />
+          <NotificationsSection notifications={notifications} />
         </div>
 
         {/* Exam Tips */}
