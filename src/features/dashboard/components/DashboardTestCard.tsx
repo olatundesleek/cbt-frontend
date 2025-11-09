@@ -1,23 +1,47 @@
+'use client';
+
 import { PiNotepadFill } from 'react-icons/pi';
 import Button from '@/components/ui/Button';
+import { useTest } from '@/context/TestContext';
+import { useRouter } from 'next/navigation';
 
 interface TestCardProps {
+  id: number;
   testName: string;
   totalQuestions: number;
   durationMinutes: number;
   testStatus: 'active' | 'upcoming';
   progressStatus: 'not-started' | 'in-progress' | 'completed';
-  onStart?: () => void;
+  description?: string;
+  attemptsAllowed: number;
 }
 
 export default function DashboardTestCard({
+  id,
   testName,
   totalQuestions,
   durationMinutes,
   testStatus,
   progressStatus,
-}: //   onStart,
-TestCardProps) {
+  description = '',
+  attemptsAllowed,
+}: TestCardProps) {
+  const { push } = useRouter();
+  const { setSelectedTest } = useTest();
+
+  const handleViewTest = () => {
+    setSelectedTest({
+      id,
+      title: testName,
+      status: testStatus,
+      duration: durationMinutes.toString(),
+      totalQuestions,
+      description,
+      attemptsAllowed,
+    });
+    push(`/tests/${id}/summary`);
+  };
+
   return (
     <div className='w-72 p-4 space-y-4 bg-card container rounded-lg shadow-md border border-neutral-200'>
       <div className='flex gap-2 items-center'>
@@ -52,7 +76,7 @@ TestCardProps) {
         </p>
       </div>
 
-      <Button label='View Test' />
+      <Button label='View Test' onClick={handleViewTest} />
     </div>
   );
 }

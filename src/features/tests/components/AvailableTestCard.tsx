@@ -13,6 +13,7 @@ interface AvailableTestCardProps {
   duration: string;
   totalQuestions: number;
   description: string;
+  attemptsAllowed: number;
 }
 export default function AvailableTestCard({
   id,
@@ -21,6 +22,7 @@ export default function AvailableTestCard({
   duration,
   totalQuestions,
   description,
+  attemptsAllowed,
 }: AvailableTestCardProps) {
   const { push } = useRouter();
 
@@ -47,6 +49,7 @@ export default function AvailableTestCard({
       totalQuestions,
       description,
       id: 1,
+      attemptsAllowed,
     }); // example id
     push(`/tests/${id}/summary`);
   };

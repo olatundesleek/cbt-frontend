@@ -4,19 +4,9 @@ type Props = {
   onSelect: (option: string) => void;
   onMark: () => void;
   marked: boolean;
-  onNext: () => void;
-  onPrev: () => void;
 };
 
-export default function QuestionCard({
-  question,
-  selected,
-  onSelect,
-  onMark,
-  marked,
-  onNext,
-  onPrev,
-}: Props) {
+export default function QuestionCard({ question, selected, onSelect, onMark, marked }: Props) {
   return (
     <div>
       <h2 className='font-medium mb-4'>
@@ -41,26 +31,6 @@ export default function QuestionCard({
         <input type='checkbox' checked={marked} onChange={onMark} />
         Mark for Review
       </label>
-
-      <div className='flex justify-between'>
-        <button
-          onClick={onPrev}
-          className='px-4 py-2 border rounded-lg hover:bg-gray-100'
-        >
-          Previous
-        </button>
-        <div className='flex gap-2'>
-          <button className='px-4 py-2 border rounded-lg hover:bg-gray-100'>
-            Save
-          </button>
-          <button
-            onClick={onNext}
-            className='px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700'
-          >
-            Save & Continue
-          </button>
-        </div>
-      </div>
     </div>
   );
 }

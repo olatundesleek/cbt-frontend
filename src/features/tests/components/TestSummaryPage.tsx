@@ -3,17 +3,36 @@ import Button from '@/components/ui/Button';
 import { useTest } from '@/context/TestContext';
 import { useRouter } from 'next/navigation';
 import { FcTodoList } from 'react-icons/fc';
+import { useStartTestSession } from '../hooks/useStartTestSession';
+import Link from 'next/link';
 
 export default function TestSummaryPage() {
   const { selectedTest } = useTest();
   const { push } = useRouter();
+  const {
+    mutate: startTest,
+    isPending: isStartingTest,
+    data: startTestResolvedData,
+  } = useStartTestSession();
+
+  console.log(startTestResolvedData);
 
   const handleAttemptTest = function () {
-    push(`/attempt/123`);
+    if (!selectedTest?.id) return push('/tests');
+
+    startTest({ testId: selectedTest?.id });
   };
 
   if (!selectedTest)
-    return <p>No test selected. Please go back to the test list.</p>;
+    return (
+      <p>
+        No test selected. Please go{' '}
+        <Link href={'/tests'} className='text-accent'>
+          back
+        </Link>{' '}
+        to the test list.
+      </p>
+    );
 
   return (
     <div className='space-y-4'>
@@ -78,14 +97,18 @@ export default function TestSummaryPage() {
             </li>
             <li className='flex gap-4'>
               <span>Attempts</span>
-              <span>Allowed 1</span>
+              <span>Allowed {selectedTest.attemptsAllowed}</span>
             </li>
           </ul>
         </div>
       </div>
       <div className='w-full flex justify-end'>
         <div>
-          <Button label='Start Test' onClick={() => handleAttemptTest()} />
+          <Button
+            disabled={isStartingTest}
+            label='Start Test'
+            onClick={() => handleAttemptTest()}
+          />
         </div>
       </div>
       <p className='text-xs text-neutral-400 text-center'>

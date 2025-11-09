@@ -68,6 +68,22 @@ export default function StudentDashboardPage() {
   const recentResultsCourses = data?.recentResults?.courses || [];
   const notifications = data?.notifications || [];
 
+  // Transform recent results for table
+  const recentResults = recentResultsCourses.flatMap((courseData) =>
+    courseData.tests.map((test) => ({
+      subject: courseData.course.title,
+      score: `${test.session.score}`,
+      date: new Date(test.session.endedAt).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      }),
+      status: (test.session.score >= 50 ? 'passed' : 'failed') as
+        | 'passed'
+        | 'failed',
+    })),
+  );
+
   return (
     <div className='grid grid-cols-1 md:flex gap-6'>
       <div className='space-y-8 flex-1'>
@@ -86,11 +102,13 @@ export default function StudentDashboardPage() {
               {activeTests.map((test) => (
                 <DashboardTestCard
                   key={test.id}
+                  id={test.id}
                   testName={test.course.title}
                   testStatus='active'
                   totalQuestions={60}
                   durationMinutes={60}
                   progressStatus='not-started'
+                  attemptsAllowed={test.attemptsAllowed || 1}
                 />
               ))}
             </div>
@@ -107,7 +125,7 @@ export default function StudentDashboardPage() {
         <div className='space-y-4'>
           {/* Recent Results */}
           <h1 className='text-2xl'>Recent Results</h1>
-          <RecentResultsTable results={recentResultsCourses} />
+          <RecentResultsTable results={recentResults} />
           <div className='w-full flex justify-center'>
             <button className='rounded p-2 bg-primary-50 text-primary-900 cursor-pointer hover:bg-primary-100 transition-colors'>
               View all results

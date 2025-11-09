@@ -1,14 +1,17 @@
 'use client';
+import Button from '@/components/ui/Button';
 import Timer from './Timer';
 
 export default function TestAttemptSidebar({
   answered,
   total,
   marked,
+  handleSubmit,
 }: {
   answered: number;
   total: number;
   marked: number;
+  handleSubmit: () => void;
 }) {
   // Calculate progress percentage
   const progress = Math.round((answered / total) * 100);
@@ -67,9 +70,9 @@ export default function TestAttemptSidebar({
       </div>
 
       {/* Submit Button */}
-      <button className='w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold'>
-        Submit Exam
-      </button>
+      <div className='mt-10'>
+        <Button label='Submit Exam' onClick={handleSubmit} />
+      </div>
 
       <p className='text-xs text-gray-400 mt-3'>
         Tip: Review your answers before submitting.

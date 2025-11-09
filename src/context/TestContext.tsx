@@ -9,6 +9,7 @@ interface Test {
   totalQuestions: number;
   description: string;
   status: TestStatus;
+  attemptsAllowed: number;
 }
 
 interface TestContextType {

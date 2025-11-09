@@ -5,6 +5,37 @@ export interface Course {
   status: 'passed' | 'failed';
 }
 
+export interface CourseInfo {
+  id: number;
+  title: string;
+  description: string;
+}
+
+export interface CourseStats {
+  totalTests: number;
+  completedTests: number;
+  averageScore: number;
+}
+
+export interface TestSession {
+  score: number;
+  startedAt: string;
+  endedAt: string;
+}
+
+export interface CourseTest {
+  id: number;
+  title: string;
+  type: string;
+  session: TestSession;
+}
+
+export interface CourseWithTests {
+  course: CourseInfo;
+  stats: CourseStats;
+  tests: CourseTest[];
+}
+
 export interface ActiveTestCourse {
   title: string;
 }
@@ -16,6 +47,7 @@ export interface ActiveTest {
   startTime: string;
   endTime: string;
   course: ActiveTestCourse;
+  attemptsAllowed?: number;
 }
 
 export interface StudentClass {
@@ -38,7 +70,7 @@ export interface OverallStats {
 
 export interface RecentResults {
   student: Student;
-  courses: Course[];
+  courses: CourseWithTests[];
   overallStats: OverallStats;
 }
 
