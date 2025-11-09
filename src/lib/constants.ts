@@ -1,4 +1,4 @@
-export type TestStatus = 'active' | 'upcoming' | 'completed';
+export type TestStatus = 'active' | 'scheduled' | 'completed';
 export type ProgressStatus = 'not-started' | 'in-progress' | 'completed';
 
 // export const TEST_STATUS = {

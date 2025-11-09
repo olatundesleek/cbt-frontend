@@ -1,7 +1,9 @@
+import { FetchQuestionsByNumberResponse } from './../../../types/tests.types';
 import { useMutation } from '@tanstack/react-query';
 import { fetchQuestionsByNumber } from '@/services/testsService';
 import { useTestAttempt } from '../context/TestAttemptContext';
 import toast from 'react-hot-toast';
+import { AppError } from '@/types/errors.types';
 
 /**
  * Hook to fetch a pair of questions containing a specific question number.
@@ -17,46 +19,43 @@ export function useFetchQuestionsByNumber(sessionId: number | string) {
     setshowSubmitButton,
   } = useTestAttempt();
 
-  return useMutation({
+  return useMutation<FetchQuestionsByNumberResponse, AppError, number>({
     mutationFn: (questionNumber: number) =>
       fetchQuestionsByNumber(sessionId, questionNumber),
-    onSuccess: (response) => {
+    onSuccess: (response, questionNumber) => {
       if (response.success && response.data) {
-        const {
-          questions,
-          total,
-          answered,
-          finished,
-          showSubmitButton,
-          index,
-        } = response.data;
+        const { nextQuestions, progress, finished, showSubmitButton } =
+          response.data;
+
         // Update question pair
-        setQuestions(questions);
-        // Update progress counts (answeredCount from answered array length)
+        setQuestions(nextQuestions);
+
+        // Update progress counts directly from payload
         setProgress({
-          answeredCount: answered.filter((a) => a.isAnswered).length,
-          total,
+          answeredCount: progress.answeredCount,
+          total: progress.total,
         });
-        // Merge previous answers into answers state
+
+        // Merge any returned selectedOption into the answers map
         const merged: Record<number, string> = { ...answers };
-        answered.forEach((a) => {
-          if (a.previousAnswer) {
-            merged[a.questionId] = a.previousAnswer;
+        nextQuestions.forEach((q) => {
+          if (typeof q.selectedOption === 'string' && q.selectedOption) {
+            merged[q.id] = q.selectedOption;
           }
         });
         setAnswers(merged);
-        // Update submit visibility if finished
+
+        // Update submit visibility
         setshowSubmitButton(showSubmitButton || finished);
-        // Set current page based on 1-based index -> page = Math.floor((index - 1)/2)
-        setCurrentPage(Math.floor((index - 1) / 2));
+
+        // Compute current page from the requested question number
+        if (typeof questionNumber === 'number') {
+          setCurrentPage(Math.ceil((questionNumber - 1) / 2));
+        }
       }
     },
-    onError: (error: unknown) => {
-      const message =
-        typeof error === 'object' && error && 'message' in error
-          ? String((error as { message?: string }).message)
-          : 'Failed to fetch questions';
-      toast.error(message);
+    onError: (err) => {
+      toast.error(err.message);
     },
   });
 }

@@ -9,13 +9,9 @@ import Link from 'next/link';
 export default function TestSummaryPage() {
   const { selectedTest } = useTest();
   const { push } = useRouter();
-  const {
-    mutate: startTest,
-    isPending: isStartingTest,
-    data: startTestResolvedData,
-  } = useStartTestSession();
+  const { mutate: startTest, isPending: isStartingTest } =
+    useStartTestSession();
 
-  console.log(startTestResolvedData);
 
   const handleAttemptTest = function () {
     if (!selectedTest?.id) return push('/tests');

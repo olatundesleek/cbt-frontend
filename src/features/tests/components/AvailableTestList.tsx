@@ -13,14 +13,17 @@ interface AvailableTestListProps {
 export default function AvailableTestList({ tests = [] }: AvailableTestListProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState<
-    'all' | 'active' | 'upcoming' | 'completed'
+    'all' | 'active' | 'scheduled' | 'completed'
   >('all');
 
   // Transform API tests to match component structure
   const transformedTests = tests.map((test) => ({
     id: test.id,
     title: test.course.title,
-    status: test.testState as 'active' | 'upcoming' | 'completed',
+    status: test.testState.toLocaleLowerCase() as
+      | 'active'
+      | 'scheduled'
+      | 'completed',
     duration: test.duration.toString(),
     totalQuestions: test.bank._count.questions,
     description: test.title,
@@ -60,7 +63,7 @@ export default function AvailableTestList({ tests = [] }: AvailableTestListProps
           >
             <option value='all'>All</option>
             <option value='active'>Active</option>
-            <option value='upcoming'>Upcoming</option>
+            <option value='scheduled'>Upcoming</option>
             <option value='completed'>Completed</option>
           </select>
         </div>
@@ -69,7 +72,7 @@ export default function AvailableTestList({ tests = [] }: AvailableTestListProps
       {/* 🧠 Test Lists */}
       {hasTests ? (
         <div className='space-y-8'>
-          {['active', 'upcoming', 'completed'].map((category) => {
+          {['active', 'scheduled', 'completed'].map((category) => {
             const tests = filteredTests.filter((t) => t.status === category);
             if (!tests.length && filter !== 'all') return null;
 

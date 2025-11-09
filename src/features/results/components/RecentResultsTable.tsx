@@ -7,7 +7,7 @@ interface Result {
   subject: string;
   score: string;
   date: string;
-  status: 'passed' | 'failed';
+  status: 'passed' | 'failed' | 'null';
 }
 
 interface RecentResultsTableProps {
@@ -38,14 +38,28 @@ const RecentResultsTable: React.FC<RecentResultsTableProps> = ({ results }) => {
                 <td className='px-6 py-4 text-gray-900 font-medium'>
                   {result.subject}
                 </td>
-                <td className='px-6 py-4 text-gray-600'>{result.score}</td>
+                <td className={`px-6 py-4 text-gray-600 `}>
+                  <span
+                    className={`capitalize px-3 py-1 text-xs font-medium rounded-full ${
+                      result.score === 'unreleased'
+                        ? 'bg-gray-300 text-gray-500'
+                        : parseInt(result.score) >= 50
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-red-100 text-red-700'
+                    }`}
+                  >
+                    {result.score}
+                  </span>
+                </td>
                 <td className='px-6 py-4 text-gray-600'>{result.date}</td>
                 <td className='px-6 py-4'>
                   <span
                     className={`px-3 py-1 text-xs font-medium rounded-full ${
                       result.status === 'passed'
                         ? 'bg-green-100 text-green-700'
-                        : 'bg-red-100 text-red-700'
+                        : result.status === 'failed'
+                        ? 'bg-red-100 text-red-700'
+                        : 'bg-gray-300 text-gray-500'
                     }`}
                   >
                     {result.status.charAt(0).toUpperCase() +

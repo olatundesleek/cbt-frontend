@@ -1,3 +1,5 @@
+import { TestStatus } from '@/lib/constants';
+
 export interface StartTestSessionRequest {
   testId: number | string;
 }
@@ -41,7 +43,7 @@ export interface SubmitAnswersAndGetNextRequest {
   sessionId: number | string;
   answers: Array<{
     questionId: number | string;
-    selectedOption: string;
+    selectedOption?: string; // optional when user didn't choose an answer
   }>;
 }
 
@@ -83,7 +85,7 @@ export type SubmitAnswersAndGetNextResponse =
           test: {
             id: number;
             title: string;
-            type: 'TEST' | 'EXAM';
+            type: 'TEST';
             testState: string;
             showResult: boolean;
             startTime: string;
@@ -112,6 +114,18 @@ export type SubmitAnswersAndGetNextResponse =
           }>;
         };
       };
+    }
+  | {
+      finished: boolean;
+      data: {
+        id: number;
+        testId: number;
+        studentId: number;
+        status: TestStatus;
+        startedAt: string;
+        endedAt: string;
+        type: 'EXAM';
+      };
     };
 
 // Submit multiple answers and get previous questions
@@ -119,7 +133,7 @@ export interface SubmitAnswersAndGetPreviousRequest {
   sessionId: number | string;
   answers: Array<{
     questionId: number | string;
-    selectedOption: string;
+    selectedOption?: string; // optional when user didn't choose an answer
   }>;
 }
 
@@ -233,23 +247,20 @@ export interface FetchQuestionsByNumberResponse {
   success: boolean;
   message: string;
   data: {
-    questions: Array<{
+    nextQuestions: Array<{
       id: number;
       text: string;
       options: string; // may be JSON string or single-quoted array string
       marks: number;
       bankId: number;
       createdAt: string;
+      selectedOption: null | string;
     }>;
-    index: number; // 1-based index of the first question in the pair
-    total: number;
-    answered: Array<{
-      questionId: number;
-      questionNumber: number;
-      isAnswered: boolean;
-      previousAnswer?: string;
-      answeredAt?: string;
-    }>;
+    progress: {
+      answeredCount: number;
+      total: number;
+    };
+
     finished: boolean;
     showSubmitButton: boolean;
   };

@@ -76,19 +76,12 @@ export default function TestAttemptPage() {
   const handleNext = () => {
     // Collect answers for the current page's questions
     const currentQuestionIds = pageQuestions.map((q) => q.id);
-    let currentAnswers = currentQuestionIds
-      .filter((qId) => answers[qId]) // Only include answered questions
-      .map((qId) => ({
-        questionId: qId,
-        selectedOption: answers[qId],
-      }));
 
-    if (currentAnswers.length === 0) {
-      currentAnswers = currentQuestionIds.slice(0, 1).map((qId) => ({
-        questionId: qId,
-        selectedOption: answers[qId] || '',
-      }));
-    }
+    const currentAnswers = currentQuestionIds.map((qId) =>
+      answers[qId]
+        ? { questionId: qId, selectedOption: answers[qId] }
+        : { questionId: qId },
+    );
 
     submitAndNext({
       sessionId: Number(sessionId),
@@ -100,20 +93,11 @@ export default function TestAttemptPage() {
     if (currentPage === 0) return;
     // Collect answers for the current page before going back (persist current edits)
     const currentQuestionIds = pageQuestions.map((q) => q.id);
-    let currentAnswers = currentQuestionIds
-      .filter((qId) => answers[qId])
-      .map((qId) => ({
-        questionId: qId,
-        selectedOption: answers[qId],
-      }));
-
-    // If nothing answered, still send placeholder for first question to satisfy backend structure consistency
-    if (currentAnswers.length === 0) {
-      currentAnswers = currentQuestionIds.slice(0, 1).map((qId) => ({
-        questionId: qId,
-        selectedOption: answers[qId] || '',
-      }));
-    }
+    const currentAnswers = currentQuestionIds.map((qId) =>
+      answers[qId]
+        ? { questionId: qId, selectedOption: answers[qId] }
+        : { questionId: qId },
+    );
 
     submitAndPrevious({
       sessionId: Number(sessionId),
@@ -161,7 +145,9 @@ export default function TestAttemptPage() {
               <button
                 onClick={handlePrev}
                 disabled={
-                  isSubmittingAndGettingNext || isSubmittingAndGettingPrevious
+                  pageQuestions[0].id === 1 ||
+                  isSubmittingAndGettingNext ||
+                  isSubmittingAndGettingPrevious
                 }
                 className='px-4 py-2 border rounded-lg hover:bg-gray-100 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
               >

@@ -6,6 +6,7 @@ import { ToastProvider } from '@/providers/toast-provider';
 import { SocketProvider } from '@/context/SocketContext';
 import { TestAttemptProvider } from '@/features/tests/context/TestAttemptContext';
 import { TestResultProvider } from '@/features/tests/context/TestResultContext';
+import { TestProvider } from '@/context/TestContext';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -27,9 +28,11 @@ export default function RootLayout({
       <body className={`${inter.variable} antialiased`}>
         <QueryProvider>
           <SocketProvider>
-            <TestAttemptProvider>
-              <TestResultProvider>{children}</TestResultProvider>
-            </TestAttemptProvider>
+            <TestProvider>
+              <TestAttemptProvider>
+                <TestResultProvider>{children}</TestResultProvider>
+              </TestAttemptProvider>
+            </TestProvider>
             <ToastProvider />
           </SocketProvider>
         </QueryProvider>

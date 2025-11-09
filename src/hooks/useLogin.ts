@@ -1,4 +1,7 @@
+import { errorLogger } from "@/lib/axios";
 import { authService } from "@/services/authService";
+import { LoginPayload, LoginResponse } from "@/types/auth.types";
+import { AppError } from "@/types/errors.types";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -9,7 +12,7 @@ export default function useLogin() {
     mutate: login,
     isPending: isLoginPending,
     isError: isLoginError,
-  } = useMutation({
+  } = useMutation<LoginResponse, AppError, LoginPayload>({
     mutationFn: authService.login,
     mutationKey: ["login"],
     onSuccess: (data) => {
@@ -27,9 +30,7 @@ export default function useLogin() {
       replace("/admin/dashboard");
     },
 
-    onError: (err) => {
-      toast.error(err.message);
-    },
+    onError: (err) => errorLogger(err),
   });
 
   return { login, isLoginPending, isLoginError };

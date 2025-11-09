@@ -18,16 +18,18 @@ export interface CourseStats {
 }
 
 export interface TestSession {
-  score: number;
+  score: number | 'unrealesed';
   startedAt: string;
   endedAt: string;
+  status: 'failed' | 'passed' | 'null';
 }
 
 export interface CourseTest {
   id: number;
   title: string;
-  type: string;
+  description: string;
   session: TestSession;
+  type: 'EXAM' | 'TEST';
 }
 
 export interface CourseWithTests {
@@ -48,6 +50,10 @@ export interface ActiveTest {
   endTime: string;
   course: ActiveTestCourse;
   attemptsAllowed?: number;
+  duration?: number;
+  totalQuestions?: number;
+  status?: 'active' | 'scheduled' | 'completed';
+  progress?: 'not-started' | 'in-progress';
 }
 
 export interface StudentClass {
@@ -91,6 +97,7 @@ export interface DashboardData {
   totalTests: number;
   activeTests: ActiveTest[];
   recentResults: RecentResults;
+  studentName: string;
   completedTests: number;
   inProgressTests: number;
   totalScore: TotalScore;

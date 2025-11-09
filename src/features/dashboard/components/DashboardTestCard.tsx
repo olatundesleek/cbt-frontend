@@ -7,10 +7,11 @@ import { useRouter } from 'next/navigation';
 
 interface TestCardProps {
   id: number;
-  testName: string;
+  title: string;
+  course: string;
   totalQuestions: number;
   durationMinutes: number;
-  testStatus: 'active' | 'upcoming';
+  testStatus: 'active' | 'scheduled' | 'completed';
   progressStatus: 'not-started' | 'in-progress' | 'completed';
   description?: string;
   attemptsAllowed: number;
@@ -18,7 +19,8 @@ interface TestCardProps {
 
 export default function DashboardTestCard({
   id,
-  testName,
+  title,
+  course,
   totalQuestions,
   durationMinutes,
   testStatus,
@@ -32,7 +34,7 @@ export default function DashboardTestCard({
   const handleViewTest = () => {
     setSelectedTest({
       id,
-      title: testName,
+      title: title,
       status: testStatus,
       duration: durationMinutes.toString(),
       totalQuestions,
@@ -42,17 +44,29 @@ export default function DashboardTestCard({
     push(`/tests/${id}/summary`);
   };
 
+  const statusColorClass =
+    testStatus === 'active'
+      ? 'bg-green-600'
+      : testStatus === 'scheduled'
+      ? 'bg-yellow-500'
+      : 'bg-gray-400';
+
   return (
-    <div className='w-72 p-4 space-y-4 bg-card container rounded-lg shadow-md border border-neutral-200'>
+    <div className='w-full min-w-[350px] max-w-[350px] p-4 space-y-4 bg-card container rounded-lg shadow-md border border-neutral-200'>
       <div className='flex gap-2 items-center'>
         <span className='text-primary-600'>
           <PiNotepadFill size={40} />
         </span>
-        <span>
-          <h1 className='text-lg'>{testName}</h1>
-          <p className='text-neutral-700 font-extralight text-xs'>
-            Total Questions: {totalQuestions}
-          </p>
+        <span className='w-full'>
+          <h1 className='text-lg'>{title}</h1>
+          <span className='flex justify-between w-full'>
+            <p className='text-neutral-700 font-extralight text-xs'>
+              Course: {course}
+            </p>
+            <p className='text-neutral-700 font-extralight text-xs'>
+              Total Questions: {totalQuestions}
+            </p>
+          </span>
         </span>
       </div>
 
@@ -60,8 +74,12 @@ export default function DashboardTestCard({
       <div>
         <div className='flex gap-2 items-center mb-2'>
           <div className='flex gap-2 items-center'>
-            <span className='w-3 h-3 rounded-full bg-green-600'></span>
-            <p className='capitalize'>{testStatus}</p>
+            <span className={`w-3 h-3 rounded-full ${statusColorClass}`}></span>
+            <p className='capitalize'>
+              {testStatus.toLowerCase() === 'scheduled'
+                ? 'upcoming'
+                : testStatus.toLowerCase()}
+            </p>
           </div>
           <span>|</span>
           <p className='text-neutral-700 font-extralight text-xs'>

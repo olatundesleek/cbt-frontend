@@ -3,6 +3,8 @@ import { submitTestSession } from '@/services/testsService';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useTestResult } from '../context/TestResultContext';
+import { SubmitTestSessionResponse } from '@/types/tests.types';
+import { AppError } from '@/types/errors.types';
 
 /**
  * React Query hook to submit/end a test session
@@ -11,7 +13,7 @@ export function useSubmitTestSession(sessionId: string | number) {
   const router = useRouter();
   const { setTestResult } = useTestResult();
 
-  return useMutation({
+  return useMutation<SubmitTestSessionResponse, AppError>({
     mutationFn: () => submitTestSession(sessionId),
     onSuccess: (response) => {
       if (response.success && response.data) {
@@ -21,12 +23,8 @@ export function useSubmitTestSession(sessionId: string | number) {
         router.push(`/tests/ended`);
       }
     },
-    onError: (err: unknown) => {
-      const message =
-        typeof err === 'object' && err && 'message' in err
-          ? String((err as { message?: string }).message)
-          : 'Failed to submit test';
-      toast.error(message);
+    onError: (err) => {
+      toast.error(err.message);
     },
   });
 }

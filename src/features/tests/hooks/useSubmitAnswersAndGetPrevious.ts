@@ -2,6 +2,11 @@ import { useMutation } from '@tanstack/react-query';
 import { submitAnswersAndGetPrevious } from '@/services/testsService';
 import { useTestAttempt } from '../context/TestAttemptContext';
 import toast from 'react-hot-toast';
+import {
+  SubmitAnswersAndGetPreviousRequest,
+  SubmitAnswersAndGetPreviousResponse,
+} from '@/types/tests.types';
+import { AppError } from '@/types/errors.types';
 
 /**
  * React Query hook to submit answers for current page and get previous questions
@@ -16,7 +21,11 @@ export function useSubmitAnswersAndGetPrevious() {
     setshowSubmitButton,
   } = useTestAttempt();
 
-  return useMutation({
+  return useMutation<
+    SubmitAnswersAndGetPreviousResponse,
+    AppError,
+    SubmitAnswersAndGetPreviousRequest
+  >({
     mutationFn: submitAnswersAndGetPrevious,
     onSuccess: (data) => {
       if (data.success && data.data) {
@@ -32,12 +41,8 @@ export function useSubmitAnswersAndGetPrevious() {
         }
       }
     },
-    onError: (error: unknown) => {
-      const message =
-        typeof error === 'object' && error && 'message' in error
-          ? String((error as { message?: string }).message)
-          : 'Failed to load previous questions';
-      toast.error(message);
+    onError: (err) => {
+      toast.error(err.message);
     },
   });
 }

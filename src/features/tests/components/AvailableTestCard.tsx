@@ -32,7 +32,7 @@ export default function AvailableTestCard({
     switch (status) {
       case 'active':
         return 'bg-green-100 text-green-700';
-      case 'upcoming':
+      case 'scheduled':
         return 'bg-yellow-100 text-yellow-700';
       case 'completed':
         return 'bg-gray-100 text-gray-700';
@@ -58,13 +58,13 @@ export default function AvailableTestCard({
     <div className='w-full border border-neutral-200 rounded-lg p-4 space-y-4'>
       <div className='flex justify-between items-start'>
         <div>
-          <h2 className='text-lg font-semibold'>{title}</h2>
-          <p className='text-neutral-500'>{description}</p>
+          <h2 className='text-lg font-semibold'>{description}</h2>
+          <p className='text-neutral-500'>{title}</p>
         </div>
         <span
           className={`capitalize px-4 text-sm rounded-2xl ${computeStatusClass()}`}
         >
-          {status}
+          {status === 'scheduled' ? 'upcoming' : status}
         </span>
       </div>
 

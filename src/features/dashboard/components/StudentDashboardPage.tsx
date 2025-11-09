@@ -62,7 +62,7 @@ export default function StudentDashboardPage() {
 
   // Extract data
   const data = dashboardData?.data;
-  const studentName = data?.recentResults?.student?.name || "Student";
+  const studentName = data?.studentName;
   const activeTests = data?.activeTests || [];
   const hasActiveTests = activeTests.length > 0;
   const recentResultsCourses = data?.recentResults?.courses || [];
@@ -78,10 +78,8 @@ export default function StudentDashboardPage() {
         day: "numeric",
         year: "numeric",
       }),
-      status: (test.session.score >= 50 ? "passed" : "failed") as
-        | "passed"
-        | "failed",
-    }))
+      status: test.session.status || 'null',
+    })),
   );
 
   return (
@@ -103,11 +101,12 @@ export default function StudentDashboardPage() {
                 <DashboardTestCard
                   key={test.id}
                   id={test.id}
-                  testName={test.course.title}
-                  testStatus="active"
-                  totalQuestions={60}
-                  durationMinutes={60}
-                  progressStatus="not-started"
+                  title={test.title}
+                  course={test.course.title}
+                  testStatus={test.status || 'scheduled'}
+                  totalQuestions={test.totalQuestions || 60}
+                  durationMinutes={test.duration || 40}
+                  progressStatus={test.progress || 'not-started'}
                   attemptsAllowed={test.attemptsAllowed || 1}
                 />
               ))}
@@ -155,3 +154,5 @@ export default function StudentDashboardPage() {
     </div>
   );
 }
+
+
