@@ -1,23 +1,21 @@
 'use client';
-import { useEffect, useState } from 'react';
 
-export default function Timer() {
-  const [timeLeft, setTimeLeft] = useState(45 * 60 + 32); // 45 mins 32s
+type TimerProps = {
+  remainingSeconds: number | null;
+};
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTimeLeft((prev) => Math.max(prev - 1, 0));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
+export default function Timer({ remainingSeconds }: TimerProps) {
   const formatTime = (sec: number) => {
     const m = Math.floor(sec / 60);
     const s = sec % 60;
     return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   };
 
-  return <p className='font-semibold'>{formatTime(timeLeft)}</p>;
+  if (remainingSeconds == null) {
+    return <p className='font-semibold'>--:--</p>;
+  }
+
+  return <p className='font-semibold'>{formatTime(remainingSeconds)}</p>;
 }
 
 //progresstimer elapse

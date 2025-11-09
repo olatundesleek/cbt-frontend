@@ -1,7 +1,7 @@
 'use client';
 import { useTestAttempt } from '../context/TestAttemptContext';
 import { useParams } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import TestAttemptSidebar from './TestAttemptSidebar';
 import TestAttemptHeader from './TestAttemptHeader';
 import QuestionCard from './QuestionCard';
@@ -12,6 +12,7 @@ import { useSubmitAnswersAndGetNext } from '../hooks/useSubmitAnswersAndGetNext'
 import { useSubmitAnswersAndGetPrevious } from '../hooks/useSubmitAnswersAndGetPrevious';
 import { useFetchQuestionsByNumber } from '../hooks/useFetchQuestionsByNumber';
 import { parseOptions } from '../utils/parseOptions';
+import { useExamSessionSocket } from '../hooks/useExamSessionSocket';
 
 export default function TestAttemptPage() {
   const { sessionId } = useParams();
@@ -25,11 +26,34 @@ export default function TestAttemptPage() {
   } = useTestAttempt();
 
   const [marked, setMarked] = useState<number[]>([]);
+  // Will initialize after mutation hook declaration below to avoid use-before-declare
+  const [remainingSecondsState, setRemainingSecondsState] = useState<
+    number | null
+  >(null);
+  const hasAutoSubmittedRef = useRef(false);
 
   // Use hooks for mutations
   const { mutate: submitTest, isPending: isSubmitting } = useSubmitTestSession(
     sessionId as string,
   );
+  // Initialize socket AFTER submitTest is defined
+  const { remainingSeconds } = useExamSessionSocket(
+    sessionId ? Number(sessionId) : null,
+    { autoConnect: true, autoJoin: true },
+  );
+  console.log({ remainingSeconds });
+
+  // Mirror remainingSeconds into local state to trigger effect safely
+  useEffect(() => {
+    setRemainingSecondsState(remainingSeconds);
+  }, [remainingSeconds]);
+
+  useEffect(() => {
+    if (remainingSecondsState === 0 && !hasAutoSubmittedRef.current) {
+      hasAutoSubmittedRef.current = true;
+      submitTest();
+    }
+  }, [remainingSecondsState, submitTest]);
   const { mutate: submitAndNext, isPending: isSubmittingAndGettingNext } =
     useSubmitAnswersAndGetNext();
   const {
@@ -139,11 +163,12 @@ export default function TestAttemptPage() {
         answered={Object.keys(answers).length}
         marked={marked.length}
         handleSubmit={handleSubmitTest}
+        remainingSeconds={remainingSeconds}
       />
 
       {/* Main Section */}
       <div className='flex-1 flex flex-col'>
-        <TestAttemptHeader />
+        <TestAttemptHeader remainingSeconds={remainingSeconds} />
         <div className='flex-1 grid grid-cols-[1fr_300px] gap-4 p-6'>
           {/* Question Area */}
           <div className='bg-white p-6 rounded-2xl shadow-sm flex flex-col justify-between'>
