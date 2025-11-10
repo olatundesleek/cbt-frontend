@@ -1,11 +1,10 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import { useForm } from 'react-hook-form';
-import Link from 'next/link';
-import SpinnerMini from '@/components/ui/SpinnerMini';
-import Button from '@/components/ui/Button';
-import useLogin from '@/hooks/useLogin';
+import Image from "next/image";
+import { useForm } from "react-hook-form";
+import SpinnerMini from "@/components/ui/SpinnerMini";
+import Button from "@/components/ui/Button";
+import useLogin from "@/hooks/useLogin";
 
 interface LoginFormData {
   id: string;
@@ -26,55 +25,55 @@ export default function Login() {
   };
 
   return (
-    <div className='min-h-screen w-full flex flex-col lg:flex-row'>
+    <div className="min-h-screen w-full flex flex-col lg:flex-row">
       {/* Image Section - Hidden on mobile */}
-      <div className='hidden lg:flex lg:w-1/2 relative'>
+      <div className="hidden lg:flex lg:w-1/2 relative">
         <Image
-          src='/images/studentloginimage.png'
-          alt='Student Login'
+          src="/images/studentloginimage.png"
+          alt="Login"
           fill
-          className='object-cover'
+          className="object-cover"
           priority
         />
       </div>
 
       {/* Form Section */}
-      <div className='flex-1 flex flex-col justify-center px-6 py-12 lg:px-8 bg-background'>
-        <div className='sm:mx-auto sm:w-full sm:max-w-md'>
-          <h2 className='mt-6 text-center text-3xl font-bold tracking-tight text-foreground'>
-            Student Login
+      <div className="flex-1 flex flex-col justify-center px-6 py-12 lg:px-8 bg-background">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-foreground">
+            Login
           </h2>
-          <p className='mt-2 text-center text-sm text-neutral-600'>
+          <p className="mt-2 text-center text-sm text-neutral-600">
             Welcome back! Please enter your details to continue.
           </p>
         </div>
 
-        <div className='mt-8 sm:mx-auto sm:w-full sm:max-w-md'>
-          <form className='space-y-6' onSubmit={handleSubmit(onSubmit)}>
+        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
             <div>
               <label
-                htmlFor='email'
-                className='block text-sm font-medium text-foreground'
+                htmlFor="email"
+                className="block text-sm font-medium text-foreground"
               >
-                Student ID
+                Username
               </label>
-              <div className='mt-1'>
+              <div className="mt-1">
                 <input
-                  id='id'
-                  type='text'
+                  id="id"
+                  type="text"
                   // autoComplete='off'
-                  placeholder='1a209s97s655'
-                  className='block w-full rounded-md border border-neutral-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 bg-background text-foreground'
-                  {...register('id', {
-                    required: 'ID is required',
+                  placeholder="1a209s97s655"
+                  className="block w-full rounded-md border border-neutral-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 bg-background text-foreground"
+                  {...register("id", {
+                    required: "Username is required",
                     maxLength: {
                       value: 10,
-                      message: 'ID cannot be more than 10 characters',
+                      message: "Username cannot be more than 10 characters",
                     },
                   })}
                 />
                 {errors.id && (
-                  <p className='mt-1 text-sm text-error-500'>
+                  <p className="mt-1 text-sm text-error-500">
                     {errors.id.message}
                   </p>
                 )}
@@ -83,57 +82,57 @@ export default function Login() {
 
             <div>
               <label
-                htmlFor='password'
-                className='block text-sm font-medium text-foreground'
+                htmlFor="password"
+                className="block text-sm font-medium text-foreground"
               >
                 Password
               </label>
-              <div className='mt-1'>
+              <div className="mt-1">
                 <input
-                  id='password'
-                  type='password'
-                  autoComplete='current-password'
+                  id="password"
+                  type="password"
+                  autoComplete="current-password"
                   required
-                  className='block w-full rounded-md border border-neutral-300 px-3 py-2 shadow-sm
+                  className="block w-full rounded-md border border-neutral-300 px-3 py-2 shadow-sm
                            focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500
-                           bg-background text-foreground'
-                  {...register('password', {
-                    required: 'Password is required',
+                           bg-background text-foreground"
+                  {...register("password", {
+                    required: "Password is required",
                     minLength: {
                       value: 6,
-                      message: 'Password must be at least 6 characters',
+                      message: "Password must be at least 6 characters",
                     },
                   })}
                 />
                 {errors.password && (
-                  <p className='mt-1 text-sm text-error-500'>
+                  <p className="mt-1 text-sm text-error-500">
                     {errors.password.message}
                   </p>
                 )}
               </div>
             </div>
 
-            <div className='flex items-center justify-between'>
-              <div className='flex items-center'>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
                 <input
-                  id='remember-me'
-                  name='remember-me'
-                  type='checkbox'
-                  className='h-4 w-4 rounded border-neutral-300 text-primary-600 
-                           focus:ring-primary-500'
+                  id="remember-me"
+                  name="remember-me"
+                  type="checkbox"
+                  className="h-4 w-4 rounded border-neutral-300 text-primary-600 
+                           focus:ring-primary-500"
                 />
                 <label
-                  htmlFor='remember-me'
-                  className='ml-2 block text-sm text-neutral-700'
+                  htmlFor="remember-me"
+                  className="ml-2 block text-sm text-neutral-700"
                 >
                   Remember me
                 </label>
               </div>
 
-              <div className='text-sm'>
+              <div className="text-sm">
                 <a
-                  href='#'
-                  className='font-medium text-primary-600 hover:text-primary-500'
+                  href="#"
+                  className="font-medium text-primary-600 hover:text-primary-500"
                 >
                   Forgot your password?
                 </a>
@@ -141,28 +140,18 @@ export default function Login() {
             </div>
 
             <div>
-              <Button type='submit' disabled={isLoginPending}>
+              <Button type="submit" disabled={isLoginPending}>
                 {isLoginPending ? (
                   <>
-                    <span className=' mr-2'>Signing in</span>
+                    <span className=" mr-2">Signing in</span>
                     <SpinnerMini />
                   </>
                 ) : (
-                  'Sign in'
+                  "Sign in"
                 )}
               </Button>
             </div>
           </form>
-
-          <p className='mt-8 text-center text-sm text-neutral-600'>
-            Not a student?{' '}
-            <Link
-              href='/admin/login'
-              className='font-medium text-primary-600 hover:text-primary-500'
-            >
-              Login as admin/teacher
-            </Link>
-          </p>
         </div>
       </div>
     </div>

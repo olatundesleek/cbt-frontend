@@ -1,29 +1,36 @@
-import { authService } from '@/services/authService';
-import { LoginPayload, LoginResponse } from '@/types/auth.types';
-import { AppError } from '@/types/errors.types';
-import { useMutation } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
-import toast from 'react-hot-toast';
+import { errorLogger } from "@/lib/axios";
+import { authService } from "@/services/authService";
+import { LoginPayload, LoginResponse } from "@/types/auth.types";
+import { AppError } from "@/types/errors.types";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default function useLogin() {
-  const { push } = useRouter();
+  const { replace } = useRouter();
   const {
     mutate: login,
     isPending: isLoginPending,
     isError: isLoginError,
   } = useMutation<LoginResponse, AppError, LoginPayload>({
     mutationFn: authService.login,
-    mutationKey: ['login'],
+    mutationKey: ["login"],
     onSuccess: (data) => {
-      if (data.success) {
+      if (!data.success) return;
+
+      const role = data.data.data.role;
+
+      if (role === "STUDENT") {
         toast.success(data.message);
-        push('/dashboard');
+        replace("/dashboard");
+        return;
       }
+
+      toast.success(data.message);
+      replace("/admin/dashboard");
     },
 
-    onError: (err) => {
-      toast.error((err.details as string).toUpperCase());
-    },
+    onError: (err) => errorLogger(err),
   });
 
   return { login, isLoginPending, isLoginError };

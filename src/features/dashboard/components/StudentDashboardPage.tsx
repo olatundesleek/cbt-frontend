@@ -5,7 +5,7 @@ import ExamTips from '@/features/dashboard/components/ExamTips';
 import NotificationsSection from '@/components/feedback/NotificationSection';
 import RecentResultsTable from '@/features/results/components/RecentResultsTable';
 import DashboardTestCard from '@/features/dashboard/components/DashboardTestCard';
-import useDashboard from '../hooks/useDashboard';
+import useDashboard from '../queries/useDashboard';
 
 export default function StudentDashboardPage() {
   const { dashboardData, dashboardDataError, isDashboardDataLoading } =
@@ -154,5 +154,3 @@ export default function StudentDashboardPage() {
     </div>
   );
 }
-
-

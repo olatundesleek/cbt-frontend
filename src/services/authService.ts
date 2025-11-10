@@ -1,7 +1,12 @@
-import api from '@/lib/axios';
-import internalApi from '@/lib/internalApi';
-import { LoginPayload, LoginResponse, UserRole } from '@/types/auth.types';
-import axios from 'axios';
+import api from "@/lib/axios";
+import internalApi from "@/lib/internalApi";
+import {
+  LoginPayload,
+  LoginResponse,
+  RegisterPayload,
+  UserRole,
+} from "@/types/auth.types";
+import axios from "axios";
 
 export async function proxySetCookie({
   token,
@@ -12,9 +17,9 @@ export async function proxySetCookie({
 }) {
   try {
     const response = await internalApi.post(
-      '/api/auth/set-auth-cookie',
+      "/api/auth/set-auth-cookie",
       { token, role },
-      { withCredentials: true },
+      { withCredentials: true }
     );
 
     const data = response.data;
@@ -25,15 +30,15 @@ export async function proxySetCookie({
 
     return {
       success: false,
-      message: data.message || 'Failed to set cookie',
+      message: data.message || "Failed to set cookie",
       status: response.status,
     };
   } catch (error) {
-    console.error('proxySetCookie error:', error);
+    console.error("proxySetCookie error:", error);
 
     if (axios.isAxiosError(error)) {
       const message =
-        error.response?.data?.message || 'Error setting authentication cookie';
+        error.response?.data?.message || "Error setting authentication cookie";
 
       return {
         success: false,
@@ -45,13 +50,13 @@ export async function proxySetCookie({
     // fallback for non-Axios errors
     return {
       success: false,
-      message: 'An unexpected error occurred',
+      message: "An unexpected error occurred",
       status: 500,
     };
   }
 }
 
-const AUTH_BASE = '/auth';
+const AUTH_BASE = "/auth";
 
 export const authService = {
   login: async (data: LoginPayload): Promise<LoginResponse> => {
@@ -59,16 +64,21 @@ export const authService = {
     const token = response.data?.data?.token;
     const role = response.data.data.data.role;
 
-    if (!token) throw new Error('Token not found in response');
+    if (!token) throw new Error("Token not found in response");
 
     // Call proxy to set cookie in Next.js domain
     const cookieResult = await proxySetCookie({ token, role });
 
     if (!cookieResult.success) {
-      throw new Error(cookieResult.message || 'Failed to set cookie');
+      throw new Error(cookieResult.message || "Failed to set cookie");
     }
 
     // Return login data (for UI state or redirect)
+    return response.data;
+  },
+
+  register: async (payload: RegisterPayload) => {
+    const response = await api.post(`${AUTH_BASE}/register`, payload);
     return response.data;
   },
 

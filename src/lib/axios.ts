@@ -1,11 +1,12 @@
-import axios from 'axios';
-import type { AppError, ApiErrorResponse } from '@/types/errors.types.ts';
+import axios from "axios";
+import type { AppError, ApiErrorResponse } from "@/types/errors.types.ts";
+import toast from "react-hot-toast";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -14,7 +15,7 @@ api.interceptors.response.use(
   (error) => {
     // Preserve 401 special handling if needed
     if (error.response?.status === 401) {
-      console.warn('Unauthorized — redirect to login');
+      console.warn("Unauthorized — redirect to login");
       // window.location.href = '/';
     }
 
@@ -25,29 +26,29 @@ api.interceptors.response.use(
 
     // Try to extract backend-provided message and details if present
     const backendMessage =
-      typeof backendData === 'object' &&
+      typeof backendData === "object" &&
       backendData !== null &&
-      'message' in (backendData as Record<string, unknown>)
-        ? String((backendData as Record<string, unknown>).message ?? '')
+      "message" in (backendData as Record<string, unknown>)
+        ? String((backendData as Record<string, unknown>).message ?? "")
         : undefined;
     const backendDetails =
-      typeof backendData === 'object' &&
+      typeof backendData === "object" &&
       backendData !== null &&
-      'details' in (backendData as Record<string, unknown>)
+      "details" in (backendData as Record<string, unknown>)
         ? (backendData as Record<string, unknown>).details
         : undefined;
 
     // Network and timeout friendly messages
     const message: string =
       backendMessage ||
-      (code === 'ECONNABORTED'
-        ? 'Request timed out. Please try again.'
+      (code === "ECONNABORTED"
+        ? "Request timed out. Please try again."
         : !error.response
-        ? 'Network error. Please check your connection.'
-        : error.message || 'An unexpected error occurred.');
+        ? "Network error. Please check your connection."
+        : error.message || "An unexpected error occurred.");
 
     const appError = new Error(message) as AppError;
-    appError.name = 'AppError';
+    appError.name = "AppError";
     appError.status = status;
     appError.code = code;
     appError.details = (backendDetails ?? backendData ?? null) as
@@ -56,7 +57,27 @@ api.interceptors.response.use(
     appError.isAxiosError = Boolean(error.isAxiosError);
 
     return Promise.reject(appError);
-  },
+  }
 );
 
 export default api;
+
+export const errorLogger = (error: unknown) => {
+  const defaultErrorMessage = "Server Error. Please try again";
+
+  if (typeof error === "string") return toast.error(error);
+
+  if (!axios.isAxiosError(error)) return toast.error(defaultErrorMessage);
+
+  if (error.response?.data) {
+    const responseError =
+      error.response?.data.message ||
+      error.response?.data.details ||
+      error.response?.data.error ||
+      defaultErrorMessage;
+
+    return toast.error(responseError);
+  }
+
+  return toast.error(defaultErrorMessage);
+};
