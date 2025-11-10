@@ -52,7 +52,7 @@ export default function DashboardTestCard({
       : 'bg-gray-400';
 
   return (
-    <div className='w-full min-w-[350px] max-w-[350px] p-4 space-y-4 bg-card container rounded-lg shadow-md border border-neutral-200'>
+    <div className='w-full min-w-[350px] p-4 space-y-4 bg-card container rounded-lg shadow-md border border-neutral-200'>
       <div className='flex gap-2 items-center'>
         <span className='text-primary-600'>
           <PiNotepadFill size={40} />

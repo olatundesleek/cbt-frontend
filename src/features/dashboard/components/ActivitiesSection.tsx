@@ -6,7 +6,7 @@ interface Activity {
   time: string;
 }
 
-const activities: Activity[] = [
+const dummyActivities: Activity[] = [
   {
     id: 1,
     message: 'You completed Database Systems test.',
@@ -25,7 +25,11 @@ const activities: Activity[] = [
   { id: 4, message: 'You viewed Networking test results.', time: '4 days ago' },
 ];
 
-export default function ActivitiesSection() {
+export default function ActivitiesSection({
+  activities = dummyActivities,
+}: {
+  activities?: Activity[];
+}) {
   return (
     <section className='p-6 bg-white rounded-xl shadow-sm border border-gray-100 space-y-4'>
       <h2 className='text-lg font-semibold text-gray-700 border-b pb-2'>

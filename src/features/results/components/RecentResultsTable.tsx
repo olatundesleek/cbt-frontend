@@ -41,7 +41,8 @@ const RecentResultsTable: React.FC<RecentResultsTableProps> = ({ results }) => {
                 <td className={`px-6 py-4 text-gray-600 `}>
                   <span
                     className={`capitalize px-3 py-1 text-xs font-medium rounded-full ${
-                      result.score === 'unreleased'
+                      result.score.toLowerCase() === 'unreleased' ||
+                      result.score.toLowerCase() === 'null'
                         ? 'bg-gray-300 text-gray-500'
                         : parseInt(result.score) >= 50
                         ? 'bg-green-100 text-green-700'
@@ -55,9 +56,9 @@ const RecentResultsTable: React.FC<RecentResultsTableProps> = ({ results }) => {
                 <td className='px-6 py-4'>
                   <span
                     className={`px-3 py-1 text-xs font-medium rounded-full ${
-                      result.status === 'passed'
+                      result.status.toLowerCase() === 'passed'
                         ? 'bg-green-100 text-green-700'
-                        : result.status === 'failed'
+                        : result.status.toLowerCase() === 'failed'
                         ? 'bg-red-100 text-red-700'
                         : 'bg-gray-300 text-gray-500'
                     }`}
