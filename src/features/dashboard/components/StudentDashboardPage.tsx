@@ -96,14 +96,14 @@ export default function StudentDashboardPage() {
         <div className='space-y-4'>
           <h1 className='text-2xl'>Active and upcoming tests</h1>
           {hasActiveTests ? (
-            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
+            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4'>
               {activeTests.map((test) => (
                 <DashboardTestCard
                   key={test.id}
                   id={test.id}
                   title={test.title}
                   course={test.course.title}
-                  testStatus={test.status || 'scheduled'}
+                  testStatus={test.testState || 'scheduled'}
                   totalQuestions={test.totalQuestions || 60}
                   durationMinutes={test.duration || 40}
                   progressStatus={test.progress || 'not-started'}

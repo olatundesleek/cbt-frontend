@@ -1,10 +1,52 @@
+import Image from 'next/image';
 import { FaUser } from 'react-icons/fa';
 
-export default function ProfilePic() {
+interface ProfilePicProps {
+  imageUrl?: string;
+  name?: string;
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+  className?: string;
+}
+
+/**
+ * Reusable ProfilePic Component
+ * Displays a profile picture or fallback icon
+ */
+export default function ProfilePic({
+  imageUrl,
+  name = 'User',
+  size = 'md',
+  className = '',
+}: ProfilePicProps) {
+  const sizeClasses = {
+    sm: 'w-8 h-8',
+    md: 'w-12 h-12',
+    lg: 'w-20 h-20',
+    xl: 'w-32 h-32',
+  };
+
+  const iconSizes = {
+    sm: 16,
+    md: 24,
+    lg: 32,
+    xl: 48,
+  };
+
   return (
-    <div className='rounded-full p-2 border border-neutral-500 bg-white shadow-md text-primary-900'>
-      <FaUser size={24} />
-      {/* <PiStudentBold size={ 48} /> */}
+    <div
+      className={`
+        relative rounded-full overflow-hidden 
+        bg-linear-to-br from-primary-400 to-primary-600 
+        flex items-center justify-center shadow-md
+        ${sizeClasses[size]}
+        ${className}
+      `}
+    >
+      {imageUrl ? (
+        <Image src={imageUrl} alt={name} fill className='object-cover' />
+      ) : (
+        <FaUser className='text-white' size={iconSizes[size]} />
+      )}
     </div>
   );
 }

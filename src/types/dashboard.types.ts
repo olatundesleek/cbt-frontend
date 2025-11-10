@@ -52,7 +52,7 @@ export interface ActiveTest {
   attemptsAllowed?: number;
   duration?: number;
   totalQuestions?: number;
-  status?: 'active' | 'scheduled' | 'completed';
+  testState?: 'active' | 'scheduled' | 'completed';
   progress?: 'not-started' | 'in-progress';
 }
 
