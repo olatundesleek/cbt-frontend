@@ -20,8 +20,8 @@ export async function POST(req: NextRequest) {
 
     response.cookies.set('token', token, {
       httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
       path: '/',
     });
 
