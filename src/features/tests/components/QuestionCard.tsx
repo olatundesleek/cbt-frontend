@@ -4,13 +4,21 @@ type Props = {
   onSelect: (option: string) => void;
   onMark: () => void;
   marked: boolean;
+  displayNumber: number;
 };
 
-export default function QuestionCard({ question, selected, onSelect, onMark, marked }: Props) {
+export default function QuestionCard({
+  question,
+  displayNumber,
+  selected,
+  onSelect,
+  onMark,
+  marked,
+}: Props) {
   return (
     <div>
       <h2 className='font-medium mb-4'>
-        Q{question.id}. {question.question}
+        Q{displayNumber}. {question.question}
       </h2>
       <div className='space-y-2 mb-4'>
         {question.options.map((opt) => (

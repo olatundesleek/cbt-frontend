@@ -161,16 +161,9 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   const [socketInstance, setSocketInstance] = useState<Socket | null>(null);
 
   const connect = useCallback(() => {
-    console.log('🔌 connect() called', {
-      alreadyConnected: socketRef.current?.connected,
-    });
-    if (socketRef.current?.connected) {
-      console.log('✅ Already connected');
-      return;
-    }
+    if (socketRef.current?.connected) return;
 
     try {
-      console.log('⚡ Initializing socket...');
       const newSocket = initializeSocket();
       socketRef.current = newSocket;
 
@@ -178,20 +171,13 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
 
       // Attach basic lifecycle listeners
       newSocket.on('connect', () => {
-        console.log('✅ Socket connected!', newSocket.id);
         setIsConnected(true);
       });
       newSocket.on('disconnect', () => {
-        console.log('❌ Socket disconnected');
         setIsConnected(false);
       });
       newSocket.on('connect_error', (err) => {
         console.error('❌ Socket connection error:', err.message);
-      });
-
-      // Debug: Log ALL incoming events
-      newSocket.onAny((eventName, ...args) => {
-        console.log('📥 Received event:', eventName, args);
       });
     } catch (error) {
       console.error('❌ Failed to connect socket:', error);
@@ -205,7 +191,6 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const emit: SocketContextType['emit'] = useCallback((event, payload) => {
-    console.log('📤 Emitting event:', event, payload);
     socketRef.current?.emit(event, payload);
   }, []);
 

@@ -1,6 +1,6 @@
 'use client';
 import { useTestAttempt } from '../context/TestAttemptContext';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import TestAttemptSidebar from './TestAttemptSidebar';
 import TestAttemptHeader from './TestAttemptHeader';
@@ -13,17 +13,32 @@ import { useSubmitAnswersAndGetPrevious } from '../hooks/useSubmitAnswersAndGetP
 import { useFetchQuestionsByNumber } from '../hooks/useFetchQuestionsByNumber';
 import { parseOptions } from '../utils/parseOptions';
 import { useExamSessionSocket } from '../hooks/useExamSessionSocket';
+import { useStartTestSession } from '../hooks/useStartTestSession';
 
 export default function TestAttemptPage() {
+  const searchParams = useSearchParams();
+  const testId = searchParams.get('testId');
   const { sessionId } = useParams();
+  const { push } = useRouter();
   const {
     questions,
     progress,
+    student,
+    course,
     currentPage,
     answers,
     showSubmitButton,
     updateAnswer,
   } = useTestAttempt();
+
+  const { mutate: startTest, isPending: isStartingTest } =
+    useStartTestSession();
+
+  useEffect(() => {
+    if (questions.length > 0) return;
+    if (!testId) return push('/tests');
+    startTest({ testId: testId?.toString() });
+  }, [questions, sessionId, push, startTest, testId]);
 
   const [marked, setMarked] = useState<number[]>([]);
   // Will initialize after mutation hook declaration below to avoid use-before-declare
@@ -41,7 +56,6 @@ export default function TestAttemptPage() {
     sessionId ? Number(sessionId) : null,
     { autoConnect: true, autoJoin: true },
   );
-  console.log({ remainingSeconds });
 
   // Mirror remainingSeconds into local state to trigger effect safely
   useEffect(() => {
@@ -65,7 +79,7 @@ export default function TestAttemptPage() {
   );
 
   // Handle loading state - if no questions yet, show loading
-  if (!questions || questions.length === 0) {
+  if (!questions || questions.length === 0 || isStartingTest) {
     return (
       <div className='flex items-center justify-center h-screen'>
         <Spinner />
@@ -143,27 +157,33 @@ export default function TestAttemptPage() {
     <div className='flex h-screen bg-gray-50'>
       {/* Sidebar */}
       <TestAttemptSidebar
+        studentName={`${student?.firstname} ${student?.lastname}`}
         total={progress?.total || 0}
         answered={Object.keys(answers).length}
         marked={marked.length}
         handleSubmit={handleSubmitTest}
         remainingSeconds={remainingSeconds}
+        course={course}
       />
 
       {/* Main Section */}
       <div className='flex-1 flex flex-col'>
-        <TestAttemptHeader remainingSeconds={remainingSeconds} />
+        <TestAttemptHeader
+          remainingSeconds={remainingSeconds}
+          studentName={`${student?.firstname} ${student?.lastname}`}
+        />
         <div className='flex-1 grid grid-cols-[1fr_300px] gap-4 p-6'>
           {/* Question Area */}
           <div className='bg-white p-6 rounded-2xl shadow-sm flex flex-col justify-between'>
             {pageQuestions.map((q) => (
               <QuestionCard
                 key={q.id}
+                displayNumber={q.displayNumber}
                 question={transformQuestion(q)}
                 selected={answers[q.id]}
                 onSelect={(option) => handleSelect(q.id, option)}
-                onMark={() => handleMark(q.id)}
-                marked={marked.includes(q.id)}
+                onMark={() => handleMark(q.displayNumber)}
+                marked={marked.includes(q.displayNumber)}
               />
             ))}
             <div className='flex justify-between'>
@@ -193,7 +213,7 @@ export default function TestAttemptPage() {
                   disabled={isSubmittingAndGettingNext}
                   className='px-4 py-2 bg-primary-700 text-white rounded-lg hover:bg-primary-800 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
                 >
-                  {isSubmittingAndGettingNext ? 'Saving...' : 'Next'}
+                  {isSubmittingAndGettingNext ? 'Saving...' : 'Save and Next'}
                 </button>
               )}
             </div>

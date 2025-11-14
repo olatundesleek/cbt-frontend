@@ -60,7 +60,6 @@ export default function TestSummaryPage() {
           <ol className='list-decimal px-4 space-y-2'>
             <li>The test contains {selectedTest.totalQuestions} questions.</li>
             <li>Duration: {selectedTest.duration} minutes.</li>
-            <li>Each questions carries two marks.</li>
             <li>Once started you cannot pause or restart.</li>
             <li>Click NEXT to move to the next question.</li>
             <li>Your answers are auto-saved.</li>
@@ -75,9 +74,7 @@ export default function TestSummaryPage() {
           <ul className='space-y-2'>
             <li className='flex gap-4'>
               <span>Subject</span>
-              <span className='capitalize'>
-                {selectedTest.title.toLowerCase().replaceAll('test', '')}
-              </span>
+              <span className='capitalize'>{selectedTest.title}</span>
             </li>
             <li className='flex gap-4'>
               <span>Questions</span>

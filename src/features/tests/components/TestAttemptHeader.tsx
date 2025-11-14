@@ -3,15 +3,17 @@ import Timer from './Timer';
 
 export default function TestAttemptHeader({
   remainingSeconds,
+  studentName,
 }: {
   remainingSeconds: number | null;
+  studentName: string;
 }) {
   return (
     <header className='flex justify-between items-center px-6 py-3 bg-white border-b border-neutral-200'>
       <Logo />
       <div className='flex items-center gap-4'>
         <Timer remainingSeconds={remainingSeconds} />
-        <span className='font-medium'>John Doe</span>
+        <span className='font-medium capitalize'>{studentName || '----'}</span>
       </div>
     </header>
   );

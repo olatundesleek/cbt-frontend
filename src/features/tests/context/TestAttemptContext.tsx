@@ -7,6 +7,8 @@ interface TestAttemptContextType {
   session: StartTestSessionResponse['data']['session'] | null;
   questions: StartTestSessionResponse['data']['questions'];
   progress: StartTestSessionResponse['data']['progress'] | null;
+  student: StartTestSessionResponse['data']['student'] | null;
+  course: StartTestSessionResponse['data']['course'] | null;
   currentPage: number;
   totalPages: number;
   answers: Record<number, string>;
@@ -15,6 +17,8 @@ interface TestAttemptContextType {
     questions: StartTestSessionResponse['data']['questions'],
   ) => void;
   setProgress: (progress: StartTestSessionResponse['data']['progress']) => void;
+  setStudent: (student: StartTestSessionResponse['data']['student']) => void;
+  setCourse: (course: StartTestSessionResponse['data']['course']) => void;
   setCurrentPage: (page: number) => void;
   setAnswers: (answers: Record<number, string>) => void;
   updateAnswer: (questionId: number, selectedOption: string) => void;
@@ -38,6 +42,9 @@ export const TestAttemptProvider = ({
   >([]);
   const [progress, setProgress] =
     useState<TestAttemptContextType['progress']>(null);
+  const [student, setStudent] =
+    useState<TestAttemptContextType['student']>(null);
+  const [course, setCourse] = useState<TestAttemptContextType['course']>(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [showSubmitButton, setshowSubmitButton] = useState<boolean | null>(
@@ -59,6 +66,8 @@ export const TestAttemptProvider = ({
         session,
         questions,
         progress,
+        student,
+        course,
         currentPage,
         totalPages,
         answers,
@@ -66,6 +75,8 @@ export const TestAttemptProvider = ({
         setSession,
         setQuestions,
         setProgress,
+        setStudent,
+        setCourse,
         setCurrentPage,
         setAnswers,
         updateAnswer,

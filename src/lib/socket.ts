@@ -13,7 +13,6 @@ export const initializeSocket = (): Socket => {
   const socketUrl =
     process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:4000';
 
-  console.log('🔌 Initializing socket with URL:', socketUrl);
 
   socket = io(socketUrl, {
     // transports: ['websocket', 'polling'],
@@ -33,10 +32,6 @@ export const initializeSocket = (): Socket => {
     console.error('❌ Socket.IO connection error:', error);
   });
 
-  // Log all incoming events for debugging
-  socket.onAny((event, ...args) => {
-    console.log('📥 Socket event received:', event, args);
-  });
 
   return socket;
 };

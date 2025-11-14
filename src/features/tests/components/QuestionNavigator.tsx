@@ -13,6 +13,7 @@ export default function QuestionNavigator({
 }) {
   const numbers = Array.from({ length: total }, (_, i) => i + 1);
 
+
   return (
     <div className='bg-white rounded-2xl p-4 shadow-sm h-[85vh] overflow-scroll'>
       <div className='grid grid-cols-5 gap-2 mb-2'>
@@ -30,7 +31,7 @@ export default function QuestionNavigator({
             <button
               key={num}
               onClick={() => onSelect(num)}
-              className={`rounded-lg text-sm w-10 h-10 ${bg} hover:bg-blue-50`}
+              className={`rounded-lg text-sm w-10 h-10 ${bg} hover:bg-blue-50 cursor-pointer`}
             >
               {num}
             </button>

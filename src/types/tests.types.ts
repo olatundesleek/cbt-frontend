@@ -25,13 +25,28 @@ export interface StartTestSessionResponse {
       marks: number;
       bankId: number;
       createdAt: string;
+      displayNumber: number;
     }>;
     progress: {
       answeredCount: number;
       total: number;
     };
+    student: {
+      id: number;
+      username: string;
+      firstname: string;
+      lastname: string;
+    };
+    course: {
+      courseTitle: string;
+      testTitle: string;
+    };
   };
 }
+/*{
+    "courseTitle": "CHM100",
+    "testTitle": "Chemistry Practice Test"
+} */
 
 export interface SubmitAnswerRequest {
   questionId: number | string;
@@ -61,6 +76,7 @@ export type SubmitAnswersAndGetNextResponse =
           marks: number;
           bankId: number;
           createdAt: string;
+          displayNumber: number;
         }>;
         progress: {
           answeredCount: number;
@@ -150,6 +166,7 @@ export interface SubmitAnswersAndGetPreviousResponse {
       marks: number;
       bankId: number;
       createdAt: string;
+      displayNumber: number;
     }>;
     progress: {
       answeredCount: number;
@@ -257,6 +274,7 @@ export interface FetchQuestionsByNumberResponse {
       bankId: number;
       createdAt: string;
       selectedOption: null | string;
+      displayNumber: number;
     }>;
     progress: {
       answeredCount: number;

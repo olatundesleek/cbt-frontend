@@ -6,6 +6,7 @@ import NotificationsSection from '@/components/feedback/NotificationSection';
 import ResultsTable from '@/features/results/components/ResultsTable';
 import DashboardTestCard from '@/features/dashboard/components/DashboardTestCard';
 import useDashboard from '../queries/useDashboard';
+import Link from 'next/link';
 
 export default function StudentDashboardPage() {
   const { dashboardData, dashboardDataError, isDashboardDataLoading } =
@@ -47,7 +48,7 @@ export default function StudentDashboardPage() {
             Failed to load dashboard
           </h3>
           <p className='text-neutral-600'>
-            {dashboardDataError.message || 'Something went wrong'}
+            {dashboardDataError.details || 'Something went wrong'}
           </p>
           <button
             onClick={() => window.location.reload()}
@@ -105,7 +106,7 @@ export default function StudentDashboardPage() {
         </div>
 
         <div className='space-y-4'>
-          <h1 className='text-2xl'>Active and upcoming tests</h1>
+          <h1 className='text-2xl'>Active Tests</h1>
           {hasActiveTests ? (
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4'>
               {activeTests.map((test) => (
@@ -138,9 +139,12 @@ export default function StudentDashboardPage() {
           <h1 className='text-2xl'>Recent Results</h1>
           <ResultsTable results={recentResults} />
           <div className='w-full flex justify-center'>
-            <button className='rounded p-2 bg-primary-50 text-primary-900 cursor-pointer hover:bg-primary-100 transition-colors'>
+            <Link
+              href={'/results'}
+              className='rounded p-2 bg-primary-50 text-primary-900 cursor-pointer hover:bg-primary-100 transition-colors'
+            >
               View all results
-            </button>
+            </Link>
           </div>
         </div>
       </div>

@@ -19,7 +19,7 @@ interface UseExamSessionSocketResult extends TimerState {
   leave: () => void;
   finish: () => void;
   isJoined: boolean;
-  lastEventTs?: number; // epoch ms for last timer event
+  lastEventTs?: number;
 }
 
 /**
@@ -52,27 +52,17 @@ export function useExamSessionSocket(
 
   // Connect on demand
   useEffect(() => {
-    console.log('🔌 Connection check:', { autoConnect, isConnected });
     if (autoConnect && !isConnected) {
-      console.log('⚡ Calling connect()...');
       connect();
     }
   }, [autoConnect, isConnected, connect]);
 
   const join = useCallback(() => {
-    console.log('🔍 join() called', {
-      sessionId: sessionIdRef.current,
-      isConnected,
-      hasSocket: !!emit,
-    });
     if (!sessionIdRef.current || !isConnected) {
       console.warn('⚠️ Cannot join - missing sessionId or not connected');
       return;
     }
-    console.log(
-      '🚀 Emitting join_session event with sessionId:',
-      sessionIdRef.current,
-    );
+
     // Backend expects a single argument: sessionId (not an object)
     emit('join_session', sessionIdRef.current);
   }, [emit, isConnected]);
@@ -145,15 +135,12 @@ export function useExamSessionSocket(
     };
 
     on('test_started', (payload) => {
-      console.log('✅ Received test_started:', payload);
       handleTestStarted(payload);
     });
     on('time_left', (payload) => {
-      console.log('⏰ Received time_left:', payload);
       handleTimeLeft(payload);
     });
     on('time_up', (payload) => {
-      console.log('⏱️ Received time_up:', payload);
       handleTimeUp(payload);
     });
     return () => {
@@ -165,19 +152,10 @@ export function useExamSessionSocket(
 
   // Auto join when sessionId available
   useEffect(() => {
-    console.log('🤔 Auto-join check:', {
-      autoJoin,
-      sessionId,
-      isConnected,
-      isJoined,
-    });
     if (autoJoin && sessionId && isConnected && !isJoined) {
-      console.log('✅ Auto-joining now...');
       join();
     }
   }, [autoJoin, sessionId, isConnected, isJoined, join]);
-
-  console.log({ timer });
 
   return {
     ...timer,
