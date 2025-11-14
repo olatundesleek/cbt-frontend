@@ -2,7 +2,7 @@ export interface Course {
   subject: string;
   score: string;
   date: string;
-  status: 'passed' | 'failed';
+  status: "passed" | "failed";
 }
 
 export interface CourseInfo {
@@ -18,10 +18,10 @@ export interface CourseStats {
 }
 
 export interface TestSession {
-  score: number | 'unrealesed';
+  score: number | "unrealesed";
   startedAt: string;
   endedAt: string;
-  status: 'failed' | 'passed' | 'null';
+  status: "failed" | "passed" | "null";
 }
 
 export interface CourseTest {
@@ -29,7 +29,7 @@ export interface CourseTest {
   title: string;
   description: string;
   session: TestSession;
-  type: 'EXAM' | 'TEST';
+  type: "EXAM" | "TEST";
 }
 
 export interface CourseWithTests {
@@ -52,8 +52,8 @@ export interface ActiveTest {
   attemptsAllowed?: number;
   duration?: number;
   totalQuestions?: number;
-  testState?: 'active' | 'scheduled' | 'completed';
-  progress?: 'not-started' | 'in-progress' | null;
+  testState?: "active" | "scheduled" | "completed";
+  progress?: "not-started" | "in-progress" | null;
   sessionId: number | null;
 }
 
@@ -103,10 +103,49 @@ export interface DashboardData {
   inProgressTests: number;
   totalScore: TotalScore;
   notifications?: Notification[];
+
+  // for admins
+  classCount: number;
+  courseCount: number;
+  studentCount: number;
+  teacherCount: number;
+  testCount: number;
+  adminName: {
+    firstname: string;
+    lastname: string;
+  };
 }
 
 export interface DashboardResponse {
   success: boolean;
   message: string;
   data: DashboardData;
+}
+
+interface Courses {
+  createdAt: string;
+  description: string;
+  id: number;
+  teacherId: number;
+  title: string;
+}
+export interface AllClassesResponse {
+  teacherId: number;
+  createdAt: string;
+  id: number;
+  className: string;
+  teacher: {
+    firstname: string;
+    id: number;
+    lastname: string;
+  };
+  courses: Courses[];
+}
+
+export interface AllTeachersResponse {
+  firstname: string;
+  id: number;
+  lastname: string;
+  courses: Courses[];
+  teacherOf: { id: number; className: string }[];
 }

@@ -9,8 +9,11 @@ import useDashboard from '../queries/useDashboard';
 import Link from 'next/link';
 
 export default function StudentDashboardPage() {
-  const { dashboardData, dashboardDataError, isDashboardDataLoading } =
-    useDashboard();
+  const {
+    data: dashboardData,
+    error: dashboardDataError,
+    isLoading: isDashboardDataLoading,
+  } = useDashboard();
 
   // Loading state
   if (isDashboardDataLoading) {
