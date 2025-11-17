@@ -1,12 +1,12 @@
-import { dashboardServices } from '@/services/dashboardService';
-import { DashboardResponse } from '@/types/dashboard.types';
-import { AppError } from '@/types/errors.types';
-import { useQuery } from '@tanstack/react-query';
+import { dashboardServices } from "@/services/dashboardService";
+import { DashboardResponse } from "@/types/dashboard.types";
+import { AppError } from "@/types/errors.types";
+import { useQuery } from "@tanstack/react-query";
 
 export default function useDashboard() {
   const queryResponse = useQuery<DashboardResponse, AppError>({
     queryFn: dashboardServices.getDashboard,
-    queryKey: ['dashboard'],
+    queryKey: ["dashboard"],
   });
 
   return queryResponse;
@@ -15,7 +15,7 @@ export default function useDashboard() {
 export const useGetClasses = () => {
   const queryResponse = useQuery({
     queryFn: dashboardServices.getAllClasses,
-    queryKey: ['classes'],
+    queryKey: ["classes"],
   });
 
   return queryResponse;
@@ -24,7 +24,25 @@ export const useGetClasses = () => {
 export const useGetTeachers = () => {
   const queryResponse = useQuery({
     queryFn: dashboardServices.getAllTeacher,
-    queryKey: ['teachers'],
+    queryKey: ["teachers"],
+  });
+
+  return queryResponse;
+};
+
+export const useGetCourses = () => {
+  const queryResponse = useQuery({
+    queryFn: dashboardServices.getAllCourses,
+    queryKey: ["courses"],
+  });
+
+  return queryResponse;
+};
+
+export const useGetQuestionBank = () => {
+  const queryResponse = useQuery({
+    queryFn: dashboardServices.getAllQuestionBank,
+    queryKey: ["questionBanks"],
   });
 
   return queryResponse;

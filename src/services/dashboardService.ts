@@ -1,6 +1,7 @@
 import api from "@/lib/axios";
 import {
   AllClassesResponse,
+  AllCourses,
   AllTeachersResponse,
   DashboardResponse,
 } from "@/types/dashboard.types";
@@ -20,5 +21,15 @@ export const dashboardServices = {
   getAllTeacher: async (): Promise<AllTeachersResponse[]> => {
     const response = await api.get("/teachers");
     return response.data.data;
+  },
+
+  getAllCourses: async (): Promise<AllCourses[]> => {
+    const response = await api.get("/courses");
+    return response.data;
+  },
+
+  getAllQuestionBank: async (): Promise<[]> => {
+    const response = await api.get("/questionBanks");
+    return response.data;
   },
 };

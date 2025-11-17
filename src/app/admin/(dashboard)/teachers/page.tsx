@@ -12,9 +12,8 @@ import { authService } from "@/services/authService";
 import { UserRole } from "@/types/auth.types";
 import toast from "react-hot-toast";
 import { errorLogger } from "@/lib/axios";
-import { useGetTeachers } from "@/features/dashboard/queries/useDashboard";
 import { queryClient } from "@/providers/query-provider";
-import React from "react";
+import { useGetTeachers } from "@/features/dashboard/queries/useDashboard";
 
 const schema = Yup.object({
   firstName: Yup.string().required("First Name is required"),

@@ -149,3 +149,12 @@ export interface AllTeachersResponse {
   courses: Courses[];
   teacherOf: { id: number; className: string }[];
 }
+
+export interface AllCourses {
+  id: 1;
+  title: string;
+  createdAt: string;
+  teacherId: number;
+  description: string;
+  teacher: Pick<AllTeachersResponse, "firstname" | "lastname" | "id">;
+}
