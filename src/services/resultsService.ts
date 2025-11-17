@@ -14,12 +14,18 @@ export const resultsServices = {
       response.data) as StudentResultCoursesResponse;
   },
 
-  downloadStudentResultCourses:
-    async (): Promise<StudentResultDownloadResponse> => {
-      const response = await api.get('/results/student/courses/download', {
-        withCredentials: true,
-      });
+  // downloadStudentResultCourses:
+  //   async (): Promise<StudentResultDownloadResponse> => {
+  //     const response = await api.get('/results/student/courses/download', {
+  //       withCredentials: true,
+  //     });
 
-      return response.data;
-    },
+  //     return response.data;
+  //   },
+  downloadStudentResultCourses: async (format: 'pdf' | 'excel') => {
+    window.open(
+      `${process.env.NEXT_PUBLIC_API_URL}/results/student/courses/download?format=${format}`,
+      '_blank',
+    );
+  },
 };

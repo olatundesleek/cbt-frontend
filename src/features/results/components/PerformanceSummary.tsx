@@ -19,6 +19,7 @@ const PerformanceSummary: React.FC<PerformanceSummaryProps> = ({
   const { mutate: downloadResult, isPending: isDownloadingResults } =
     useDownloadResult();
   const [animatedScore, setAnimatedScore] = useState(0);
+  const [format, setFormat] = useState<'pdf' | 'excel'>('pdf');
 
   useEffect(() => {
     // Trigger animation when averageScore changes
@@ -30,7 +31,7 @@ const PerformanceSummary: React.FC<PerformanceSummaryProps> = ({
   }, [averageScore]);
 
   const handleDownloadResult = function () {
-    downloadResult();
+    downloadResult(format);
   };
 
   return (
@@ -74,13 +75,27 @@ const PerformanceSummary: React.FC<PerformanceSummaryProps> = ({
           <span>{totalTests}</span>
         </div>
       </div>
+      <select
+        className='border border-neutral-300 py-1.5 px-2 rounded text-neutral-700 mb-4 w-full text-sm'
+        title='Download format'
+        name='format'
+        id='format'
+        value={format}
+        onChange={(e) => setFormat(e.target.value as 'pdf' | 'excel')}
+      >
+        <option value='' selected disabled>
+          Select download format
+        </option>
+        <option value='pdf'>PDF</option>
+        <option value='excel'>EXCEL</option>
+      </select>
       <Button onClick={handleDownloadResult} disabled={isDownloadingResults}>
         {isDownloadingResults ? (
           <>
             Downloading <SpinnerMini />
           </>
         ) : (
-          'Download Report'
+          `Download Report as ${format.toUpperCase()}`
         )}
       </Button>
       <div>

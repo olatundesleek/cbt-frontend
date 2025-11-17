@@ -222,7 +222,7 @@ export default function TestAttemptPage() {
           {/* Navigator */}
           <QuestionNavigator
             total={progress?.total || 0}
-            current={startIdx + 1}
+            current={startIdx}
             onSelect={(num) => fetchByNumber(num)}
             answered={Object.keys(answers).map((id) => Number(id))}
             marked={marked}

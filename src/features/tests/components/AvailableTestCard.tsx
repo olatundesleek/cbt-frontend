@@ -52,11 +52,11 @@ export default function AvailableTestCard({
       duration,
       totalQuestions,
       description,
-      id: 1,
+      id: id,
       attemptsAllowed,
       sessionId,
       progress,
-    }); // example id
+    }); 
     push(`/tests/${id}/summary`);
   };
 

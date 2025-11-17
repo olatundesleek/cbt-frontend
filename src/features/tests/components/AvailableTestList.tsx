@@ -37,6 +37,7 @@ export default function AvailableTestList({ tests = [] }: AvailableTestListProps
     return matchesSearch && matchesFilter;
   });
 
+
   const hasTests = tests.length > 0;
 
   return (
