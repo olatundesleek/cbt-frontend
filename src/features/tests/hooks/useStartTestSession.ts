@@ -19,8 +19,14 @@ export function useStartTestSession(): UseMutationResult<
   StartTestSessionRequest
 > {
   const { replace } = useRouter();
-  const { setSession, setQuestions, setProgress, setStudent, setCourse } =
-    useTestAttempt();
+  const {
+    setSession,
+    setQuestions,
+    setProgress,
+    setStudent,
+    setCourse,
+    setCurrentPage,
+  } = useTestAttempt();
 
   return useMutation<
     StartTestSessionResponse,
@@ -36,6 +42,8 @@ export function useStartTestSession(): UseMutationResult<
         setProgress(data.data.progress);
         setStudent(data.data.student);
         setCourse(data.data.course);
+        setCurrentPage(data.data.questions[0].displayNumber);
+        
 
         // Route to /attempt/[sessionId]
 

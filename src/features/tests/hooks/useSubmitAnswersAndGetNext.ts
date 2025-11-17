@@ -15,14 +15,8 @@ import { AppError } from '@/types/errors.types';
  * Updates context with new questions and progress
  */
 export function useSubmitAnswersAndGetNext() {
-  const {
-    currentPage,
-    totalPages,
-    setCurrentPage,
-    setQuestions,
-    setProgress,
-    setshowSubmitButton,
-  } = useTestAttempt();
+  const { setCurrentPage, setQuestions, setProgress, setshowSubmitButton } =
+    useTestAttempt();
   const { setTestResult } = useTestResult();
   const router = useRouter();
 
@@ -44,9 +38,9 @@ export function useSubmitAnswersAndGetNext() {
           setQuestions(data.data.nextQuestions);
           setProgress(data.data.progress);
           setshowSubmitButton(data.data.showSubmitButton);
-          if (currentPage < totalPages - 1) {
-            setCurrentPage(currentPage + 1);
-          }
+          // if (currentPage < totalPages - 1) {
+          setCurrentPage(data.data.nextQuestions[0].displayNumber);
+          // }
         }
       } else if ('finished' in data && data.finished) {
         // Third variant: incomplete response - just redirect

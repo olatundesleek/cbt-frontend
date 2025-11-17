@@ -13,7 +13,6 @@ export default function QuestionNavigator({
 }) {
   const numbers = Array.from({ length: total }, (_, i) => i + 1);
 
-
   return (
     <div className='bg-white rounded-2xl p-4 shadow-sm h-[85vh] overflow-scroll'>
       <div className='grid grid-cols-5 gap-2 mb-2'>

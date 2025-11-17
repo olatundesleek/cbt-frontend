@@ -87,8 +87,7 @@ export default function TestAttemptPage() {
     );
   }
 
-  // Paging logic: 2 questions per page
-  const startIdx = currentPage * 2;
+
   const pageQuestions = questions;
 
   // Transform backend question format to component format
@@ -128,7 +127,7 @@ export default function TestAttemptPage() {
   };
 
   const handlePrev = () => {
-    if (currentPage === 0) return;
+    if (currentPage === 1) return;
     // Collect answers for the current page before going back (persist current edits)
     const currentQuestionIds = pageQuestions.map((q) => q.id);
     const currentAnswers = currentQuestionIds.map((qId) =>
@@ -190,9 +189,9 @@ export default function TestAttemptPage() {
               <button
                 onClick={handlePrev}
                 disabled={
-                  pageQuestions[0].id === 1 ||
                   isSubmittingAndGettingNext ||
-                  isSubmittingAndGettingPrevious
+                  isSubmittingAndGettingPrevious ||
+                  currentPage === 1
                 }
                 className='px-4 py-2 border rounded-lg hover:bg-gray-100 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
               >
@@ -222,7 +221,7 @@ export default function TestAttemptPage() {
           {/* Navigator */}
           <QuestionNavigator
             total={progress?.total || 0}
-            current={startIdx}
+            current={currentPage}
             onSelect={(num) => fetchByNumber(num)}
             answered={Object.keys(answers).map((id) => Number(id))}
             marked={marked}

@@ -50,7 +50,9 @@ export function useFetchQuestionsByNumber(sessionId: number | string) {
 
         // Compute current page from the requested question number
         if (typeof questionNumber === 'number') {
-          setCurrentPage(Math.ceil((questionNumber - 1) / 2));
+          setCurrentPage(
+            Math.ceil(questionNumber) || nextQuestions[0].displayNumber,
+          );
         }
       }
     },
