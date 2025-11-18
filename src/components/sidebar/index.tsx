@@ -1,10 +1,6 @@
-import React, { Dispatch, ReactNode, SetStateAction, useState } from "react";
-import { AiFillHome } from "react-icons/ai";
-import { GiGraduateCap } from "react-icons/gi";
-import { IoIosSettings } from "react-icons/io";
-import { MdOutlineClose } from "react-icons/md";
-import { GiTeacher } from "react-icons/gi";
-import Link from "next/link";
+import React, { Dispatch, ReactNode, SetStateAction, useState } from 'react';
+import { MdOutlineClose } from 'react-icons/md';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Button from '../ui/Button';
 
@@ -14,32 +10,14 @@ import useLogout from '@/hooks/useLogout';
 interface AdminSidebarProps {
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
+  adminRoutes: { path: string; label: string; icon: ReactNode }[];
 }
 
-const adminRoutes: { path: string; label: string; icon: ReactNode }[] = [
-  {
-    path: '/admin/dashboard',
-    label: 'Dashboard',
-    icon: <AiFillHome size={20} />,
-  },
-  {
-    path: '/admin/classes',
-    label: 'Classes',
-    icon: <GiGraduateCap size={20} />,
-  },
-  {
-    path: '/admin/teachers',
-    label: 'Teachers',
-    icon: <GiTeacher size={20} />,
-  },
-  {
-    path: '/admin/settings',
-    label: 'System Settings',
-    icon: <IoIosSettings size={20} />,
-  },
-];
-
-const AdminSidebar = ({ isOpen, setIsOpen }: AdminSidebarProps) => {
+const AdminSidebar = ({
+  isOpen,
+  setIsOpen,
+  adminRoutes,
+}: AdminSidebarProps) => {
   const [isPrefetched, setIsPrefetched] = useState<boolean>(false);
   const pathname = usePathname();
   const { logout, isLoggingOut } = useLogout();

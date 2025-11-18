@@ -1,60 +1,34 @@
-"use client";
+import React from 'react';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import AdminShell from './AdminShell';
+import TeacherShell from './TeacherShell';
 
-import { useState, useEffect } from "react";
-import AdminSidebar from "@/components/sidebar";
-import AdminTopBar from "@/components/topbar";
-import useDashboard from "@/features/dashboard/queries/useDashboard";
-import { errorLogger } from "@/lib/axios";
-import { useUserStore } from "@/store/useUserStore";
-import { SpinnerMini } from "@/components/ui";
-
-export default function AdminDashboardLayout({
+/**
+ * Server layout for admin/teacher dashboard.
+ * Reads the httpOnly `role` cookie and renders the appropriate client shell.
+ */
+export default async function AdminDashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const { setName } = useUserStore();
-  const {
-    data: dashboardData,
-    isLoading: isDashboardDataLoading,
-    error: dashboardDataError,
-  } = useDashboard();
+  const cookieStore = await cookies();
+  const role = cookieStore.get('role')?.value?.toLowerCase();
 
-  const currentYear = new Date().getFullYear();
-
-  useEffect(() => {
-    if (!dashboardData) return;
-
-    const adminName = dashboardData.data.adminName;
-
-    setName(adminName);
-  }, [dashboardData, setName]);
-
-  if (dashboardDataError) {
-    errorLogger(dashboardDataError);
+  // If there's no role available server-side, redirect to admin login.
+  if (!role) {
+    redirect('/admin/login');
   }
 
-  return (
-    <main className="relative flex flex-row items-stretch min-h-screen bg-primary-50 max-w-400 w-full mx-auto">
-      {/*side bar */}
-      <AdminSidebar isOpen={isOpen} setIsOpen={setIsOpen} />
+  // If role is unexpected, redirect to root (or you can choose another page).
+  if (role !== 'admin' && role !== 'teacher') {
+    redirect('/');
+  }
 
-      {isDashboardDataLoading ? (
-        <div className="w-full p-4">
-          <SpinnerMini color="#0c4a6e" />
-        </div>
-      ) : (
-        <section className="relative flex-1 flex flex-col gap-4 w-full">
-          <AdminTopBar setIsOpen={setIsOpen} />
-
-          <div className="flex-1 w-full p-4">{children}</div>
-
-          <div className="flex items-center justify-center w-full">
-            <small>Florintech CBT Portal &#9400; {currentYear}</small>
-          </div>
-        </section>
-      )}
-    </main>
+  return role === 'teacher' ? (
+    <TeacherShell role={role}>{children}</TeacherShell>
+  ) : (
+    <AdminShell role={role}>{children}</AdminShell>
   );
 }

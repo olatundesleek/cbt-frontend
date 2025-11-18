@@ -93,9 +93,7 @@ export default function Login() {
                   type='password'
                   autoComplete='current-password'
                   required
-                  className='block w-full rounded-md border border-neutral-300 px-3 py-2 shadow-sm
-                           focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500
-                           bg-background text-foreground'
+                  className='block w-full rounded-md border border-neutral-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 bg-background text-foreground'
                   {...register('password', {
                     required: 'Password is required',
                     minLength: {
@@ -118,8 +116,7 @@ export default function Login() {
                   id='remember-me'
                   name='remember-me'
                   type='checkbox'
-                  className='h-4 w-4 rounded border-neutral-300 text-primary-600 
-                           focus:ring-primary-500'
+                  className='h-4 w-4 rounded border-neutral-300 text-primary-600 focus:ring-primary-500'
                 />
                 <label
                   htmlFor='remember-me'

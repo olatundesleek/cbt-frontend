@@ -51,7 +51,7 @@ export default function StudentDashboardPage() {
             Failed to load dashboard
           </h3>
           <p className='text-neutral-600'>
-            {dashboardDataError.details || 'Something went wrong'}
+            {dashboardDataError?.details || 'Something went wrong'}
           </p>
           <button
             onClick={() => window.location.reload()}

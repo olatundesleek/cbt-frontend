@@ -116,11 +116,34 @@ export interface DashboardData {
   };
 }
 
-export interface DashboardResponse {
+export interface AdminDashboardData {
+  adminName: {
+    firstname: string;
+    lastname: string;
+  };
+  studentCount: number;
+  teacherCount: number;
+  testCount: number;
+  classCount: number;
+  courseCount: number;
+}
+
+export interface TeacherDashboardData {
+  teacherName: {
+    firstname: string;
+    lastname: string;
+  };
+  classCount: number;
+  studentCount: number;
+  testCount: number;
+  courseCount: number;
+}
+
+export type DashboardResponse<T = DashboardData> = {
   success: boolean;
   message: string;
-  data: DashboardData;
-}
+  data: T;
+};
 
 interface Courses {
   createdAt: string;

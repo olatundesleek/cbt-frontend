@@ -61,9 +61,9 @@ api.interceptors.response.use(
 export default api;
 
 export const errorLogger = (error: unknown) => {
-  const defaultErrorMessage = "Server Error. Please try again";
+  const defaultErrorMessage = 'Server Error. Please try again';
 
-  if (typeof error === "string") return toast.error(error);
+  if (typeof error === 'string') return toast.error(error);
 
   if (!axios.isAxiosError(error)) return toast.error(defaultErrorMessage);
 
