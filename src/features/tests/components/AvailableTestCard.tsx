@@ -3,8 +3,8 @@ import Button from '@/components/ui/Button';
 import { FaRegClock } from 'react-icons/fa';
 import { TiStopwatch } from 'react-icons/ti';
 // import { useRouter } from 'next/router';
-import { useTest } from '@/context/TestContext';
 import { useRouter } from 'next/navigation';
+import { useTestStore } from '@/store/useTestStore';
 
 interface AvailableTestCardProps {
   id: number;
@@ -30,7 +30,7 @@ export default function AvailableTestCard({
 }: AvailableTestCardProps) {
   const { push } = useRouter();
 
-  const { setSelectedTest } = useTest();
+  const { setSelectedTest } = useTestStore();
 
   const computeStatusClass = () => {
     switch (status) {
@@ -56,7 +56,7 @@ export default function AvailableTestCard({
       attemptsAllowed,
       sessionId,
       progress,
-    }); 
+    });
     push(`/tests/${id}/summary`);
   };
 

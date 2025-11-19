@@ -1,7 +1,7 @@
 import api from '@/lib/axios';
 import {
   StudentResultCoursesResponse,
-  StudentResultDownloadResponse,
+  // StudentResultDownloadResponse,
 } from '@/types/results.types';
 
 export const resultsServices = {

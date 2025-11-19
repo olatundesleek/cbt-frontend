@@ -1,5 +1,5 @@
 import StudentDashboardHeader from '@/components/layout/StudentDashboardHeader';
-import ClientProviders from '@/components/ClientProviders';
+import GlobalProviders from '@/components/GlobalProviders';
 
 export default function StudentDashboardLayout({
   children,
@@ -8,7 +8,7 @@ export default function StudentDashboardLayout({
 }) {
   return (
     <>
-      <ClientProviders>
+      <GlobalProviders>
         <div className='min-h-screen bg-background'>
           {/* Add student dashboard header/nav here */}
           <header className='bg-primary-50 shadow'>
@@ -16,7 +16,7 @@ export default function StudentDashboardLayout({
           </header>
           <main className='container mx-auto  px-4 py-8'>{children}</main>
         </div>
-      </ClientProviders>
+      </GlobalProviders>
     </>
   );
 }

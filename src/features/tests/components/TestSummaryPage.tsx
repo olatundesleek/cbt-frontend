@@ -1,17 +1,16 @@
 'use client';
 import Button from '@/components/ui/Button';
-import { useTest } from '@/context/TestContext';
 import { useRouter } from 'next/navigation';
 import { FcTodoList } from 'react-icons/fc';
 import { useStartTestSession } from '../hooks/useStartTestSession';
 import Link from 'next/link';
+import { useTestStore } from '@/store/useTestStore';
 
 export default function TestSummaryPage() {
-  const { selectedTest } = useTest();
+  const { selectedTest } = useTestStore();
   const { push } = useRouter();
   const { mutate: startTest, isPending: isStartingTest } =
     useStartTestSession();
-
 
   const handleAttemptTest = function () {
     if (!selectedTest?.id) return push('/tests');

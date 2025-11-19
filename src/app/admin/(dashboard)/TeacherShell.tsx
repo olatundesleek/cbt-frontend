@@ -65,7 +65,6 @@ export default function TeacherShell({
     error: dashboardDataError,
   } = useDashboard<TeacherDashboardData>();
 
-  console.log(dashboardData);
 
   useEffect(() => {
     if (!dashboardData) return;

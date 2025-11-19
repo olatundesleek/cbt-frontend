@@ -7,7 +7,7 @@ import type {
 } from '@/types/tests.types';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { useTestAttempt } from '../context/TestAttemptContext';
+import { useTestAttemptStore } from '@/store/useTestAttemptStore';
 
 /**
  * React Query hook to start a test session
@@ -19,14 +19,12 @@ export function useStartTestSession(): UseMutationResult<
   StartTestSessionRequest
 > {
   const { replace } = useRouter();
-  const {
-    setSession,
-    setQuestions,
-    setProgress,
-    setStudent,
-    setCourse,
-    setCurrentPage,
-  } = useTestAttempt();
+  const setSession = useTestAttemptStore((s) => s.setSession);
+  const setQuestions = useTestAttemptStore((s) => s.setQuestions);
+  const setProgress = useTestAttemptStore((s) => s.setProgress);
+  const setStudent = useTestAttemptStore((s) => s.setStudent);
+  const setCourse = useTestAttemptStore((s) => s.setCourse);
+  const setCurrentPage = useTestAttemptStore((s) => s.setCurrentPage);
 
   return useMutation<
     StartTestSessionResponse,
@@ -43,7 +41,6 @@ export function useStartTestSession(): UseMutationResult<
         setStudent(data.data.student);
         setCourse(data.data.course);
         setCurrentPage(data.data.questions[0].displayNumber);
-        
 
         // Route to /attempt/[sessionId]
 

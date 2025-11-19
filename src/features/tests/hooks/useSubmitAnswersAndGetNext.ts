@@ -1,7 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { submitAnswersAndGetNext } from '@/services/testsService';
-import { useTestAttempt } from '../context/TestAttemptContext';
-import { useTestResult } from '../context/TestResultContext';
+import { useTestAttemptStore } from '@/store/useTestAttemptStore';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import {
@@ -9,15 +8,18 @@ import {
   SubmitAnswersAndGetNextResponse,
 } from '@/types/tests.types';
 import { AppError } from '@/types/errors.types';
+import { useTestResultStore } from '@/store/useTestResultStore';
 
 /**
  * React Query hook to submit answers for current page and get next questions
  * Updates context with new questions and progress
  */
 export function useSubmitAnswersAndGetNext() {
-  const { setCurrentPage, setQuestions, setProgress, setshowSubmitButton } =
-    useTestAttempt();
-  const { setTestResult } = useTestResult();
+  const setCurrentPage = useTestAttemptStore((s) => s.setCurrentPage);
+  const setQuestions = useTestAttemptStore((s) => s.setQuestions);
+  const setProgress = useTestAttemptStore((s) => s.setProgress);
+  const setShowSubmitButton = useTestAttemptStore((s) => s.setShowSubmitButton);
+  const { setTestResult } = useTestResultStore();
   const router = useRouter();
 
   return useMutation<
@@ -37,7 +39,7 @@ export function useSubmitAnswersAndGetNext() {
           // Not finished: update questions and progress
           setQuestions(data.data.nextQuestions);
           setProgress(data.data.progress);
-          setshowSubmitButton(data.data.showSubmitButton);
+          setShowSubmitButton(data.data.showSubmitButton);
           // if (currentPage < totalPages - 1) {
           setCurrentPage(data.data.nextQuestions[0].displayNumber);
           // }

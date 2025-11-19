@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import AdminShell from './AdminShell';
 import TeacherShell from './TeacherShell';
-import ClientProviders from '@/components/ClientProviders';
+import GlobalProviders from '@/components/GlobalProviders';
 
 /**
  * Server layout for admin/teacher dashboard.
@@ -28,12 +28,12 @@ export default async function AdminDashboardLayout({
   }
 
   return role === 'teacher' ? (
-    <ClientProviders>
+    <GlobalProviders>
       <TeacherShell role={role}>{children}</TeacherShell>
-    </ClientProviders>
+    </GlobalProviders>
   ) : (
-    <ClientProviders>
+    <GlobalProviders>
       <AdminShell role={role}>{children}</AdminShell>
-    </ClientProviders>
+    </GlobalProviders>
   );
 }

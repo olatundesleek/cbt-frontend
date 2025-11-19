@@ -2,16 +2,16 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { submitTestSession } from '@/services/testsService';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { useTestResult } from '../context/TestResultContext';
 import { SubmitTestSessionResponse } from '@/types/tests.types';
 import { AppError } from '@/types/errors.types';
+import { useTestResultStore } from '@/store/useTestResultStore';
 
 /**
  * React Query hook to submit/end a test session
  */
 export function useSubmitTestSession(sessionId: string | number) {
   const router = useRouter();
-  const { setTestResult } = useTestResult();
+  const { setTestResult } = useTestResultStore();
   const queryClient = useQueryClient();
 
   return useMutation<SubmitTestSessionResponse, AppError>({

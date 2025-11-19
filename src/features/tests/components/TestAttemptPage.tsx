@@ -1,5 +1,5 @@
 'use client';
-import { useTestAttempt } from '../context/TestAttemptContext';
+import { useTestAttemptStore } from '@/store/useTestAttemptStore';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import TestAttemptSidebar from './TestAttemptSidebar';
@@ -20,16 +20,14 @@ export default function TestAttemptPage() {
   const testId = searchParams.get('testId');
   const { sessionId } = useParams();
   const { push } = useRouter();
-  const {
-    questions,
-    progress,
-    student,
-    course,
-    currentPage,
-    answers,
-    showSubmitButton,
-    updateAnswer,
-  } = useTestAttempt();
+  const questions = useTestAttemptStore((s) => s.questions);
+  const progress = useTestAttemptStore((s) => s.progress);
+  const student = useTestAttemptStore((s) => s.student);
+  const course = useTestAttemptStore((s) => s.course);
+  const currentPage = useTestAttemptStore((s) => s.currentPage);
+  const answers = useTestAttemptStore((s) => s.answers);
+  const showSubmitButton = useTestAttemptStore((s) => s.showSubmitButton);
+  const updateAnswer = useTestAttemptStore((s) => s.updateAnswer);
 
   const { mutate: startTest, isPending: isStartingTest } =
     useStartTestSession();
@@ -86,7 +84,6 @@ export default function TestAttemptPage() {
       </div>
     );
   }
-
 
   const pageQuestions = questions;
 

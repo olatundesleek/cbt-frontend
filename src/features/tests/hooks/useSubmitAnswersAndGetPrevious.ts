@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { submitAnswersAndGetPrevious } from '@/services/testsService';
-import { useTestAttempt } from '../context/TestAttemptContext';
+import { useTestAttemptStore } from '@/store/useTestAttemptStore';
 import toast from 'react-hot-toast';
 import {
   SubmitAnswersAndGetPreviousRequest,
@@ -13,13 +13,11 @@ import { AppError } from '@/types/errors.types';
  * Updates context with new questions and progress
  */
 export function useSubmitAnswersAndGetPrevious() {
-  const {
-    currentPage,
-    setCurrentPage,
-    setQuestions,
-    setProgress,
-    setshowSubmitButton,
-  } = useTestAttempt();
+  const currentPage = useTestAttemptStore((s) => s.currentPage);
+  const setCurrentPage = useTestAttemptStore((s) => s.setCurrentPage);
+  const setQuestions = useTestAttemptStore((s) => s.setQuestions);
+  const setProgress = useTestAttemptStore((s) => s.setProgress);
+  const setShowSubmitButton = useTestAttemptStore((s) => s.setShowSubmitButton);
 
   return useMutation<
     SubmitAnswersAndGetPreviousResponse,
@@ -34,7 +32,7 @@ export function useSubmitAnswersAndGetPrevious() {
         // Update progress
         setProgress(data.data.progress);
         // Update submit button visibility
-        setshowSubmitButton(data.data.showSubmitButton);
+        setShowSubmitButton(data.data.showSubmitButton);
         // Decrement page after successful fetch
         if (currentPage > 0) {
           setCurrentPage(currentPage - 1);

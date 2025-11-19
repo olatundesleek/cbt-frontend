@@ -1,12 +1,12 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { useTestResult } from '../context/TestResultContext';
+import { useTestResultStore } from '@/store/useTestResultStore';
 import { useEffect } from 'react';
 import { FaCheckCircle, FaTimesCircle, FaArrowLeft } from 'react-icons/fa';
 
 export default function CorrectionsPage() {
   const router = useRouter();
-  const { testResult } = useTestResult();
+  const testResult = useTestResultStore((s) => s.testResult);
 
   // Redirect if no test result
   useEffect(() => {
@@ -40,7 +40,7 @@ export default function CorrectionsPage() {
           <div className='flex flex-col md:flex-row justify-between items-start md:items-center gap-4'>
             <div>
               <h1 className='text-3xl font-bold text-gray-900 mb-2'>
-                {test.title} - Corrections
+                {test?.title} - Corrections
               </h1>
               <p className='text-gray-600'>
                 Review your answers and learn from mistakes

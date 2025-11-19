@@ -1,10 +1,10 @@
 import Login from "@/features/dashboard/components/Login";
-import ClientProviders from '@/components/ClientProviders';
+import GlobalProviders from '@/components/GlobalProviders';
 
 export default function Page() {
   return (
-    <ClientProviders>
+    <GlobalProviders>
       <Login />
-    </ClientProviders>
+    </GlobalProviders>
   );
 }

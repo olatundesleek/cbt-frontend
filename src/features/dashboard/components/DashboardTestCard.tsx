@@ -2,7 +2,7 @@
 
 import { PiNotepadFill } from 'react-icons/pi';
 import Button from '@/components/ui/Button';
-import { useTest } from '@/context/TestContext';
+import { useTestStore } from '@/store/useTestStore';
 import { useRouter } from 'next/navigation';
 
 interface TestCardProps {
@@ -31,7 +31,7 @@ export default function DashboardTestCard({
   sessionId,
 }: TestCardProps) {
   const { push } = useRouter();
-  const { setSelectedTest } = useTest();
+  const setSelectedTest = useTestStore((s) => s.setSelectedTest);
 
   const handleViewTest = () => {
     setSelectedTest({

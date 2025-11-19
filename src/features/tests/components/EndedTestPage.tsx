@@ -1,16 +1,15 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import { FaCheckCircle, FaBook, FaHome, FaArrowRight } from 'react-icons/fa';
-import { useTestResult } from '../context/TestResultContext';
 import { useEffect } from 'react';
-import { useTest } from '@/context/TestContext';
+import { useTestStore } from '@/store/useTestStore';
+import { useTestResultStore } from '@/store/useTestResultStore';
 
 export default function EndedTestPage() {
   const router = useRouter();
-  const { testResult } = useTestResult();
-  const { selectedTest } = useTest();
-  console.log('testResult:', testResult);
-  console.log('selectedTest:', selectedTest);
+  // const { testResult } = useTestResult();
+  const { testResult } = useTestResultStore();
+  const { selectedTest } = useTestStore();
 
   // Redirect if no test result (user accessed directly without submitting)
   useEffect(() => {
@@ -20,7 +19,7 @@ export default function EndedTestPage() {
   }, [testResult, router, selectedTest]);
 
   if (!testResult || !selectedTest) {
-    return null; // or a loading spinner
+    return null;
   }
 
   const handleGoToTests = () => {
@@ -30,7 +29,7 @@ export default function EndedTestPage() {
   if (testResult.test?.type ?? false) {
     const { test, score } = testResult;
     const totalQuestions = selectedTest.totalQuestions;
-    const testType = test.type.toLowerCase() as 'test' | 'exam';
+    const testType = test?.type.toLowerCase() as 'test' | 'exam';
 
     const handleGoToCorrections = () => {
       router.push('/corrections');
@@ -57,7 +56,7 @@ export default function EndedTestPage() {
               <p className='text-lg text-gray-600'>
                 Great job! You&apos;ve successfully submitted{' '}
                 <span className='font-semibold text-primary-700'>
-                  {test.title}
+                  {test?.title || ''}
                 </span>
               </p>
             </div>

@@ -1,7 +1,7 @@
 import { FetchQuestionsByNumberResponse } from './../../../types/tests.types';
 import { useMutation } from '@tanstack/react-query';
 import { fetchQuestionsByNumber } from '@/services/testsService';
-import { useTestAttempt } from '../context/TestAttemptContext';
+import { useTestAttemptStore } from '@/store/useTestAttemptStore';
 import toast from 'react-hot-toast';
 import { AppError } from '@/types/errors.types';
 
@@ -10,14 +10,12 @@ import { AppError } from '@/types/errors.types';
  * Backend returns a pair and metadata (index, total, answered map, finished flag).
  */
 export function useFetchQuestionsByNumber(sessionId: number | string) {
-  const {
-    answers,
-    setQuestions,
-    setProgress,
-    setCurrentPage,
-    setAnswers,
-    setshowSubmitButton,
-  } = useTestAttempt();
+  const answers = useTestAttemptStore((s) => s.answers);
+  const setQuestions = useTestAttemptStore((s) => s.setQuestions);
+  const setProgress = useTestAttemptStore((s) => s.setProgress);
+  const setCurrentPage = useTestAttemptStore((s) => s.setCurrentPage);
+  const setAnswers = useTestAttemptStore((s) => s.setAnswers);
+  const setShowSubmitButton = useTestAttemptStore((s) => s.setShowSubmitButton);
 
   return useMutation<FetchQuestionsByNumberResponse, AppError, number>({
     mutationFn: (questionNumber: number) =>
@@ -46,7 +44,7 @@ export function useFetchQuestionsByNumber(sessionId: number | string) {
         setAnswers(merged);
 
         // Update submit visibility
-        setshowSubmitButton(showSubmitButton || finished);
+        setShowSubmitButton(showSubmitButton || finished);
 
         // Compute current page from the requested question number
         if (typeof questionNumber === 'number') {
