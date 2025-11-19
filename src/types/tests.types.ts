@@ -26,6 +26,7 @@ export interface StartTestSessionResponse {
       bankId: number;
       createdAt: string;
       displayNumber: number;
+      selectedOption: string | null;
     }>;
     progress: {
       answeredCount: number;
@@ -77,6 +78,7 @@ export type SubmitAnswersAndGetNextResponse =
           bankId: number;
           createdAt: string;
           displayNumber: number;
+          selectedOption: null | string;
         }>;
         progress: {
           answeredCount: number;
@@ -167,6 +169,7 @@ export interface SubmitAnswersAndGetPreviousResponse {
       bankId: number;
       createdAt: string;
       displayNumber: number;
+      selectedOption: string | null;
     }>;
     progress: {
       answeredCount: number;

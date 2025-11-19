@@ -19,12 +19,14 @@ export function useStartTestSession(): UseMutationResult<
   StartTestSessionRequest
 > {
   const { replace } = useRouter();
+  const answers = useTestAttemptStore((s) => s.answers);
   const setSession = useTestAttemptStore((s) => s.setSession);
   const setQuestions = useTestAttemptStore((s) => s.setQuestions);
   const setProgress = useTestAttemptStore((s) => s.setProgress);
   const setStudent = useTestAttemptStore((s) => s.setStudent);
   const setCourse = useTestAttemptStore((s) => s.setCourse);
   const setCurrentPage = useTestAttemptStore((s) => s.setCurrentPage);
+  const setAnswers = useTestAttemptStore((s) => s.setAnswers);
 
   return useMutation<
     StartTestSessionResponse,
@@ -41,6 +43,15 @@ export function useStartTestSession(): UseMutationResult<
         setStudent(data.data.student);
         setCourse(data.data.course);
         setCurrentPage(data.data.questions[0].displayNumber);
+
+        // Merge any returned selectedOption into the answers map
+        const merged: Record<number, string> = { ...answers };
+        data.data.questions.forEach((q) => {
+          if (typeof q.selectedOption === 'string' && q.selectedOption) {
+            merged[q.id] = q.selectedOption;
+          }
+        });
+        setAnswers(merged);
 
         // Route to /attempt/[sessionId]
 
