@@ -12,6 +12,7 @@ import {
   SubmitAnswersAndGetPreviousResponse,
   FetchQuestionsByNumberResponse,
   RegisteredCoursesResponse,
+  AdminTestsResponse,
 } from '@/types/tests.types';
 
 export const testsServices = {
@@ -24,6 +25,11 @@ export const testsServices = {
 
   getRegisteredCourses: async (): Promise<RegisteredCoursesResponse> => {
     const response = await axios.get('/courses');
+    return response.data;
+  },
+
+  getAdminTests: async (): Promise<AdminTestsResponse> => {
+    const response = await axios.get('/tests');
     return response.data;
   },
 };

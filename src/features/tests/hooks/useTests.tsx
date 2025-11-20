@@ -13,3 +13,12 @@ export default function useTests() {
 
   return { testsData, isTestsDataLoading, testsDataError };
 }
+
+export function useAdminTest() {
+  const queryResponse = useQuery({
+    queryFn: testsServices.getAdminTests,
+    queryKey: ['adminTests'],
+  });
+
+  return queryResponse;
+}

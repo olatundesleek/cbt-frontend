@@ -307,3 +307,42 @@ export interface RegisteredCourse {
 
 // API returns direct array, not wrapped in success/message/data
 export type RegisteredCoursesResponse = RegisteredCourse[];
+
+
+export interface AdminTestsResponse {
+  success: boolean;
+  message: string;
+  data: {
+    id: number;
+    title: string;
+    type: string;
+    testState: string;
+    showResult: boolean;
+    startTime: string | null;
+    endTime: string | null;
+    duration: number;
+    attemptsAllowed: number;
+    passMark: number;
+    courseId: number;
+    bankId: number;
+    createdBy: number;
+    createdAt: string;
+    course: {
+      title: string;
+      classes: {
+        id: number;
+        className: string;
+        teacherId: number;
+        createdAt: string;
+      }[];
+    };
+    bank: {
+      _count: {
+        questions: number;
+      };
+    };
+    _count: {
+      sessions: number;
+    };
+  }[];
+} 

@@ -24,12 +24,12 @@ export const dashboardServices = {
   },
 
   getAllCourses: async (): Promise<AllCourses[]> => {
-    const response = await api.get("/courses");
+    const response = await api.get('/courses');
     return response.data;
   },
 
   getAllQuestionBank: async (): Promise<[]> => {
-    const response = await api.get("/questionBanks");
+    const response = await api.get('/questionBanks');
     return response.data;
   },
 };
