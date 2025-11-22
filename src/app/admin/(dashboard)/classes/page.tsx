@@ -266,7 +266,7 @@ const AdminClasses = () => {
     setIsDeleting(true);
 
     try {
-      const res = await api.delete(`class/${modalState?.modalContent?.id}`);
+      const res = await api.delete(`/class/${modalState?.modalContent?.id}`);
       await queryClient.invalidateQueries({ queryKey: ["classes"] }); // invalidate and refetch classes
       toast.success(res.data.message || "Deleted Successfully");
       updateModalState({ key: "isOpen", value: false });
@@ -365,7 +365,7 @@ const AdminClasses = () => {
               <>
                 <TableDataItem>{item.className}</TableDataItem>
                 <TableDataItem>
-                  {item.teacher.firstname + " " + item.teacher.lastname}
+                  {item?.teacher?.firstname + " " + item?.teacher?.lastname}
                 </TableDataItem>
                 <TableDataItem>{item.courses.length}</TableDataItem>
                 <TableDataItem>{formatDate(item.createdAt)}</TableDataItem>

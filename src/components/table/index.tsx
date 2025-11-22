@@ -2,6 +2,8 @@ import { ReactNode, TdHTMLAttributes, useState } from "react";
 import { createPortal } from "react-dom";
 import SpinnerMini from "../ui/SpinnerMini";
 import { IoMdMore } from "react-icons/io";
+import ReactPaginate from "react-paginate";
+import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 
 interface TableDataItemProps extends TdHTMLAttributes<HTMLTableCellElement> {
   children: ReactNode;
@@ -18,6 +20,7 @@ interface AppTableProps<T> {
   isLoading?: boolean;
   label?: string;
   centralizeLabel?: boolean;
+  itemsPerPage?: number;
 
   /** Action modal */
   actionModalContent?: ReactNode;
@@ -52,8 +55,10 @@ const AppTable = <T,>({
   onRowPress,
   itemKey,
   actionModalContent,
+  itemsPerPage = 5,
   onActionClick,
 }: AppTableProps<T>) => {
+  const [itemOffset, setItemOffset] = useState<number>(0);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [modalPosition, setModalPosition] = useState<{
     top: number;
@@ -61,6 +66,19 @@ const AppTable = <T,>({
   }>({ top: 0, left: 0 });
 
   const columns = onActionClick ? [...headerColumns, "Actions"] : headerColumns;
+
+  const endOffset = itemOffset + itemsPerPage;
+  const currentItems = data.slice(itemOffset, endOffset);
+  const pageCount = Math.ceil(data.length / itemsPerPage);
+
+  const handlePageClick = (event: { selected: number }) => {
+    const newOffset = (event?.selected * itemsPerPage) % data.length;
+
+    console.log(
+      `User requested page number ${event.selected}, which is offset ${newOffset}`
+    );
+    setItemOffset(newOffset);
+  };
 
   const openActionModal = (
     item: T,
@@ -107,7 +125,7 @@ const AppTable = <T,>({
         </thead>
 
         <tbody className="bg-grey-30">
-          {data.map((item, itemIndex) => {
+          {currentItems.map((item, itemIndex) => {
             const hasRowPress = !!onRowPress;
 
             return (
@@ -143,10 +161,30 @@ const AppTable = <T,>({
         </tbody>
       </table>
 
+      {data.length > 10 && (
+        <div className="flex items-center justify-center w-full mt-8">
+          <ReactPaginate
+            breakLabel="..."
+            previousLabel={<GrFormPrevious size={16} />}
+            nextLabel={<GrFormNext size={16} />}
+            onPageChange={handlePageClick}
+            pageRangeDisplayed={5}
+            pageCount={pageCount}
+            renderOnZeroPageCount={null}
+            containerClassName="flex flex-row items-center gap-4"
+            pageClassName="cursor-pointer"
+            previousClassName="cursor-pointer"
+            nextClassName="cursor-pointer"
+            disabledClassName="opacity-20"
+            activeLinkClassName="underline"
+          />
+        </div>
+      )}
+
       {isLoading ? (
         <SpinnerMini color="#0c4a6e" />
       ) : (
-        !data.length && (
+        !currentItems.length && (
           <span
             className={`${
               centralizeLabel ? "text-center" : "text-left"

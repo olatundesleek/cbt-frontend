@@ -181,3 +181,25 @@ export interface AllCourses {
   description: string;
   teacher: Pick<AllTeachersResponse, "firstname" | "lastname" | "id">;
 }
+
+export interface QuestionsInBank {
+  answer: string;
+  bankId: number;
+  createdAt: string;
+  id: number;
+  marks: number;
+  options: string[];
+  text: string;
+}
+
+export interface AllQuestionBank {
+  course: { title: string };
+  courseId: number;
+  createdAt: string;
+  createdBy: number;
+  description: string;
+  id: number;
+  questionBankName: string;
+  questions: QuestionsInBank[];
+  teacher: Pick<AllTeachersResponse, "firstname" | "lastname">;
+}

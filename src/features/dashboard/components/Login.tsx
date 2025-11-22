@@ -96,10 +96,10 @@ export default function Login() {
                   className='block w-full rounded-md border border-neutral-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 bg-background text-foreground'
                   {...register('password', {
                     required: 'Password is required',
-                    minLength: {
-                      value: 6,
-                      message: 'Password must be at least 6 characters',
-                    },
+                    // minLength: { ADMIN PASSWORDS ARE LESS THAN 6
+                    //   value: 6,
+                    //   message: 'Password must be at least 6 characters',
+                    // },
                   })}
                 />
                 {errors.password && (

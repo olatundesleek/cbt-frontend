@@ -60,7 +60,7 @@ const adminRoutes: { path: string; label: string; icon: ReactNode }[] = [
     icon: <AiFillHome size={20} />,
   },
   {
-    path: '/admin/question-bank',
+    path: '/admin/questions',
     label: 'Question Bank',
     icon: <FiTarget size={20} />,
   },

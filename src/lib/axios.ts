@@ -54,16 +54,16 @@ api.interceptors.response.use(
     appError.details = (backendDetails ?? backendData ?? null) as string | null;
     appError.isAxiosError = Boolean(error.isAxiosError);
 
-    return Promise.reject(appError);
+    return Promise.reject(error);
   }
 );
 
 export default api;
 
 export const errorLogger = (error: unknown) => {
-  const defaultErrorMessage = 'Server Error. Please try again';
+  const defaultErrorMessage = "Server Error. Please try again";
 
-  if (typeof error === 'string') return toast.error(error);
+  if (typeof error === "string") return toast.error(error);
 
   if (!axios.isAxiosError(error)) return toast.error(defaultErrorMessage);
 

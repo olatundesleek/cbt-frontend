@@ -16,7 +16,7 @@ const AdminTopBar = ({ setIsOpen }: AdminTopBarProps) => {
   };
 
   return (
-    <div className='sticky top-0 flex flex-row items-center justify-between w-full p-4 h-full max-h-15 bg-primary-50 border-b border-b-neutral-300'>
+    <div className='sticky top-0 flex flex-row items-center justify-between w-full p-4 h-full max-h-15 bg-primary-50 border-b border-b-neutral-300 z-50'>
       <span className='text-sm text-neutral-500'>
         Hi, {firstname} {lastname}
       </span>
