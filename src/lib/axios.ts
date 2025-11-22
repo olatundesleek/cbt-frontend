@@ -69,8 +69,8 @@ export const errorLogger = (error: unknown) => {
 
   if (error.response?.data) {
     const responseError =
-      error.response?.data.message ||
       error.response?.data.details ||
+      error.response?.data.message ||
       error.response?.data.error ||
       defaultErrorMessage;
 
