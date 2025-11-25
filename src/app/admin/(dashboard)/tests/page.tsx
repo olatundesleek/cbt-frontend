@@ -1,6 +1,6 @@
 'use client';
 import AppTable, { TableDataItem } from '@/components/table';
-import { Badge, Button } from '@/components/ui';
+import { Badge, Button, Input } from '@/components/ui';
 // import { Test, testData } from './data';
 import { useAdminTest } from '@/features/tests/hooks/useTests';
 import { errorLogger } from '@/lib/axios';
@@ -10,6 +10,7 @@ import { formatDate } from '../../../../../utils/helpers';
 import FilterBar, { FilterState } from '@/components/tests/FilterBar';
 import TestSummary from '@/components/tests/TestSummary';
 import { useMemo, useState } from 'react';
+import Modal from '@/components/modal';
 
 export default function AdminTestPage() {
   const {
@@ -148,6 +149,16 @@ export default function AdminTestPage() {
       <aside className='w-full lg:w-80'>
         <TestSummary tests={adminTestsData?.data ?? []} />
       </aside>
+
+      {/* <Modal modalIsOpen={true} setModalIsOpen={() => false}>
+        <form>
+          <Input label='Test Title' />
+          <Input label='Pass Mark' />
+          <Input label='Attempts Allowed' />
+          <Input label='Duration' />
+          <Input />
+        </form>
+      </Modal> */}
     </section>
   );
 }

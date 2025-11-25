@@ -3,17 +3,20 @@ export interface StudentClass {
   className: string;
   teacherId?: number;
   createdAt: string;
+  courses: Array<{
+    id: number;
+    title: string;
+    teacherId: number;
+    description: string;
+    createdAt: string;
+  }>;
 }
 
 export interface Student {
   firstname: string;
   lastname: string;
   username: string;
-  class?: StudentClass | null;
-  courses: Array<{
-    id?: number;
-    title?: string;
-  }>;
+  class: StudentClass;
 }
 
 export interface AdminStudentsResponse {

@@ -45,13 +45,13 @@ export default function DashboardStatCard({
               className={
                 `w-10 h-10 rounded-lg flex items-center justify-center ` +
                 (variant === 'teacher'
-                  ? 'bg-success-100 text-success-700'
+                  ? 'bg-success-50 text-success-700'
                   : variant === 'admin'
-                  ? 'bg-error-100 text-error-700'
+                  ? 'bg-error-50 text-error-700'
                   : variant === 'course'
-                  ? 'bg-success-100 text-success-700'
+                  ? 'bg-success-50 text-success-700'
                   : variant === 'test'
-                  ? 'bg-error-100 text-error-700'
+                  ? 'bg-error-50 text-error-700'
                   : variant === 'result'
                   ? 'bg-blue-100 text-blue-700'
                   : 'bg-primary-100 text-primary-700')

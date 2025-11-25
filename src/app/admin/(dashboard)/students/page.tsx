@@ -28,7 +28,7 @@ export default function AdminStudentsPage() {
 
   const courses = useMemo(() => {
     const arr = students.flatMap((s) =>
-      s.courses.map((c) => c.title).filter((v): v is string => !!v),
+      s.class.courses.map((c) => c.title).filter((v): v is string => !!v),
     );
     return Array.from(new Set(arr));
   }, [students]);
@@ -44,8 +44,8 @@ export default function AdminStudentsPage() {
         )
           return false;
       }
-      if (filter.course && (s.courses ?? []).length) {
-        if (!(s.courses ?? []).some((c) => c.title === filter.course))
+      if (filter.course && (s.class.courses ?? []).length) {
+        if (!(s.class.courses ?? []).some((c) => c.title === filter.course))
           return false;
       }
       if (filter.className) {
@@ -93,8 +93,9 @@ export default function AdminStudentsPage() {
                   <TableDataItem>{item.username ?? '--'}</TableDataItem>
                   <TableDataItem>{item.class?.className ?? '--'}</TableDataItem>
                   <TableDataItem>
-                    {(item.courses ?? []).map((c) => c.title).join(', ') ||
-                      '--'}
+                    {(item.class.courses ?? [])
+                      .map((c) => c.title)
+                      .join(', ') || '--'}
                   </TableDataItem>
                   <TableDataItem>
                     {item.class?.createdAt
