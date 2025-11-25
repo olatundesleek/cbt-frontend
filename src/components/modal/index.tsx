@@ -38,6 +38,7 @@ const Modal = ({ modalIsOpen, setModalIsOpen, children }: ModalProps) => {
 
   return (
     <ReactModal
+      ariaHideApp={false}
       isOpen={modalIsOpen}
       onRequestClose={handleCloseModal}
       style={customStyles}

@@ -9,45 +9,57 @@ import { LuBuilding2 } from "react-icons/lu";
 import AppTable, { TableDataItem } from "@/components/table";
 import {
   useGetClasses,
+  useGetCourses,
   useGetTeachers,
-} from "@/features/dashboard/queries/useDashboard";
-import api, { errorLogger } from "@/lib/axios";
-import { formatDate } from "../../../../../utils/helpers";
-import { SubmitHandler, useForm } from "react-hook-form";
-import * as Yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
-import toast from "react-hot-toast";
-import { queryClient } from "@/providers/query-provider";
+} from '@/features/dashboard/queries/useDashboard';
+import api, { errorLogger } from '@/lib/axios';
+import { formatDate } from '../../../../../utils/helpers';
+import { SubmitHandler, useForm, Resolver } from 'react-hook-form';
+import * as Yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+import toast from 'react-hot-toast';
+import { queryClient } from '@/providers/query-provider';
 import {
   AllClassesResponse,
+  AllCourses,
   AllTeachersResponse,
-} from "@/types/dashboard.types";
-import Modal from "@/components/modal";
-
-type FormProps = Yup.InferType<typeof schema>;
+} from '@/types/dashboard.types';
+import Modal from '@/components/modal';
 
 interface UpdateClassProps {
   singleClass: AllClassesResponse | null;
   allTeachers: AllTeachersResponse[];
   closeModal: () => void;
+  coursesData: AllCourses[];
 }
 
 const headerColumns = [
-  "Class Name",
+  'Class Name',
   "Teacher's Name",
-  "Total Courses",
-  "Created On",
+  'Total Courses',
+  'Created On',
 ];
 
 const schema = Yup.object({
-  teacher: Yup.string().required("Teacher is required"),
-  nameOfClass: Yup.string().required("Name of class is required"),
+  teacher: Yup.string().required('Teacher is required'),
+  nameOfClass: Yup.string().required('Name of class is required'),
+  courses: Yup.array().min(1, 'At least one course is required'),
 });
+
+// separate schema for the "assign teacher" form which doesn't include courses
+const assignSchema = Yup.object({
+  teacher: Yup.string().required('Teacher is required'),
+  nameOfClass: Yup.string().required('Name of class is required'),
+});
+
+type FormProps = Yup.InferType<typeof schema>;
+type AssignFormProps = Yup.InferType<typeof assignSchema>;
 
 const UpdateClass = ({
   singleClass,
   closeModal,
   allTeachers,
+  coursesData,
 }: UpdateClassProps) => {
   const {
     register,
@@ -56,10 +68,11 @@ const UpdateClass = ({
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<FormProps>({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(schema) as Resolver<FormProps>,
     defaultValues: {
-      teacher: "",
-      nameOfClass: "",
+      teacher: '',
+      nameOfClass: '',
+      courses: [],
     },
   });
 
@@ -67,14 +80,15 @@ const UpdateClass = ({
     const payload = {
       className: data.nameOfClass,
       teacherId: Number(data.teacher),
+      courses: data.courses,
     };
 
     try {
       const response = await api.patch(`/class/${singleClass?.id}`, payload);
-      await queryClient.invalidateQueries({ queryKey: ["classes"] });
+      await queryClient.invalidateQueries({ queryKey: ['classes'] });
       resetForm();
       closeModal();
-      toast.success(response.data.message || "Updated Successfully");
+      toast.success(response.data.message || 'Updated Successfully');
     } catch (error) {
       errorLogger(error);
     }
@@ -83,60 +97,89 @@ const UpdateClass = ({
   useEffect(() => {
     if (!singleClass) return;
 
-    setValue("teacher", `${singleClass.teacherId}`);
-    setValue("nameOfClass", singleClass.className);
+    setValue('teacher', `${singleClass.teacherId}`);
+    setValue('nameOfClass', singleClass.className);
+    const existingCourseIds =
+      singleClass.courses?.map((c) => String(c.id)) || [];
+    setValue('courses', existingCourseIds);
   }, [singleClass, setValue]);
 
   if (!singleClass) return null;
 
   return (
-    <div className="flex flex-col gap-1 w-full">
-      <span className="text-base font-bold">Update Class</span>
+    <div className='flex flex-col gap-1 w-full'>
+      <span className='text-base font-bold'>Update Class</span>
 
       <form
         onSubmit={handleSubmit(handleUpdateClass)}
-        className="flex flex-col items-stretch gap-2 w-full"
+        className='flex flex-col items-stretch gap-2 w-full'
       >
-        <div className="flex flex-col gap-1 w-full">
-          <label htmlFor="teacher">
-            <span className="text-sm text-neutral-600">Select Teacher</span>
+        <div className='flex flex-col gap-1 w-full'>
+          <label htmlFor='teacher'>
+            <span className='text-sm text-neutral-600'>Select Teacher</span>
 
             <select
-              id="teacher"
-              {...register("teacher")}
+              id='teacher'
+              {...register('teacher')}
               disabled={!allTeachers.length}
-              className="block w-full rounded-md border border-neutral-300 p-1 h-10 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 bg-background text-foreground caret-foreground"
+              className='block w-full rounded-md border border-neutral-300 p-1 h-10 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 bg-background text-foreground caret-foreground'
             >
-              <option value={""} disabled>
+              <option value={''} disabled>
                 Select Teacher
               </option>
               {allTeachers?.map((teacher) => (
                 <option key={teacher.id} value={teacher.id}>
-                  {teacher.firstname + " " + teacher.lastname}
+                  {teacher.firstname + ' ' + teacher.lastname}
                 </option>
               ))}
             </select>
           </label>
 
           {errors?.teacher?.message && (
-            <small className="text-error-500">{errors?.teacher?.message}</small>
+            <small className='text-error-500'>{errors?.teacher?.message}</small>
           )}
         </div>
 
         <Input
-          label="Name of class"
-          name="nameOfClass"
+          label='Name of class'
+          name='nameOfClass'
           autoFocus={false}
-          placeholder="Name of Class"
+          placeholder='Name of Class'
           hookFormRegister={register}
           errorText={errors?.nameOfClass?.message}
         />
 
-        <div className="w-fit">
-          <Button type="submit" disabled={isSubmitting}>
-            <div className="flex flex-row items-center gap-2 w-full">
+        <div>
+          <span className='text-sm text-neutral-600'>Select Courses</span>
+          <div className='w-full flex gap-4 flex-wrap'>
+            {coursesData?.map((course) => (
+              <label
+                htmlFor={`course-${course.id}`}
+                key={course.id}
+                className='flex gap-2'
+              >
+                {course.title}
+                <input
+                  type='checkbox'
+                  id={`course-${course.id}`}
+                  value={course.id}
+                  {...register('courses')}
+                />
+              </label>
+            ))}
+          </div>
+        </div>
+        {errors?.courses?.message && (
+          <small className='text-error-500'>
+            {errors?.courses?.message as React.ReactNode}
+          </small>
+        )}
+
+        <div className='w-fit'>
+          <Button type='submit' disabled={isSubmitting}>
+            <div className='flex flex-row items-center gap-2 w-full'>
               <GoPlus />
-              <span>{isSubmitting ? "Updating..." : "Update Class"}</span>
+              <span>{isSubmitting ? 'Updating...' : 'Update Class'}</span>
             </div>
           </Button>
         </div>
@@ -150,24 +193,25 @@ const AdminClasses = () => {
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
     modalContent: AllClassesResponse | null;
-    type: "update" | "delete";
+    type: 'update' | 'delete';
   }>({
     isOpen: false,
     modalContent: null,
-    type: "update",
+    type: 'update',
   });
 
   // create class form
   const {
     register,
     handleSubmit,
-    reset: resetForm,
     formState: { errors, isSubmitting },
+    reset: resetForm,
   } = useForm<FormProps>({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(schema) as Resolver<FormProps>,
     defaultValues: {
-      teacher: "",
-      nameOfClass: "",
+      teacher: '',
+      nameOfClass: '',
+      courses: [],
     },
   });
 
@@ -180,11 +224,11 @@ const AdminClasses = () => {
       errors: assignTeacherError,
       isSubmitting: assignTeacherIsSubmitting,
     },
-  } = useForm<FormProps>({
-    resolver: yupResolver(schema),
+  } = useForm<AssignFormProps>({
+    resolver: yupResolver(assignSchema) as Resolver<AssignFormProps>,
     defaultValues: {
-      teacher: "",
-      nameOfClass: "",
+      teacher: '',
+      nameOfClass: '',
     },
   });
 
@@ -200,15 +244,21 @@ const AdminClasses = () => {
     error: teachersError,
   } = useGetTeachers();
 
+  const {
+    data: coursesData,
+    isLoading: isCoursesDataLoading,
+    error: coursesError,
+  } = useGetCourses();
+
   const quickStats: { icon: ReactNode; label: string; count: number }[] = [
     {
-      icon: <LuBuilding2 color="#0284c7" />,
-      label: "Total Classes",
+      icon: <LuBuilding2 color='#0284c7' />,
+      label: 'Total Classes',
       count: allClasses ? allClasses?.length : 0,
     },
     {
-      icon: <HiUserGroup color="#0284c7" />,
-      label: "Total Teachers",
+      icon: <HiUserGroup color='#0284c7' />,
+      label: 'Total Teachers',
       count: allTeachers ? allTeachers.length : 0,
     },
   ];
@@ -219,7 +269,7 @@ const AdminClasses = () => {
     value,
   }: {
     key: keyof typeof modalState;
-    value: boolean | AllClassesResponse | ("update" | "delete") | null;
+    value: boolean | AllClassesResponse | ('update' | 'delete') | null;
   }) => {
     setModalState((prev) => ({
       ...prev,
@@ -232,29 +282,30 @@ const AdminClasses = () => {
     const payload = {
       className: data.nameOfClass,
       teacherId: Number(data.teacher),
+      courses: data.courses,
     };
 
     try {
-      const response = await api.post("/class", payload);
-      await queryClient.invalidateQueries({ queryKey: ["classes"] }); // invalidate and refetch classes
+      const response = await api.post('/class', payload);
+      await queryClient.invalidateQueries({ queryKey: ['classes'] }); // invalidate and refetch classes
       resetForm();
-      toast.success(response.data.message || "Created Successfully");
+      toast.success(response.data.message || 'Created Successfully');
     } catch (error) {
       errorLogger(error);
     }
   };
 
   // assign teacher and class
-  const handleAssignClass: SubmitHandler<FormProps> = async (data) => {
+  const handleAssignClass: SubmitHandler<AssignFormProps> = async (data) => {
     try {
       const response = await api.patch(
         `/teachers/${data.nameOfClass}/assign-class-teacher`,
         {
           teacherId: Number(data.teacher),
-        }
+        },
       );
-      await queryClient.invalidateQueries({ queryKey: ["teachers"] });
-      toast.success(response.data.message || "Assigned Successfully");
+      await queryClient.invalidateQueries({ queryKey: ['teachers'] });
+      toast.success(response.data.message || 'Assigned Successfully');
       assignTeacherReset();
     } catch (error) {
       errorLogger(error);
@@ -267,9 +318,9 @@ const AdminClasses = () => {
 
     try {
       const res = await api.delete(`/class/${modalState?.modalContent?.id}`);
-      await queryClient.invalidateQueries({ queryKey: ["classes"] }); // invalidate and refetch classes
-      toast.success(res.data.message || "Deleted Successfully");
-      updateModalState({ key: "isOpen", value: false });
+      await queryClient.invalidateQueries({ queryKey: ['classes'] }); // invalidate and refetch classes
+      toast.success(res.data.message || 'Deleted Successfully');
+      updateModalState({ key: 'isOpen', value: false });
     } catch (error) {
       errorLogger(error);
     } finally {
@@ -280,71 +331,105 @@ const AdminClasses = () => {
   if (classesError) {
     errorLogger(classesError);
   }
+  if (coursesError) {
+    errorLogger(coursesError);
+  }
   if (teachersError) {
     errorLogger(teachersError);
   }
 
   return (
-    <section className="flex flex-col gap-4 w-full">
-      <h1 className="text-2xl font-semibold">Manage Classes</h1>
+    <section className='flex flex-col gap-4 w-full'>
+      <h1 className='text-2xl font-semibold'>Manage Classes</h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 w-full gap-4">
-        <div className="col-span-1 lg:col-span-2 flex flex-col gap-3 bg-background rounded-xl w-full p-3">
-          <div className="flex flex-col gap-1 w-full">
-            <span className="text-base font-bold">Create A Class</span>
+      <div className='grid grid-cols-1 lg:grid-cols-3 w-full gap-4'>
+        <div className='col-span-1 lg:col-span-2 flex flex-col gap-3 bg-background rounded-xl w-full p-3'>
+          <div className='flex flex-col gap-1 w-full'>
+            <span className='text-base font-bold'>Create A Class</span>
 
             <form
               onSubmit={handleSubmit(handleCreateClass)}
-              className="flex flex-col items-stretch gap-2 w-full"
+              className='flex flex-col items-stretch gap-2 w-full'
             >
-              <div className="flex flex-col gap-1 w-full">
-                <label htmlFor="teacher">
-                  <span className="text-sm text-neutral-600">
+              <div className='flex flex-col gap-1 w-full'>
+                <label htmlFor='teacher'>
+                  <span className='text-sm text-neutral-600'>
                     Select Teacher
                   </span>
 
                   <select
-                    id="teacher"
-                    {...register("teacher")}
+                    id='teacher'
+                    {...register('teacher')}
                     disabled={teachersLoading || !allTeachers}
-                    className="block w-full rounded-md border border-neutral-300 p-1 h-10 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 bg-background text-foreground caret-foreground"
+                    className='block w-full rounded-md border border-neutral-300 p-1 h-10 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 bg-background text-foreground caret-foreground'
                   >
-                    <option value={""} disabled>
+                    <option value={''} disabled>
                       Select Teacher
                     </option>
                     {allTeachers?.map((teacher) => (
                       <option key={teacher.id} value={teacher.id}>
-                        {teacher.firstname + " " + teacher.lastname}
+                        {teacher.firstname + ' ' + teacher.lastname}
                       </option>
                     ))}
                   </select>
                 </label>
 
                 {errors?.teacher?.message && (
-                  <small className="text-error-500">
+                  <small className='text-error-500'>
                     {errors?.teacher?.message}
                   </small>
                 )}
               </div>
 
               <Input
-                label="Name of class"
-                name="nameOfClass"
+                label='Name of class'
+                name='nameOfClass'
                 autoFocus={false}
-                placeholder="Name of Class"
+                placeholder='Name of Class'
                 hookFormRegister={register}
                 errorText={errors?.nameOfClass?.message}
               />
 
-              <div className="w-fit">
+              <div>
+                <span className='text-sm text-neutral-600'>Select Courses</span>
+                <div className='w-full flex gap-4 flex-wrap'>
+                  {coursesData?.map((course) => (
+                    <label
+                      htmlFor={`course-${course.id}`}
+                      key={course.id}
+                      className='flex gap-2'
+                    >
+                      {course.title}
+                      <input
+                        type='checkbox'
+                        id={`course-${course.id}`}
+                        value={course.id}
+                        {...register('courses')}
+                      />
+                    </label>
+                  ))}
+                </div>
+              </div>
+              {errors?.courses?.message && (
+                <small className='text-error-500'>
+                  {errors?.courses?.message as React.ReactNode}
+                </small>
+              )}
+
+              <div className='w-fit'>
                 <Button
-                  type="submit"
-                  disabled={classesLoading || teachersLoading || isSubmitting}
+                  type='submit'
+                  disabled={
+                    classesLoading ||
+                    teachersLoading ||
+                    isCoursesDataLoading ||
+                    isSubmitting
+                  }
                 >
-                  <div className="flex flex-row items-center gap-2 w-full">
+                  <div className='flex flex-row items-center gap-2 w-full'>
                     <GoPlus />
                     <span>
-                      {isSubmitting ? "Creating" : "Create New Class"}
+                      {isSubmitting ? 'Creating' : 'Create New Class'}
                     </span>
                   </div>
                 </Button>
@@ -354,40 +439,40 @@ const AdminClasses = () => {
 
           <AppTable
             data={allClasses ?? []}
-            label="All Classes"
+            label='All Classes'
             isLoading={classesLoading}
             headerColumns={headerColumns}
             itemKey={({ itemIndex }) => `${itemIndex}`}
             onActionClick={({ item }) =>
-              updateModalState({ key: "modalContent", value: item })
+              updateModalState({ key: 'modalContent', value: item })
             }
             renderItem={({ item }) => (
               <>
                 <TableDataItem>{item.className}</TableDataItem>
                 <TableDataItem>
-                  {item?.teacher?.firstname + " " + item?.teacher?.lastname}
+                  {item?.teacher?.firstname + ' ' + item?.teacher?.lastname}
                 </TableDataItem>
                 <TableDataItem>{item.courses.length}</TableDataItem>
                 <TableDataItem>{formatDate(item.createdAt)}</TableDataItem>
               </>
             )}
             actionModalContent={
-              <div className="flex flex-col gap-2 w-full">
+              <div className='flex flex-col gap-2 w-full'>
                 <button
                   onClick={() => {
-                    updateModalState({ key: "type", value: "update" });
-                    updateModalState({ key: "isOpen", value: true });
+                    updateModalState({ key: 'type', value: 'update' });
+                    updateModalState({ key: 'isOpen', value: true });
                   }}
-                  className="px-2 py-1 rounded bg-primary-500 text-white text-xs cursor-pointer"
+                  className='px-2 py-1 rounded bg-primary-500 text-white text-xs cursor-pointer'
                 >
                   Update
                 </button>
                 <button
                   onClick={() => {
-                    updateModalState({ key: "type", value: "delete" });
-                    updateModalState({ key: "isOpen", value: true });
+                    updateModalState({ key: 'type', value: 'delete' });
+                    updateModalState({ key: 'isOpen', value: true });
                   }}
-                  className="px-2 py-1 rounded bg-error-500 text-white text-xs cursor-pointer"
+                  className='px-2 py-1 rounded bg-error-500 text-white text-xs cursor-pointer'
                 >
                   Delete
                 </button>
@@ -396,59 +481,59 @@ const AdminClasses = () => {
           />
         </div>
 
-        <div className="col-span-1 flex flex-col gap-5 bg-background rounded-xl w-full p-3">
-          <div className="flex flex-col gap-3 w-full">
-            <div className="py-2 border-b border-b-neutral-500">
-              <span className="text-base font-bold">
+        <div className='col-span-1 flex flex-col gap-5 bg-background rounded-xl w-full p-3'>
+          <div className='flex flex-col gap-3 w-full'>
+            <div className='py-2 border-b border-b-neutral-500'>
+              <span className='text-base font-bold'>
                 Assign Teacher to a Class
               </span>
             </div>
 
             <form
               onSubmit={assignTeacherSubmit(handleAssignClass)}
-              className="flex flex-col items-stretch gap-2 w-full"
+              className='flex flex-col items-stretch gap-2 w-full'
             >
-              <div className="flex flex-col gap-1 w-full">
-                <label htmlFor="teacher">
-                  <span className="text-sm text-neutral-600">
+              <div className='flex flex-col gap-1 w-full'>
+                <label htmlFor='teacher'>
+                  <span className='text-sm text-neutral-600'>
                     Select Teacher
                   </span>
 
                   <select
-                    id="teacher"
-                    {...assignTeacherReg("teacher")}
+                    id='teacher'
+                    {...assignTeacherReg('teacher')}
                     disabled={teachersLoading || !allTeachers}
-                    className="block w-full rounded-md border border-neutral-300 p-1 h-10 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 bg-background text-foreground caret-foreground"
+                    className='block w-full rounded-md border border-neutral-300 p-1 h-10 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 bg-background text-foreground caret-foreground'
                   >
-                    <option value={""} disabled>
+                    <option value={''} disabled>
                       Select Teacher
                     </option>
                     {allTeachers?.map((teacher) => (
                       <option key={teacher.id} value={teacher.id}>
-                        {teacher.firstname + " " + teacher.lastname}
+                        {teacher.firstname + ' ' + teacher.lastname}
                       </option>
                     ))}
                   </select>
                 </label>
 
                 {assignTeacherError?.teacher?.message && (
-                  <small className="text-error-500">
+                  <small className='text-error-500'>
                     {assignTeacherError?.teacher?.message}
                   </small>
                 )}
               </div>
 
-              <div className="flex flex-col gap-1 w-full">
-                <label htmlFor="class">
-                  <span className="text-sm text-neutral-600">Select Class</span>
+              <div className='flex flex-col gap-1 w-full'>
+                <label htmlFor='class'>
+                  <span className='text-sm text-neutral-600'>Select Class</span>
 
                   <select
-                    id="class"
-                    {...assignTeacherReg("nameOfClass")}
+                    id='class'
+                    {...assignTeacherReg('nameOfClass')}
                     disabled={teachersLoading || !allTeachers}
-                    className="block w-full rounded-md border border-neutral-300 p-1 h-10 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 bg-background text-foreground caret-foreground"
+                    className='block w-full rounded-md border border-neutral-300 p-1 h-10 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 bg-background text-foreground caret-foreground'
                   >
-                    <option value={""} disabled>
+                    <option value={''} disabled>
                       Select Class
                     </option>
                     {allClasses?.map((item) => (
@@ -460,42 +545,42 @@ const AdminClasses = () => {
                 </label>
 
                 {assignTeacherError?.nameOfClass?.message && (
-                  <small className="text-error-500">
+                  <small className='text-error-500'>
                     {assignTeacherError?.nameOfClass?.message}
                   </small>
                 )}
               </div>
 
-              <div className="w-fit">
+              <div className='w-fit'>
                 <Button
-                  type="submit"
+                  type='submit'
                   disabled={
                     classesLoading ||
                     teachersLoading ||
                     assignTeacherIsSubmitting
                   }
                 >
-                  {assignTeacherIsSubmitting ? "Assigning" : "Assign"}
+                  {assignTeacherIsSubmitting ? 'Assigning' : 'Assign'}
                 </Button>
               </div>
             </form>
           </div>
 
-          <div className="flex flex-col gap-3 w-full">
-            <div className="py-2 border-b border-b-neutral-500">
-              <span className="text-base font-bold">Quick Stats</span>
+          <div className='flex flex-col gap-3 w-full'>
+            <div className='py-2 border-b border-b-neutral-500'>
+              <span className='text-base font-bold'>Quick Stats</span>
             </div>
 
-            <div className="flex flex-col gap-4 w-full">
+            <div className='flex flex-col gap-4 w-full'>
               {quickStats.map((stat) => (
-                <div key={stat.label} className="flex flex-col gap-1 w-full">
-                  <div className="flex flex-row items-center gap-2">
+                <div key={stat.label} className='flex flex-col gap-1 w-full'>
+                  <div className='flex flex-row items-center gap-2'>
                     <>{stat.icon}</>
-                    <span className="text-sm text-neutral-600">
+                    <span className='text-sm text-neutral-600'>
                       {stat.label}
                     </span>
                   </div>
-                  <span className="text-base font-medium">{stat.count}</span>
+                  <span className='text-base font-medium'>{stat.count}</span>
                 </div>
               ))}
             </div>
@@ -507,40 +592,41 @@ const AdminClasses = () => {
       <Modal
         modalIsOpen={modalState.isOpen}
         setModalIsOpen={(value) =>
-          updateModalState({ key: "isOpen", value: value as boolean })
+          updateModalState({ key: 'isOpen', value: value as boolean })
         }
       >
-        {modalState.type === "update" ? (
+        {modalState.type === 'update' ? (
           <UpdateClass
             singleClass={modalState.modalContent}
             allTeachers={allTeachers ?? []}
-            closeModal={() => updateModalState({ key: "isOpen", value: false })}
+            closeModal={() => updateModalState({ key: 'isOpen', value: false })}
+            coursesData={coursesData ?? []}
           />
         ) : (
-          <div className="w-full h-full flex flex-col gap-6">
-            <div className="flex flex-col items-center gap-2 w-full">
-              <span className="text-lg text-error-700 font-medium">
+          <div className='w-full h-full flex flex-col gap-6'>
+            <div className='flex flex-col items-center gap-2 w-full'>
+              <span className='text-lg text-error-700 font-medium'>
                 Delete Class
               </span>
-              <span className="text-sm font-normal">
+              <span className='text-sm font-normal'>
                 This action is irreversible
               </span>
             </div>
 
-            <div className="flex flex-row items-center justify-center w-full">
-              <div className="flex flex-row items-center gap-2 w-full max-w-[50%] mx-auto">
+            <div className='flex flex-row items-center justify-center w-full'>
+              <div className='flex flex-row items-center gap-2 w-full max-w-[50%] mx-auto'>
                 <Button
-                  variant="danger"
+                  variant='danger'
                   disabled={isDeleting}
                   onClick={handleDeleteClass}
                 >
-                  {isDeleting ? "Deleting..." : "Yes, Delete"}
+                  {isDeleting ? 'Deleting...' : 'Yes, Delete'}
                 </Button>
 
                 <Button
                   disabled={isDeleting}
                   onClick={() =>
-                    updateModalState({ key: "isOpen", value: false })
+                    updateModalState({ key: 'isOpen', value: false })
                   }
                 >
                   No, Cancel
