@@ -43,11 +43,6 @@ const adminRoutes: { path: string; label: string; icon: ReactNode }[] = [
     label: 'Teachers',
     icon: <GiTeacher size={20} />,
   },
-  {
-    path: '/admin/settings',
-    label: 'System Settings',
-    icon: <IoIosSettings size={20} />,
-  },
 
   {
     path: '/admin/tests',
@@ -68,6 +63,11 @@ const adminRoutes: { path: string; label: string; icon: ReactNode }[] = [
     path: '/admin/profile',
     label: 'Profile',
     icon: <BiUser size={20} />,
+  },
+  {
+    path: '/admin/settings',
+    label: 'System Settings',
+    icon: <IoIosSettings size={20} />,
   },
 ];
 

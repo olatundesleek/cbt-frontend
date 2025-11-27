@@ -30,7 +30,7 @@ export default function AvailableTestCard({
 }: AvailableTestCardProps) {
   const { push } = useRouter();
 
-  const { setSelectedTest } = useTestStore();
+ const setSelectedTest = useTestStore((s) => s.setSelectedTest);
 
   const computeStatusClass = () => {
     switch (status) {

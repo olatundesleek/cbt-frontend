@@ -25,6 +25,7 @@ export interface RegisterPayload {
   username: string;
   password: string;
   role: UserRole;
+  classId?: number;
 }
 
 export interface LoginResponse {
