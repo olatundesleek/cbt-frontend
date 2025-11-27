@@ -201,5 +201,6 @@ export interface AllQuestionBank {
   id: number;
   questionBankName: string;
   questions: QuestionsInBank[];
-  teacher: Pick<AllTeachersResponse, "firstname" | "lastname">;
+  teacher: Pick<AllTeachersResponse, 'firstname' | 'lastname'>;
+  _count: { questions: number };
 }

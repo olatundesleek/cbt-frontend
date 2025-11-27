@@ -13,6 +13,8 @@ import {
   FetchQuestionsByNumberResponse,
   RegisteredCoursesResponse,
   AdminTestsResponse,
+  CreateTestRequest,
+  CreateTestResponse,
 } from '@/types/tests.types';
 
 export const testsServices = {
@@ -30,6 +32,21 @@ export const testsServices = {
 
   getAdminTests: async (): Promise<AdminTestsResponse> => {
     const response = await axios.get('/tests');
+    return response.data;
+  },
+  createTest: async (data: CreateTestRequest): Promise<CreateTestResponse> => {
+    const response = await axios.post('/tests', data);
+    return response.data;
+  },
+  updateTest: async (
+    testId: number | string,
+    data: CreateTestRequest,
+  ): Promise<CreateTestResponse> => {
+    const response = await axios.patch(`/tests/${testId}`, data);
+    return response.data;
+  },
+  deleteTest: async (testId: number | string) => {
+    const response = await axios.delete(`/tests/${testId}`);
     return response.data;
   },
 };

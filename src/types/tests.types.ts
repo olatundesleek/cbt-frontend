@@ -346,3 +346,23 @@ export interface AdminTestsResponse {
     };
   }[];
 } 
+
+// Create Test request payload
+export interface CreateTestRequest {
+  title: string;
+  type: 'TEST' | 'EXAM' | string;
+  testState: 'active' | 'scheduled' | 'completed' | string;
+  startTime: string | null;
+  endTime: string | null;
+  duration: number;
+  courseId: number;
+  bankId: number;
+  attemptsAllowed: number;
+  passMark: number;
+}
+
+export interface CreateTestResponse {
+  success: boolean;
+  message: string;
+  data: AdminTestsResponse['data'][number];
+}
