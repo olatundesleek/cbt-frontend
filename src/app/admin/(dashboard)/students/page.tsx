@@ -19,10 +19,14 @@ import StudentSummary from '@/components/tests/StudentSummary';
 import { useMemo, useState } from 'react';
 import type { Student } from '@/types/students.types';
 import useAssignClass from '@/features/students/hooks/useAssignClass';
+import { useGetClasses } from '@/features/dashboard/queries/useDashboard';
+import { AllClassesResponse } from '@/types/dashboard.types';
 
 export default function AdminStudentsPage() {
   const { data: adminStudentsData, isLoading: isStudentsLoading } =
     useAdminStudents();
+
+  const { data: allClasses, isLoading: classesLoading } = useGetClasses();
 
   const [filter, setFilter] = useState<FilterState>({ query: '' });
 
@@ -32,22 +36,13 @@ export default function AdminStudentsPage() {
   );
 
   const classes = useMemo(() => {
-    const arr = students.flatMap((s) =>
-      s.class.courses.map((c) => c.title).filter((v): v is string => !!v),
-    );
-    return Array.from(new Set(arr));
-  }, [students]);
+    const arr = allClasses?.flatMap((c) => c.className);
+    return Array.from(new Set(arr)).filter((v): v is string => !!v);
+  }, [allClasses]);
 
-  const classesWithIds = useMemo(() => {
-    const map = new Map<number, string>();
-    students.forEach((s) => {
-      if (s.class?.id) map.set(s.class.id, s.class.className);
-    });
-    return Array.from(map.entries()).map(([id, className]) => ({
-      id,
-      className,
-    }));
-  }, [students]);
+ 
+
+ 
 
   const courses = useMemo(() => {
     const arr = students.flatMap((s) =>
@@ -55,6 +50,7 @@ export default function AdminStudentsPage() {
     );
     return Array.from(new Set(arr));
   }, [students]);
+ 
 
   const filteredData = useMemo(() => {
     return students.filter((s) => {
@@ -131,7 +127,7 @@ export default function AdminStudentsPage() {
 
         <div>
           <AppTable
-            isLoading={isStudentsLoading}
+            isLoading={isStudentsLoading || classesLoading}
             headerColumns={tableHeaders}
             data={filteredData}
             itemKey={({ item }) => `${item.username}`}
@@ -164,6 +160,15 @@ export default function AdminStudentsPage() {
               <div className='flex flex-col gap-2 w-full'>
                 <button
                   onClick={() => {
+                    updateModalState({ key: 'type', value: 'assign' });
+                    updateModalState({ key: 'isOpen', value: true });
+                  }}
+                  className='px-2 py-1 rounded bg-emerald-600 text-white text-xs cursor-pointer'
+                >
+                  Assign
+                </button>
+                <button
+                  onClick={() => {
                     updateModalState({ key: 'type', value: 'update' });
                     updateModalState({ key: 'isOpen', value: true });
                   }}
@@ -179,15 +184,6 @@ export default function AdminStudentsPage() {
                   className='px-2 py-1 rounded bg-error-500 text-white text-xs cursor-pointer'
                 >
                   Delete
-                </button>
-                <button
-                  onClick={() => {
-                    updateModalState({ key: 'type', value: 'assign' });
-                    updateModalState({ key: 'isOpen', value: true });
-                  }}
-                  className='px-2 py-1 rounded bg-emerald-600 text-white text-xs cursor-pointer'
-                >
-                  Assign
                 </button>
               </div>
             }
@@ -207,7 +203,7 @@ export default function AdminStudentsPage() {
       >
         {modalState.type === 'create' ? (
           <AddStudentForm
-            classes={classesWithIds}
+            classes={allClasses || []}
             onClose={() => {
               updateModalState({ key: 'isOpen', value: false });
               updateModalState({ key: 'modalContent', value: null });
@@ -215,7 +211,7 @@ export default function AdminStudentsPage() {
           />
         ) : modalState.type === 'update' ? (
           <UpdateStudentForm
-            classes={classesWithIds}
+            classes={allClasses || []}
             initialData={modalState.modalContent}
             onClose={() => {
               updateModalState({ key: 'isOpen', value: false });
@@ -224,7 +220,7 @@ export default function AdminStudentsPage() {
           />
         ) : modalState.type === 'assign' ? (
           <AssignToClassForm
-            classes={classesWithIds}
+            classes={allClasses || []}
             initialData={modalState.modalContent}
             onClose={() => {
               updateModalState({ key: 'isOpen', value: false });
@@ -284,7 +280,7 @@ function AssignToClassForm({
   initialData,
   onClose,
 }: {
-  classes: { id: number; className: string }[];
+  classes: AllClassesResponse[];
   initialData: Student | null;
   onClose?: () => void;
 }) {
@@ -296,7 +292,11 @@ function AssignToClassForm({
     register,
     handleSubmit,
     formState: { isSubmitting },
-  } = useForm<FormValues>();
+  } = useForm<FormValues>({
+    defaultValues: {
+      classId: initialData?.class.id.toString() || undefined,
+    },
+  });
 
   const onSubmit = async (data: FormValues) => {
     if (!initialData) return;
@@ -304,8 +304,6 @@ function AssignToClassForm({
       await assignMutation.mutateAsync({
         studentId: initialData.id,
         payload: {
-          username: initialData.username,
-          studentId: initialData.id,
           classId: Number(data.classId),
         },
       });
@@ -323,9 +321,9 @@ function AssignToClassForm({
           {classes.map((c) => (
             <label key={c.id} className='flex gap-2 items-center'>
               <input
-                {...register('classId', { required: true })}
                 type='radio'
                 value={`${c.id}`}
+                {...register('classId', { required: true })}
               />
               <span>{c.className}</span>
             </label>
@@ -357,7 +355,6 @@ const createStudentSchema = Yup.object({
   classId: Yup.string().required('Class is required'),
 });
 
-
 const passwordUpdateSchema = Yup.object({
   newPassword: Yup.string()
     .min(6, 'Password must be at least 6 characters')
@@ -371,7 +368,7 @@ function AddStudentForm({
   classes,
   onClose,
 }: {
-  classes: { id: number; className: string }[];
+  classes: AllClassesResponse[];
   onClose?: () => void;
 }) {
   type FormValues = {
@@ -464,7 +461,7 @@ function UpdateStudentForm({
   initialData,
   onClose,
 }: {
-  classes: { id: number; className: string }[];
+  classes: AllClassesResponse[];
   initialData: Student | null;
   onClose?: () => void;
 }) {

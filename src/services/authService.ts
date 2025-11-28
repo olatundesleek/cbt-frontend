@@ -122,6 +122,22 @@ export const authService = {
     }
   },
 
+  changePassword: async (
+    studentId: string | number,
+    payload: { newPassword: string; confirmPassword: string },
+  ) => {
+    const response = await api.patch(
+      `${AUTH_BASE}/change-user-password/${studentId}`,
+      payload,
+    );
+    return response.data;
+  },
+
+  deleteUser: async (studentId: string | number) => {
+    const response = await api.delete(`${AUTH_BASE}/delete-user/${studentId}`);
+    return response.data;
+  },
+
   //   getCurrentUser: async (): Promise<LoginResponse> => {
   //     const response = await api.get(`${AUTH_BASE}/me`);
   //     return response.data;

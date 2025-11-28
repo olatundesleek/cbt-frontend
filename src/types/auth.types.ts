@@ -39,3 +39,25 @@ export interface LoginResponse {
 
 export interface LogoutResponse{ success: boolean, message: string };
   
+
+export interface UserPayload {
+  id: number;
+  firstname: string;
+  lastname: string;
+  username: string;
+  role?: string;
+}
+
+export interface ChangePasswordResponse {
+  success: true;
+  message: string;
+  data: { user: UserPayload };
+}
+
+export interface DeleteUserResponse {
+  success: true;
+  message: string;
+  data: { user: UserPayload };
+}
+
+

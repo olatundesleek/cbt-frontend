@@ -1,21 +1,27 @@
 import { useMutation } from '@tanstack/react-query';
-import { studentsServices } from '@/services/studentsService';
 import toast from 'react-hot-toast';
 import { queryClient } from '@/providers/query-provider';
-import { errorLogger } from '@/lib/axios';
 import { AppError } from '@/types/errors.types';
+import type { DeleteUserResponse } from '@/types/auth.types';
+import getErrorDetails from '@/utils/getErrorDetails';
+import { authService } from '@/services/authService';
 
 export default function useDeleteStudent() {
-  return useMutation<unknown, AppError, { studentId: string | number }>({
+  return useMutation<
+    DeleteUserResponse,
+    AppError,
+    { studentId: string | number }
+  >({
     mutationFn: async ({ studentId }) => {
-      return studentsServices.deleteUser(studentId);
+      return authService.deleteUser(studentId);
     },
-    onSuccess: () => {
-      toast.success('Student deleted');
+    onSuccess: (data) => {
+      toast.success(data?.message || 'Student deleted');
       queryClient.invalidateQueries({ queryKey: ['adminStudents'] });
     },
-    onError: (err: AppError) => {
-      errorLogger(err);
+    onError: (err: unknown) => {
+      const msg = getErrorDetails(err);
+      toast.error(msg || 'Something went wrong');
     },
   });
 }

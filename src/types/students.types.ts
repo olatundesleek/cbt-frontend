@@ -25,3 +25,10 @@ export interface AdminStudentsResponse {
   message: string;
   data: Student[];
 }
+
+
+export interface AssignToClassResponse {
+  success: true;
+  message: string;
+  data: Student;
+}
