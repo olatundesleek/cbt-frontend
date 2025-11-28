@@ -12,7 +12,7 @@ import { ThemeToggle } from './ThemeToggle';
 import { useState } from 'react';
 import { HiArrowRightOnRectangle } from 'react-icons/hi2';
 import useLogout from '@/hooks/useLogout';
-import { Button, SpinnerMini } from '../ui';
+import { SpinnerMini } from '../ui';
 
 const navigationLinks = [
   { name: 'Dashboard', href: '/dashboard' },

@@ -15,13 +15,11 @@ export default function useUpdateTest() {
   >({
     mutationFn: ({ id, payload }) => testsServices.updateTest(id, payload),
     onSuccess: (data) => {
-      console.log({ data });
       toast.success(data.message || 'Test updated');
       queryClient.invalidateQueries({ queryKey: ['adminTests'] });
       queryClient.invalidateQueries({ queryKey: ['tests'] });
     },
     onError: (err: AppError | unknown) => {
-      console.log(err);
       const message = getErrorDetails(err);
       toast.error(message || 'Failed to update test');
     },

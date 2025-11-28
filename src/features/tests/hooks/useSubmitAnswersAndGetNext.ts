@@ -9,6 +9,7 @@ import {
 } from '@/types/tests.types';
 import { AppError } from '@/types/errors.types';
 import { useTestResultStore } from '@/store/useTestResultStore';
+import getErrorDetails from '@/utils/getErrorDetails';
 
 /**
  * React Query hook to submit answers for current page and get next questions
@@ -21,6 +22,7 @@ export function useSubmitAnswersAndGetNext() {
   const setShowSubmitButton = useTestAttemptStore((s) => s.setShowSubmitButton);
   const { setTestResult } = useTestResultStore();
   const router = useRouter();
+  const updateQuestionMap = useTestAttemptStore((s) => s.updateQuestionMap);
 
   return useMutation<
     SubmitAnswersAndGetNextResponse,
@@ -43,6 +45,14 @@ export function useSubmitAnswersAndGetNext() {
           // if (currentPage < totalPages - 1) {
           setCurrentPage(data.data.nextQuestions[0].displayNumber);
           // }
+
+          // Update questionId -> displayNumber map for newly fetched questions
+          updateQuestionMap(
+            data.data.nextQuestions.map((q) => ({
+              id: q.id,
+              displayNumber: q.displayNumber,
+            })),
+          );
         }
       } else if ('finished' in data && data.finished) {
         // Third variant: incomplete response - just redirect
@@ -52,7 +62,8 @@ export function useSubmitAnswersAndGetNext() {
       }
     },
     onError: (err) => {
-      toast.error(err.message);
+      const message = getErrorDetails(err);
+      toast.error(message);
     },
   });
 }

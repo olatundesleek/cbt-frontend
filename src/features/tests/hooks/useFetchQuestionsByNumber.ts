@@ -4,6 +4,7 @@ import { fetchQuestionsByNumber } from '@/services/testsService';
 import { useTestAttemptStore } from '@/store/useTestAttemptStore';
 import toast from 'react-hot-toast';
 import { AppError } from '@/types/errors.types';
+import getErrorDetails from '@/utils/getErrorDetails';
 
 /**
  * Hook to fetch a pair of questions containing a specific question number.
@@ -16,6 +17,7 @@ export function useFetchQuestionsByNumber(sessionId: number | string) {
   const setCurrentPage = useTestAttemptStore((s) => s.setCurrentPage);
   const setAnswers = useTestAttemptStore((s) => s.setAnswers);
   const setShowSubmitButton = useTestAttemptStore((s) => s.setShowSubmitButton);
+  const updateQuestionMap = useTestAttemptStore((s) => s.updateQuestionMap);
 
   return useMutation<FetchQuestionsByNumberResponse, AppError, number>({
     mutationFn: (questionNumber: number) =>
@@ -43,6 +45,14 @@ export function useFetchQuestionsByNumber(sessionId: number | string) {
         });
         setAnswers(merged);
 
+        // Update questionId -> displayNumber map for newly fetched questions
+        updateQuestionMap(
+          nextQuestions.map((q) => ({
+            id: q.id,
+            displayNumber: q.displayNumber,
+          })),
+        );
+
         // Update submit visibility
         setShowSubmitButton(showSubmitButton || finished);
 
@@ -55,7 +65,8 @@ export function useFetchQuestionsByNumber(sessionId: number | string) {
       }
     },
     onError: (err) => {
-      toast.error(err.message);
+      const message = getErrorDetails(err);
+      toast.error(message);
     },
   });
 }

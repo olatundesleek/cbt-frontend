@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { SubmitTestSessionResponse } from '@/types/tests.types';
 import { AppError } from '@/types/errors.types';
 import { useTestResultStore } from '@/store/useTestResultStore';
+import getErrorDetails from '@/utils/getErrorDetails';
 
 /**
  * React Query hook to submit/end a test session
@@ -27,7 +28,8 @@ export function useSubmitTestSession(sessionId: string | number) {
       }
     },
     onError: (err) => {
-      toast.error(err.message);
+        const message = getErrorDetails(err);
+        toast.error(message);
     },
   });
 }

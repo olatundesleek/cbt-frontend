@@ -1,6 +1,6 @@
 import { useMutation, type UseMutationResult } from '@tanstack/react-query';
 import { startTestSession } from '@/services/testsService';
-import type { AppError } from '@/types/errors.types';
+import { type AppError } from '@/types/errors.types';
 import type {
   StartTestSessionRequest,
   StartTestSessionResponse,
@@ -8,6 +8,7 @@ import type {
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useTestAttemptStore } from '@/store/useTestAttemptStore';
+import getErrorDetails from '@/utils/getErrorDetails';
 
 /**
  * React Query hook to start a test session
@@ -27,6 +28,7 @@ export function useStartTestSession(): UseMutationResult<
   const setCourse = useTestAttemptStore((s) => s.setCourse);
   const setCurrentPage = useTestAttemptStore((s) => s.setCurrentPage);
   const setAnswers = useTestAttemptStore((s) => s.setAnswers);
+  const updateQuestionMap = useTestAttemptStore((s) => s.updateQuestionMap);
 
   return useMutation<
     StartTestSessionResponse,
@@ -53,6 +55,14 @@ export function useStartTestSession(): UseMutationResult<
         });
         setAnswers(merged);
 
+        // Populate question id -> displayNumber map for navigator
+        updateQuestionMap(
+          data.data.questions.map((q) => ({
+            id: q.id,
+            displayNumber: q.displayNumber,
+          })),
+        );
+
         // Route to /attempt/[sessionId]
 
         replace(
@@ -61,7 +71,8 @@ export function useStartTestSession(): UseMutationResult<
       }
     },
     onError: (err) => {
-      toast.error(err.message);
+      const message = getErrorDetails(err);
+      toast.error(message);
     },
   });
 }

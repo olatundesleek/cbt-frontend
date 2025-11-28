@@ -16,7 +16,14 @@ interface TestAttemptStore {
   currentPage: number;
   totalPages: number;
   answers: Record<number, string>;
+  // Map question id -> displayNumber to help UI components (navigator)
+  // determine which page/display number an answer belongs to.
+  questionMap: Record<number, number>;
   showSubmitButton: boolean | null;
+  setQuestionMap: (m: Record<number, number>) => void;
+  updateQuestionMap: (
+    entries: Array<{ id: number; displayNumber: number }>,
+  ) => void;
   setSession: (s: Session | null) => void;
   setQuestions: (q: Question[]) => void;
   setProgress: (p: Progress | null) => void;
@@ -26,6 +33,7 @@ interface TestAttemptStore {
   setAnswers: (a: Record<number, string>) => void;
   updateAnswer: (questionId: number, selectedOption: string) => void;
   setShowSubmitButton: (v: boolean | null) => void;
+  reset: () => void;
 }
 
 export const useTestAttemptStore = create<TestAttemptStore>((set, get) => ({
@@ -37,7 +45,17 @@ export const useTestAttemptStore = create<TestAttemptStore>((set, get) => ({
   currentPage: 0,
   totalPages: 0,
   answers: {},
+  questionMap: {},
   showSubmitButton: null,
+  setQuestionMap: (m) => set({ questionMap: m }),
+  updateQuestionMap: (entries) =>
+    set((state) => {
+      const next = { ...state.questionMap };
+      entries.forEach((e) => {
+        next[e.id] = e.displayNumber;
+      });
+      return { questionMap: next } as Partial<TestAttemptStore>;
+    }),
   setSession: (s) => set({ session: s }),
   setQuestions: (q) => set({ questions: q }),
   setProgress: (p) =>
@@ -49,4 +67,19 @@ export const useTestAttemptStore = create<TestAttemptStore>((set, get) => ({
   updateAnswer: (questionId, selectedOption) =>
     set({ answers: { ...get().answers, [questionId]: selectedOption } }),
   setShowSubmitButton: (v) => set({ showSubmitButton: v }),
+  // Reset the store to initial empty state. Useful after a test finishes so a
+  // new attempt starts fresh instead of reusing previous state.
+  reset: () =>
+    set({
+      session: null,
+      questions: [],
+      progress: null,
+      student: null,
+      course: null,
+      currentPage: 0,
+      totalPages: 0,
+      answers: {},
+      questionMap: {},
+      showSubmitButton: null,
+    }),
 }));

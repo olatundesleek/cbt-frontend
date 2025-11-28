@@ -4,17 +4,25 @@ import { FaCheckCircle, FaBook, FaHome, FaArrowRight } from 'react-icons/fa';
 import { useEffect } from 'react';
 import { useTestStore } from '@/store/useTestStore';
 import { useTestResultStore } from '@/store/useTestResultStore';
+import { useTestAttemptStore } from '@/store/useTestAttemptStore';
 
 export default function EndedTestPage() {
   const router = useRouter();
   // const { testResult } = useTestResult();
   const { testResult } = useTestResultStore();
   const { selectedTest } = useTestStore();
+  const resetAttempt = useTestAttemptStore((s) => s.reset);
 
   // Redirect if no test result (user accessed directly without submitting)
   useEffect(() => {
     if (!testResult || !selectedTest) {
       router.push('/tests');
+    }
+    // If we have a testResult (meaning user just finished), clear the
+    // in-progress test attempt state so a subsequent attempt doesn't reuse
+    // stale data.
+    if (testResult) {
+      resetAttempt();
     }
   }, [testResult, router, selectedTest]);
 

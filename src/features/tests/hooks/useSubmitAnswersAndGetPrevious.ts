@@ -7,6 +7,7 @@ import {
   SubmitAnswersAndGetPreviousResponse,
 } from '@/types/tests.types';
 import { AppError } from '@/types/errors.types';
+import getErrorDetails from '@/utils/getErrorDetails';
 
 /**
  * React Query hook to submit answers for current page and get previous questions
@@ -18,6 +19,7 @@ export function useSubmitAnswersAndGetPrevious() {
   const setQuestions = useTestAttemptStore((s) => s.setQuestions);
   const setProgress = useTestAttemptStore((s) => s.setProgress);
   const setShowSubmitButton = useTestAttemptStore((s) => s.setShowSubmitButton);
+  const updateQuestionMap = useTestAttemptStore((s) => s.updateQuestionMap);
 
   return useMutation<
     SubmitAnswersAndGetPreviousResponse,
@@ -37,10 +39,18 @@ export function useSubmitAnswersAndGetPrevious() {
         if (currentPage > 0) {
           setCurrentPage(currentPage - 1);
         }
+
+        updateQuestionMap(
+          data.data.previousQuestions.map((q) => ({
+            id: q.id,
+            displayNumber: q.displayNumber,
+          })),
+        );
       }
     },
     onError: (err) => {
-      toast.error(err.message);
+      const message = getErrorDetails(err);
+      toast.error(message);
     },
   });
 }
