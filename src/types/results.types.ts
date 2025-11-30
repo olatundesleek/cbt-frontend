@@ -61,3 +61,111 @@ export interface StudentResultDownloadResponse {
   message: string;
   details: string | null;
 }
+
+export interface ResultEntry {
+  course: {
+    id: number;
+    title: string;
+    description: string;
+    teacherId: number;
+    createdAt: string;
+  };
+  stats: {
+    totalTests: number;
+    completedTests: number;
+    averageScore: number;
+    highestScore: number;
+  };
+  tests: Array<{
+    id: number;
+    title: string;
+    type: 'EXAM' | 'TEST';
+    session: {
+      id: number;
+      score: number;
+      status: string;
+      startedAt: string;
+      endedAt: string;
+    };
+    student: {
+      id: number;
+      firstname: string;
+      lastname: string;
+      class: {
+        id: number;
+        className: string;
+        teacherId: number;
+        createdAt: string;
+      };
+    };
+    course: {
+      id: number;
+      title: string;
+      description: string;
+      teacherId: number;
+      createdAt: string;
+    };
+  }>;
+  overallStats: {
+    totalCourses: number;
+    totalTests: number;
+    testsCompleted: number;
+    averageScore: number;
+    highestScore: number;
+  };
+
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+}
+
+export interface getAllResultAdminResponse {
+  success: boolean;
+  message: string;
+  data: {
+    courses: ResultEntry[];
+  };
+}
+
+export interface TestSessionDetail {
+  id: number;
+  startedAt: string;
+  endedAt: string;
+  score: number | null;
+  status: string;
+}
+
+export interface SingleResultStudent {
+  id: number;
+  firstname?: string;
+  lastname?: string;
+  name?: string;
+  class?: {
+    id: number;
+    className: string;
+    teacherId?: number;
+    createdAt?: string;
+  };
+}
+
+export interface SingleResultTest {
+  id: number;
+  title: string;
+  type: string;
+  showResult?: boolean;
+}
+
+export interface AdminSingleResultResponse {
+  success: boolean;
+  message: string;
+  data: {
+    session: TestSessionDetail;
+    student: SingleResultStudent;
+    test: SingleResultTest;
+  answers?: Array<Record<string, unknown>>;
+    canViewAnswers?: boolean;
+  };
+}

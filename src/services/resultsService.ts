@@ -1,5 +1,7 @@
 import api from '@/lib/axios';
+import type { AdminSingleResultResponse } from '@/types/results.types';
 import {
+  getAllResultAdminResponse,
   StudentResultCoursesResponse,
   // StudentResultDownloadResponse,
 } from '@/types/results.types';
@@ -14,18 +16,27 @@ export const resultsServices = {
       response.data) as StudentResultCoursesResponse;
   },
 
-  // downloadStudentResultCourses:
-  //   async (): Promise<StudentResultDownloadResponse> => {
-  //     const response = await api.get('/results/student/courses/download', {
-  //       withCredentials: true,
-  //     });
-
-  //     return response.data;
-  //   },
   downloadStudentResultCourses: async (format: 'pdf' | 'excel') => {
     window.open(
       `${process.env.NEXT_PUBLIC_API_URL}/results/student/courses/download?format=${format}`,
       '_blank',
     );
+  },
+
+  getAllResultAdmin: async (): Promise<getAllResultAdminResponse> => {
+    const response = await api.get('/results');
+
+    return response.data;
+  },
+  updateResultVisibility: async (testId: number, showResult: boolean) => {
+    const response = await api.patch(`results/test/${testId}/release`, {
+      showResult,
+    });
+
+    return response.data;
+  },
+  getTestById: async (testId: number): Promise<AdminSingleResultResponse> => {
+    const response = await api.get(`results/test/${testId}`);
+    return response.data as AdminSingleResultResponse;
   },
 };
