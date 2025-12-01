@@ -65,6 +65,8 @@ export default function AdminSettingsPage() {
   useEffect(() => {
     if (!settingsData?.data) return;
     const settings = settingsData.data;
+    console.log(settings)
+    console.log(`Updating settings ......`)
     reset({
       appName: settings.appName ?? '',
       institutionName: settings.institutionName ?? '',
@@ -175,31 +177,32 @@ export default function AdminSettingsPage() {
                 if (f) setLogoPreview(URL.createObjectURL(f));
               }}
             />
-            <div className='flex items-center gap-4'>
+            <div className='flex items-center gap-4 border border-neutral-300 py-2 px-4 rounded'>
               {logoPreview ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={logoPreview}
                   alt='logo preview'
-                  className='h-20 object-contain'
+                  className='h-10 object-contain'
                 />
               ) : (
-                <div className='h-20 w-40 bg-neutral-100 flex items-center justify-center text-sm text-neutral-500'>
+                <div className='h-10 w-40 bg-neutral-100 flex items-center justify-center text-sm text-neutral-500 border border-dashed border-neutral-400 rounded'>
                   No logo
                 </div>
               )}
 
-              <div className='flex flex-col'>
-                <Button
+              <div className='flex gap-4'>
+                <button
                   type='button'
                   onClick={() => logoInputRef.current?.click()}
+                  className='border border-neutral-400 py-1 px-4 rounded cursor-pointer text-neutral-600 text-sm'
                 >
-                  {logoPreview ? 'Change' : 'Upload'}
-                </Button>
+                  {logoPreview ? 'Change' : 'Choose File'}
+                </button>
                 {logoPreview && (
                   <button
                     type='button'
-                    className='mt-2 text-sm text-red-600'
+                    className='border border-neutral-400 py-1 px-4 rounded cursor-pointer text-red-600 text-sm'
                     onClick={() => {
                       setLogoFile(null);
                       setLogoPreview(null);
@@ -227,31 +230,32 @@ export default function AdminSettingsPage() {
                 if (f) setFaviconPreview(URL.createObjectURL(f));
               }}
             />
-            <div className='flex items-center gap-4'>
+            <div className='flex items-center gap-4 border border-neutral-300 py-2 px-4 rounded'>
               {faviconPreview ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={faviconPreview}
                   alt='favicon preview'
-                  className='h-12 w-12 object-contain'
+                  className='h-10 w-12 object-contain'
                 />
               ) : (
-                <div className='h-12 w-12 bg-neutral-100 flex items-center justify-center text-sm text-neutral-500'>
+                <div className='h-10 w-40 bg-neutral-100 flex items-center justify-center text-sm text-neutral-500 border border-dashed border-neutral-400 rounded'>
                   No favicon
                 </div>
               )}
 
-              <div className='flex flex-col'>
-                <Button
+              <div className='flex gap-4'>
+                <button
                   type='button'
                   onClick={() => faviconInputRef.current?.click()}
+                  className='border border-neutral-400 py-1 px-4 rounded cursor-pointer text-neutral-600 text-sm'
                 >
                   {faviconPreview ? 'Change' : 'Upload'}
-                </Button>
+                </button>
                 {faviconPreview && (
                   <button
                     type='button'
-                    className='mt-2 text-sm text-red-600'
+                    className='border border-neutral-400 py-1 px-4 rounded cursor-pointer text-red-600 text-sm'
                     onClick={() => {
                       setFaviconFile(null);
                       setFaviconPreview(null);
@@ -268,20 +272,22 @@ export default function AdminSettingsPage() {
         </div>
 
         {/* Color picker and toggles */}
-        <div className='grid grid-cols-1 sm:grid-cols-3 gap-4 items-end'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 items-end'>
           <div className='flex flex-col'>
             <label className='text-sm text-neutral-700'>Primary Color</label>
-            <input
-              aria-label='primary-color'
-              type='color'
-              {...register('primaryColor')}
-              className='h-10 w-20 mt-1'
-            />
+            <div className='border border-neutral-300 rounded'>
+              <input
+                aria-label='primary-color'
+                type='color'
+                {...register('primaryColor')}
+                className='h-10 w-20 mt-1 cursor-pointer'
+              />
+            </div>
           </div>
 
           <div className='flex flex-col'>
             <label className='text-sm text-neutral-700'>System Status</label>
-            <div className='flex gap-3 mt-2'>
+            <div className='flex gap-3 h-12 items-center border border-neutral-300 rounded px-2 py-4'>
               <label className='flex items-center gap-1'>
                 <input
                   aria-label='status-active'
