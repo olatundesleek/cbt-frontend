@@ -67,47 +67,18 @@ export default function AdminSettingsPage() {
   useEffect(() => {
     if (!settingsData?.data) return;
     const settings = settingsData.data;
-    console.log(settings);
-    console.log(`Updating settings ......`);
     reset({
       appName: settings.appName ?? '',
       institutionName: settings.institutionName ?? '',
       shortName: settings.shortName ?? '',
       supportEmail: settings.supportEmail ?? '',
       primaryColor: settings.primaryColor ?? '#2563eb',
-      // normalize systemStatus to lowercase so it matches the radio input values ('active' | 'maintenance')
+
       systemStatus: (settings.systemStatus as string | undefined)
         ? (settings.systemStatus as string).toLowerCase()
         : 'active',
     });
-    // diagnostic: log react-hook-form's internal values after reset
-    setTimeout(() => {
-      try {
-        const values = getValues();
-        console.log('form values after reset:', values);
 
-        // Fallback: if reset didn't update DOM inputs in some environments
-        // (observed difference between dev and prod builds), explicitly call
-        // setValue for each known field so the inputs reflect the values.
-        if (!values || !values.appName) {
-          if (settings.appName) setValue('appName', settings.appName);
-          if (settings.institutionName)
-            setValue('institutionName', settings.institutionName);
-          if (settings.shortName) setValue('shortName', settings.shortName);
-          if (settings.supportEmail)
-            setValue('supportEmail', settings.supportEmail);
-          if (settings.primaryColor)
-            setValue('primaryColor', settings.primaryColor);
-          if (settings.systemStatus)
-            setValue(
-              'systemStatus',
-              (settings.systemStatus as string).toLowerCase(),
-            );
-        }
-      } catch {
-        // ignore
-      }
-    }, 0);
     // set previews only if provided (defer to avoid sync setState warnings)
     if (settings.logoUrl) {
       setTimeout(() => setLogoPreview(settings.logoUrl ?? null), 0);
