@@ -12,7 +12,12 @@ import { PersonalInformation, PasswordChange } from '@/types/profile.types';
  * StudentProfilePage Component
  * Main profile page that composes all profile sections
  */
-export default function StudentProfilePage() {
+export default function StudentProfilePage({
+  role = 'student',
+}: {
+  role?: 'admin' | 'student' | 'teacher';
+}) {
+  console.log({ role });
   const { profileData, isProfileLoading, profileError } = useProfile();
   const { mutate: updateProfile, isPending: isUpdatingProfile } =
     useUpdateProfile();
@@ -113,40 +118,53 @@ export default function StudentProfilePage() {
           fullName={`${profileData.firstname} ${profileData.lastname}`}
           level={profileData.class?.className || 'Not Assigned'}
           onEditProfile={handleEditProfile}
+          role={role}
         />
       </Card>
 
-      {/* Two Column Layout for Forms */}
-      <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-        {/* Left Column - Personal Information */}
-        <PersonalInfoSection
-          data={{
-            username: profileData.username,
-            firstname: profileData.firstname,
-            lastname: profileData.lastname,
-            email: '',
-            phoneNumber: '',
-            address: '',
-          }}
-          onSave={handleSavePersonalInfo}
-          isLoading={false}
-          isMutating={isUpdatingProfile}
-        />
+      <div className={`${role === 'admin' && 'flex gap-6'} space-y-6`}>
+        {/* Two Column Layout for Forms */}
+        <div
+          className={
+            role !== 'admin'
+              ? `grid grid-cols-1 lg:grid-cols-2 gap-6`
+              : 'w-full'
+          }
+        >
+          {/* Left Column - Personal Information */}
+          <PersonalInfoSection
+            data={{
+              username: profileData.username,
+              firstname: profileData.firstname,
+              lastname: profileData.lastname,
+              email: '',
+              phoneNumber: '',
+              address: '',
+            }}
+            onSave={handleSavePersonalInfo}
+            isLoading={false}
+            isMutating={isUpdatingProfile}
+          />
 
-        {/* Right Column - Academic Information */}
-        <AcademicInfoSection
-          data={{
-            className: profileData.class?.className || 'Not Assigned',
-          }}
-        />
-      </div>
+          {/* Right Column - Academic Information */}
+          {role === 'admin' ? null : (
+            <AcademicInfoSection
+              data={{
+                className: profileData.class?.className || 'Not Assigned',
+              }}
+              teacherOf={profileData.teacherOf}
+              role={role}
+            />
+          )}
+        </div>
 
-      {/* Password Change Section - Full Width */}
-      <div className='max-w-2xl'>
-        <PasswordChangeSection
-          onChangePassword={handleChangePassword}
-          isLoading={isUpdatingPassword}
-        />
+        {/* Password Change Section - Full Width */}
+        <div className={role === 'admin' ? 'w-full' : `max-w-2xl`}>
+          <PasswordChangeSection
+            onChangePassword={handleChangePassword}
+            isLoading={isUpdatingPassword}
+          />
+        </div>
       </div>
     </div>
   );

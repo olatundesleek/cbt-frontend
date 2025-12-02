@@ -3,7 +3,7 @@ import { create } from "zustand";
 interface UserState {
   firstname: string;
   lastname: string;
-  role?: string;
+  role?: 'admin' | 'teacher' | 'student';
   setName: ({
     firstname,
     lastname,
@@ -11,7 +11,7 @@ interface UserState {
     firstname: string;
     lastname: string;
   }) => void;
-  setRole: (role: string) => void;
+  setRole: (role: 'admin' | 'teacher' | 'student') => void;
 }
 
 export const useUserStore = create<UserState>()((set) => ({
@@ -19,5 +19,5 @@ export const useUserStore = create<UserState>()((set) => ({
   lastname: '',
   role: undefined,
   setName: ({ firstname, lastname }) => set(() => ({ firstname, lastname })),
-  setRole: (role: string) => set(() => ({ role })),
+  setRole: (role: 'admin' | 'teacher' | 'student') => set(() => ({ role })),
 }));

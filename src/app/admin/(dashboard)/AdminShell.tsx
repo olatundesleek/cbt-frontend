@@ -83,7 +83,7 @@ export default function AdminShell({
   role,
 }: {
   children: React.ReactNode;
-  role: string;
+  role: 'admin' | 'teacher' | 'student';
 }) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const { setName } = useUserStore();

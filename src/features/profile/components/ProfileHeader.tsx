@@ -4,6 +4,7 @@ interface ProfileHeaderProps {
   fullName: string;
   level: string;
   onEditProfile?: () => void;
+  role?: 'admin' | 'student' | 'teacher';
 }
 
 /**
@@ -14,6 +15,7 @@ export default function ProfileHeader({
   fullName,
   level,
   onEditProfile,
+  role = 'student',
 }: ProfileHeaderProps) {
   return (
     <div className='flex items-start justify-between gap-4'>
@@ -28,7 +30,9 @@ export default function ProfileHeader({
           <h2 className='text-2xl font-bold text-neutral-900 capitalize'>
             {fullName}
           </h2>
-          <p className='text-neutral-600 mt-1'>Student - {level}</p>
+          {role === 'student' && (
+            <p className='text-neutral-600 mt-1'>Student - {level}</p>
+          )}
         </div>
       </div>
 

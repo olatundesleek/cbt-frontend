@@ -3,6 +3,11 @@
  * Type definitions for student profile data and components
  */
 
+export interface TeacherOfType {
+  id: number;
+  className: string;
+}
+
 export interface StudentProfile {
   id: number;
   firstname: string;
@@ -15,7 +20,7 @@ export interface StudentProfile {
     teacherId: number;
     createdAt: string;
   };
-  teacherOf: unknown[];
+  teacherOf?: Array<TeacherOfType>;
 }
 
 export interface ProfileResponse {

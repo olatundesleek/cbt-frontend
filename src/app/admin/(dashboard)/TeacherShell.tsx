@@ -53,7 +53,7 @@ export default function TeacherShell({
   role,
 }: {
   children: React.ReactNode;
-  role: string;
+  role: 'admin' | 'teacher' | 'student';
 }) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const { setName } = useUserStore();
@@ -64,7 +64,6 @@ export default function TeacherShell({
     isLoading: isDashboardDataLoading,
     error: dashboardDataError,
   } = useDashboard<TeacherDashboardData>();
-
 
   useEffect(() => {
     if (!dashboardData) return;

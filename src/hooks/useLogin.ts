@@ -1,6 +1,7 @@
 import { authService } from '@/services/authService';
 import { LoginPayload, LoginResponse } from '@/types/auth.types';
 import { AppError } from '@/types/errors.types';
+import getErrorDetails from '@/utils/getErrorDetails';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
@@ -29,7 +30,7 @@ export default function useLogin() {
       replace('/admin/dashboard');
     },
 
-    onError: (err) => toast.error(err.details),
+    onError: (err) => toast.error(getErrorDetails(err)),
   });
 
   return { login, isLoginPending, isLoginError };

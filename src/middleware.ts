@@ -13,6 +13,7 @@ export async function middleware(request: NextRequest) {
 
   //check user roles
   const role = request.cookies.get("role")?.value;
+  console.log({ role });
 
   // Allow public paths
   if (publicPaths.includes(pathname) && !authToken) {
