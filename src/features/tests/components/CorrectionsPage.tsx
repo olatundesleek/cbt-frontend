@@ -3,10 +3,12 @@ import { useRouter } from 'next/navigation';
 import { useTestResultStore } from '@/store/useTestResultStore';
 import { useEffect } from 'react';
 import { FaCheckCircle, FaTimesCircle, FaArrowLeft } from 'react-icons/fa';
+import { useTestStore } from '@/store/useTestStore';
 
 export default function CorrectionsPage() {
   const router = useRouter();
   const testResult = useTestResultStore((s) => s.testResult);
+  const { selectedTest } = useTestStore();
 
   // Redirect if no test result
   useEffect(() => {
@@ -20,7 +22,7 @@ export default function CorrectionsPage() {
   }
 
   const { test, answers, score } = testResult;
-  const totalQuestions = answers.length;
+  const totalQuestions = selectedTest?.totalQuestions || 0;
   const correctCount = answers.filter((a) => a.isCorrect).length;
   const percentage = Math.round((score / totalQuestions) * 100);
 

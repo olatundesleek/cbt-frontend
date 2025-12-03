@@ -2,11 +2,13 @@ import { authService } from '@/services/authService';
 import { LoginPayload, LoginResponse } from '@/types/auth.types';
 import { AppError } from '@/types/errors.types';
 import getErrorDetails from '@/utils/getErrorDetails';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 
 export default function useLogin() {
+  const queryClient = useQueryClient();
+
   const { replace } = useRouter();
   const {
     mutate: login,
@@ -17,6 +19,8 @@ export default function useLogin() {
     mutationKey: ['login'],
     onSuccess: (data) => {
       if (!data.success) return;
+
+      queryClient.invalidateQueries();
 
       const role = data.data.data.role;
 

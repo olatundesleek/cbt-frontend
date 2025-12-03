@@ -4,6 +4,7 @@ import { PiNotepadFill } from 'react-icons/pi';
 import Button from '@/components/ui/Button';
 import { useTestStore } from '@/store/useTestStore';
 import { useRouter } from 'next/navigation';
+import { TestType } from '@/lib/constants';
 
 interface TestCardProps {
   id: number;
@@ -16,6 +17,7 @@ interface TestCardProps {
   description?: string;
   attemptsAllowed: number;
   sessionId: number | null;
+  testType?: TestType;
 }
 
 export default function DashboardTestCard({
@@ -29,6 +31,7 @@ export default function DashboardTestCard({
   description = '',
   attemptsAllowed,
   sessionId,
+  testType,
 }: TestCardProps) {
   const { push } = useRouter();
   const setSelectedTest = useTestStore((s) => s.setSelectedTest);
@@ -65,7 +68,7 @@ export default function DashboardTestCard({
           <h1 className='text-lg'>{title}</h1>
           <span className='flex justify-between w-full'>
             <p className='text-neutral-700 font-extralight text-xs'>
-              Course: {course}
+              Course: {course} {testType ? `(${testType})` : ''}
             </p>
             <p className='text-neutral-700 font-extralight text-xs'>
               Total Questions: {totalQuestions}

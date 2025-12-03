@@ -31,6 +31,8 @@ export default function StudentProfilePage({
       firstname: data.firstname ?? profileData.firstname,
       lastname: data.lastname ?? profileData.lastname,
       username: data.username,
+      email: data.email ?? profileData.email ?? '',
+      phoneNumber: data.phoneNumber ?? profileData.phoneNumber ?? '',
     };
     updateProfile(payload);
   };
@@ -137,9 +139,9 @@ export default function StudentProfilePage({
               username: profileData.username,
               firstname: profileData.firstname,
               lastname: profileData.lastname,
-              email: '',
-              phoneNumber: '',
-              address: '',
+              email: profileData.email || '',
+              phoneNumber: profileData.phoneNumber || '',
+              // address: '',
             }}
             onSave={handleSavePersonalInfo}
             isLoading={false}
