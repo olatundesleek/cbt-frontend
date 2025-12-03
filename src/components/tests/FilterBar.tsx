@@ -120,7 +120,7 @@ export default function FilterBar({
 
           <select
             aria-label='test-title-select'
-            className='w-full md:w-auto min-w-[160px] border border-slate-200 rounded-md px-3 py-2'
+            className='w-full md:w-auto min-w-40 border border-slate-200 rounded-md px-3 py-2'
             value={state.testTitle}
             onChange={(e) =>
               setState((s) => ({ ...s, testTitle: e.target.value }))

@@ -55,10 +55,15 @@ export default function AdminSettingsPage() {
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [faviconFile, setFaviconFile] = useState<File | null>(null);
+  const [loginBannerFile, setLoginBannerFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [faviconPreview, setFaviconPreview] = useState<string | null>(null);
+  const [loginBannerPreview, setLoginBannerPreview] = useState<string | null>(
+    null,
+  );
   const logoInputRef = useRef<HTMLInputElement | null>(null);
   const faviconInputRef = useRef<HTMLInputElement | null>(null);
+  const loginBannerInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (settingsError) errorLogger(settingsError);
@@ -86,6 +91,13 @@ export default function AdminSettingsPage() {
     if (settings.faviconUrl) {
       setTimeout(() => setFaviconPreview(settings.faviconUrl ?? null), 0);
     }
+
+    if (settings.loginBannerUrl) {
+      setTimeout(
+        () => setLoginBannerPreview(settings.loginBannerUrl ?? null),
+        0,
+      );
+    }
   }, [settingsData, reset, getValues, setValue]);
 
   const { mutate: updateMutate, isPending: isUpdating } =
@@ -93,20 +105,53 @@ export default function AdminSettingsPage() {
   const { mutate: updateWithFilesMutate } = useUpdateSystemSettingsWithFiles();
 
   const updateSettings: SubmitHandler<FormProps> = async (data) => {
+    const normalizeStatus = (
+      s?: string,
+    ): SystemSettings['systemStatus'] | undefined => {
+      const v = s?.toUpperCase();
+      if (v === 'ACTIVE' || v === 'MAINTENANCE') return v;
+      return undefined;
+    };
+
     const payload: Partial<SystemSettings> = {
       appName: data.appName,
       institutionName: data.institutionName,
       shortName: data.shortName,
       supportEmail: data.supportEmail,
       primaryColor: data.primaryColor,
-      systemStatus: data.systemStatus?.toUpperCase(),
+      systemStatus: normalizeStatus(data.systemStatus),
     };
-    // If files are present, send multipart PATCH to /system-settings
-    if (logoFile || faviconFile) {
+    // If user removed an existing image (no preview and no new file),
+    // include an explicit empty value in payload and use the multipart
+    // mutation so the backend receives the instruction to clear it.
+    const origLogoUrl = settingsData?.data?.logoUrl ?? null;
+    const origFaviconUrl = settingsData?.data?.faviconUrl ?? null;
+    const origLoginBannerUrl = settingsData?.data?.loginBannerUrl ?? null;
+
+    const wantsDeleteLogo = !!origLogoUrl && !logoPreview && !logoFile;
+    const wantsDeleteFavicon =
+      !!origFaviconUrl && !faviconPreview && !faviconFile;
+    const wantsDeleteLoginBanner =
+      !!origLoginBannerUrl && !loginBannerPreview && !loginBannerFile;
+
+    if (wantsDeleteLogo) payload.logoUrl = '';
+    if (wantsDeleteFavicon) payload.faviconUrl = '';
+    if (wantsDeleteLoginBanner) payload.loginBannerUrl = '';
+
+    // If files are present or user requested deletion, send multipart PATCH to /system-settings
+    if (
+      logoFile ||
+      faviconFile ||
+      loginBannerFile ||
+      wantsDeleteLogo ||
+      wantsDeleteFavicon ||
+      wantsDeleteLoginBanner
+    ) {
       updateWithFilesMutate({
         payload,
         logoFile: logoFile ?? undefined,
         faviconFile: faviconFile ?? undefined,
+        loginBannerFile: loginBannerFile ?? undefined,
       });
       return;
     }
@@ -291,6 +336,62 @@ export default function AdminSettingsPage() {
                       setFaviconPreview(null);
                       if (faviconInputRef.current)
                         faviconInputRef.current.value = '';
+                    }}
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className='flex flex-col gap-2'>
+            <label className='text-sm text-neutral-700'>
+              Upload Login Banner
+            </label>
+            <input
+              ref={loginBannerInputRef}
+              type='file'
+              accept='image/*'
+              aria-label='upload-login-banner'
+              className='hidden'
+              onChange={(e) => {
+                const f = e.target.files?.[0] ?? null;
+                setLoginBannerFile(f);
+                if (f) setLoginBannerPreview(URL.createObjectURL(f));
+              }}
+            />
+            <div className='flex items-center gap-4 border border-neutral-300 py-2 px-4 rounded'>
+              {loginBannerPreview ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={loginBannerPreview}
+                  alt='login banner preview'
+                  className='h-10 w-12 object-contain'
+                />
+              ) : (
+                <div className='h-10 w-40 bg-neutral-100 flex items-center justify-center text-sm text-neutral-500 border border-dashed border-neutral-400 rounded'>
+                  No login banner
+                </div>
+              )}
+
+              <div className='flex gap-4'>
+                <button
+                  type='button'
+                  onClick={() => loginBannerInputRef.current?.click()}
+                  className='border border-neutral-400 py-1 px-4 rounded cursor-pointer text-neutral-600 text-sm'
+                >
+                  {loginBannerPreview ? 'Change' : 'Upload'}
+                </button>
+                {loginBannerPreview && (
+                  <button
+                    type='button'
+                    className='border border-neutral-400 py-1 px-4 rounded cursor-pointer text-red-600 text-sm'
+                    onClick={() => {
+                      setLoginBannerFile(null);
+                      setLoginBannerPreview(null);
+                      if (loginBannerInputRef.current)
+                        loginBannerInputRef.current.value = '';
                     }}
                   >
                     Remove

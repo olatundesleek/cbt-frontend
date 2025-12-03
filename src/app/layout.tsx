@@ -2,26 +2,46 @@ import type { Metadata } from "next";
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { ToastProvider } from '@/providers/toast-provider';
-// Client providers are mounted where needed (e.g. student layout)
+import api from '@/lib/axios';
+import { SystemSettingsResponse } from '@/types/settings.types';
+import SystemSettingsHydrator from '@/components/layout/SystemSettingsHydrator';
 
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
 });
 
-export const metadata: Metadata = {
-  title: 'CBT Exam Platform',
-  description: 'A modern computer-based testing platform',
-};
+async function getSystemSettings(): Promise<SystemSettingsResponse> {
+  const res = await api.get('/system-settings');
+  return res.data;
+}
 
-export default function RootLayout({
+// generateMetadata for dynamic SEO tags
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSystemSettings(); // Next.js caches this fetch
+
+  return {
+    title: settings.data.appName, // Dynamically set the title
+    description: settings.data.appName, // Dynamically set the description
+  };
+}
+
+// export const metadata: Metadata = {
+//   title: 'CBT Exam Platform',
+//   description: 'A modern computer-based testing platform',
+// };
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const systemSettings = await getSystemSettings();
+
   return (
     <html lang='en'>
       <body className={`${inter.variable} antialiased`}>
+        <SystemSettingsHydrator systemSettings={systemSettings.data} />
         {children}
         <ToastProvider />
       </body>

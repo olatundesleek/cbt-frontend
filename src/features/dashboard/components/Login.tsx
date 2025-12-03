@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import SpinnerMini from "@/components/ui/SpinnerMini";
 import Button from "@/components/ui/Button";
 import useLogin from "@/hooks/useLogin";
+import { useSystemSettingsStore } from '@/store/useSystemSettingsStore';
 
 interface LoginFormData {
   id: string;
@@ -13,6 +14,7 @@ interface LoginFormData {
 
 export default function Login() {
   const { login, isLoginPending } = useLogin();
+  const settings = useSystemSettingsStore((store) => store.settings);
 
   const {
     register,
@@ -29,7 +31,7 @@ export default function Login() {
       {/* Image Section - Hidden on mobile */}
       <div className='hidden lg:flex lg:w-1/2 relative'>
         <Image
-          src='/images/studentloginimage.png'
+          src={settings?.loginBannerUrl || '/images/studentloginimage.png'}
           alt='Login'
           fill
           className='object-cover'
@@ -40,12 +42,17 @@ export default function Login() {
       {/* Form Section */}
       <div className='flex-1 flex flex-col justify-center px-6 py-12 lg:px-8 bg-background'>
         <div className='sm:mx-auto sm:w-full sm:max-w-md'>
-          <h2 className='mt-6 text-center text-3xl font-bold tracking-tight text-foreground'>
-            Login
-          </h2>
-          <p className='mt-2 text-center text-sm text-neutral-600'>
-            Welcome back! Please enter your details to continue.
-          </p>
+          <h1 className='text-center font-black text-3xl text-primary-600'>
+            {settings?.institutionName || 'CBT'}
+          </h1>
+          <div className='sm:mx-auto sm:w-full sm:max-w-md'>
+            <h2 className='mt-6 text-center text-3xl font-bold tracking-tight text-foreground'>
+              Login
+            </h2>
+            <p className='mt-2 text-center text-sm text-neutral-600'>
+              Welcome back! Please enter your details to continue.
+            </p>
+          </div>
         </div>
 
         <div className='mt-8 sm:mx-auto sm:w-full sm:max-w-md'>
