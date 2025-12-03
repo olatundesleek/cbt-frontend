@@ -6,6 +6,8 @@ import Button from '../ui/Button';
 
 import SpinnerMini from '../ui/SpinnerMini';
 import useLogout from '@/hooks/useLogout';
+import Logo from '../layout/Logo';
+import { useSystemSettingsStore } from '@/store/useSystemSettingsStore';
 
 interface AdminSidebarProps {
   isOpen: boolean;
@@ -21,6 +23,7 @@ const AdminSidebar = ({
   const [isPrefetched, setIsPrefetched] = useState<boolean>(false);
   const pathname = usePathname();
   const { logout, isLoggingOut } = useLogout();
+  const settings = useSystemSettingsStore((store) => store.settings);
 
   const handleCloseSidebar = () => setIsOpen(false);
 
@@ -28,9 +31,14 @@ const AdminSidebar = ({
     <>
       {/* desktop view */}
       <section className='hidden md:block w-full max-w-70 max-h-screen sticky top-0 overflow-y-auto'>
-        <aside className='flex flex-col gap-12 w-full justify-between bg-primary-700 h-full p-4'>
+        <aside className='flex flex-col gap-12 w-full justify-between bg-primary-600 h-full p-4'>
           <div className='flex flex-col gap-12 w-full'>
-            <h1 className='text-4xl text-white font-bold'>Florintech</h1>
+            <div className='flex flex-row items-center gap-4'>
+              {settings?.logoUrl && <Logo />}
+              <h1 className='text-4xl text-white font-bold'>
+                {settings?.shortName ?? 'CBT'}
+              </h1>
+            </div>
 
             <nav className='w-full'>
               <ul className='flex flex-col gap-4 w-full'>

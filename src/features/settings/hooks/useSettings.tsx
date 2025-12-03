@@ -4,6 +4,7 @@ import { SystemSettingsResponse, SystemSettings } from '@/types/settings.types';
 import toast from 'react-hot-toast';
 import { queryClient } from '@/providers/query-provider';
 import { AppError } from '@/types/errors.types';
+import getErrorDetails from '@/utils/getErrorDetails';
 
 export function useSystemSettings() {
   return useQuery<SystemSettingsResponse>({
@@ -22,8 +23,7 @@ export function useUpdateSystemSettings() {
         queryClient.invalidateQueries({ queryKey: ['systemSettings'] });
       },
       onError: (err) => {
-        console.log({ err });
-        toast.error(err.details);
+        toast.error(getErrorDetails(err) || 'Failed to update settings');
       },
     },
   );
@@ -33,21 +33,26 @@ export function useUpdateSystemSettingsWithFiles() {
   return useMutation<
     SystemSettingsResponse,
     AppError,
-    { payload: Partial<SystemSettings>; logoFile?: File; faviconFile?: File }
+    {
+      payload: Partial<SystemSettings>;
+      logoFile?: File;
+      faviconFile?: File;
+      loginBannerFile?: File;
+    }
   >({
-    mutationFn: ({ payload, logoFile, faviconFile }) =>
+    mutationFn: ({ payload, logoFile, faviconFile, loginBannerFile }) =>
       settingsService.updateSystemSettingsWithFiles(
         payload,
         logoFile,
         faviconFile,
+        loginBannerFile,
       ),
     onSuccess: (res) => {
       toast.success(res.message || 'Settings updated');
       queryClient.invalidateQueries({ queryKey: ['systemSettings'] });
     },
     onError: (err) => {
-      console.error(err);
-      toast.error(err.details || 'Failed to update settings');
+      toast.error(getErrorDetails(err) || 'Failed to update settings');
     },
   });
 }
