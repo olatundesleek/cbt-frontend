@@ -124,6 +124,7 @@ export default function StudentDashboardPage() {
                   progressStatus={test.progress || 'not-started'}
                   attemptsAllowed={test.attemptsAllowed || 1}
                   sessionId={test.sessionId}
+                  testType={test.type}
                 />
               ))}
             </div>
@@ -140,7 +141,7 @@ export default function StudentDashboardPage() {
         <div className='space-y-4'>
           {/* Recent Results */}
           <h1 className='text-2xl'>Recent Results</h1>
-          <ResultsTable results={recentResults} />
+          <ResultsTable results={recentResults.slice(0, 5)} />
           <div className='w-full flex justify-center'>
             <Link
               href={'/results'}

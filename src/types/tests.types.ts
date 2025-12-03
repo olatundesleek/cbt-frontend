@@ -240,7 +240,7 @@ export interface TestBank {
 export interface Test {
   id: number;
   title: string;
-  type: string;
+  type: TestTypeConst;
   startTime: string;
   endTime: string;
   duration: string;

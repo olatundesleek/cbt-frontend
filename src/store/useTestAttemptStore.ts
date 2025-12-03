@@ -36,17 +36,24 @@ interface TestAttemptStore {
   reset: () => void;
 }
 
-export const useTestAttemptStore = create<TestAttemptStore>((set, get) => ({
-  session: null,
-  questions: [],
-  progress: null,
-  student: null,
-  course: null,
+const STORAGE_PREFIX = 'cbt:testAttempt:';
+const LAST_KEY = 'cbt:lastTestAttemptKey';
+
+const initialState = {
+  session: null as Session | null,
+  questions: [] as Question[],
+  progress: null as Progress | null,
+  student: null as Student | null,
+  course: null as Course | null,
   currentPage: 0,
   totalPages: 0,
-  answers: {},
-  questionMap: {},
-  showSubmitButton: null,
+  answers: {} as Record<number, string>,
+  questionMap: {} as Record<number, number>,
+  showSubmitButton: null as boolean | null,
+};
+
+export const useTestAttemptStore = create<TestAttemptStore>((set, get) => ({
+  ...initialState,
   setQuestionMap: (m) => set({ questionMap: m }),
   updateQuestionMap: (entries) =>
     set((state) => {
@@ -56,7 +63,64 @@ export const useTestAttemptStore = create<TestAttemptStore>((set, get) => ({
       });
       return { questionMap: next } as Partial<TestAttemptStore>;
     }),
-  setSession: (s) => set({ session: s }),
+  // When session is set we try to load persisted state for that session id.
+  setSession: (s) => {
+    set({ session: s });
+    if (typeof window === 'undefined') return;
+
+    if (!s) {
+      // Clear last pointer when session ended
+      try {
+        sessionStorage.removeItem(LAST_KEY);
+      } catch {
+        /* ignore */
+      }
+      return;
+    }
+
+    const key = `${STORAGE_PREFIX}${(s as Session).id ?? 'unknown'}`;
+    try {
+      const raw = sessionStorage.getItem(key);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        // Only set known keys back into the store to avoid accidental mixing
+        const toSet: Partial<TestAttemptStore> = {
+          // session is the current session passed in
+          questions: parsed.questions ?? initialState.questions,
+          progress: parsed.progress ?? initialState.progress,
+          student: parsed.student ?? initialState.student,
+          course: parsed.course ?? initialState.course,
+          currentPage: parsed.currentPage ?? initialState.currentPage,
+          totalPages: parsed.totalPages ?? initialState.totalPages,
+          answers: parsed.answers ?? initialState.answers,
+          questionMap: parsed.questionMap ?? initialState.questionMap,
+          showSubmitButton:
+            typeof parsed.showSubmitButton === 'boolean'
+              ? parsed.showSubmitButton
+              : initialState.showSubmitButton,
+        };
+        set(toSet as TestAttemptStore);
+      } else {
+        // No persisted data for this session -> reset attempt state but keep session
+        set({
+          questions: initialState.questions,
+          progress: initialState.progress,
+          student: initialState.student,
+          course: initialState.course,
+          currentPage: initialState.currentPage,
+          totalPages: initialState.totalPages,
+          answers: initialState.answers,
+          questionMap: initialState.questionMap,
+          showSubmitButton: initialState.showSubmitButton,
+        });
+      }
+
+      // remember last used key so a page reload can restore if needed
+      sessionStorage.setItem(LAST_KEY, key);
+    } catch {
+      // ignore storage errors (quota/disabled)
+    }
+  },
   setQuestions: (q) => set({ questions: q }),
   setProgress: (p) =>
     set({ progress: p, totalPages: p ? Math.ceil(p.total / 2) : 0 }),
@@ -71,15 +135,67 @@ export const useTestAttemptStore = create<TestAttemptStore>((set, get) => ({
   // new attempt starts fresh instead of reusing previous state.
   reset: () =>
     set({
-      session: null,
-      questions: [],
-      progress: null,
-      student: null,
-      course: null,
-      currentPage: 0,
-      totalPages: 0,
-      answers: {},
-      questionMap: {},
-      showSubmitButton: null,
+      ...initialState,
     }),
 }));
+
+// Persistence: subscribe to store changes and save to sessionStorage for the
+// currently active session. Guarded for client-side only.
+if (typeof window !== 'undefined') {
+  // On module init try to restore last attempt if present. This helps when a
+  // user refreshes the page — we can resume the last active attempt.
+  try {
+    const last = sessionStorage.getItem(LAST_KEY);
+    if (last) {
+      const raw = sessionStorage.getItem(last);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        // Apply the parsed state into the store. We don't set `session` here as
+        // the session object shape may require fresh server-side validation.
+        useTestAttemptStore.setState({
+          questions: parsed.questions ?? initialState.questions,
+          progress: parsed.progress ?? initialState.progress,
+          student: parsed.student ?? initialState.student,
+          course: parsed.course ?? initialState.course,
+          currentPage: parsed.currentPage ?? initialState.currentPage,
+          totalPages: parsed.totalPages ?? initialState.totalPages,
+          answers: parsed.answers ?? initialState.answers,
+          questionMap: parsed.questionMap ?? initialState.questionMap,
+          showSubmitButton:
+            typeof parsed.showSubmitButton === 'boolean'
+              ? parsed.showSubmitButton
+              : initialState.showSubmitButton,
+        });
+      }
+    }
+  } catch {
+    // ignore parse/storage errors
+  }
+
+  // Subscribe to all store changes and persist the selected slice for the
+  // active session id. We intentionally avoid persisting when there is no
+  // session to ensure we don't leak data across different attempts.
+  useTestAttemptStore.subscribe((state) => {
+    try {
+      const s = state.session as Session | null;
+      if (!s || !(s as Session).id) return;
+      const key = `${STORAGE_PREFIX}${(s as Session).id}`;
+      const payload = JSON.stringify({
+        // session intentionally not persisted in full; we key by session.id
+        questions: state.questions,
+        progress: state.progress,
+        student: state.student,
+        course: state.course,
+        currentPage: state.currentPage,
+        totalPages: state.totalPages,
+        answers: state.answers,
+        questionMap: state.questionMap,
+        showSubmitButton: state.showSubmitButton,
+      });
+      sessionStorage.setItem(key, payload);
+      sessionStorage.setItem(LAST_KEY, key);
+    } catch {
+      // ignore storage errors
+    }
+  });
+}

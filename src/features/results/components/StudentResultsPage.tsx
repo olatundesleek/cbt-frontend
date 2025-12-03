@@ -56,7 +56,7 @@ const StudentResultsPage: React.FC = () => {
       });
     });
     // Sort by endedAt desc using actual date objects for stability
-    return tests.sort((a, b) => (a.date < b.date ? 1 : -1));
+    return tests;
   }, [effectiveCourses, selectedCourseId, typeFilter, endDateFilter]);
 
   // const handleFilter = () => {

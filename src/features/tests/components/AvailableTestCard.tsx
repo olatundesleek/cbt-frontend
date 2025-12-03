@@ -1,4 +1,4 @@
-import { TestStatus } from '@/lib/constants';
+import { TestStatus, TestType } from '@/lib/constants';
 import Button from '@/components/ui/Button';
 import { FaRegClock } from 'react-icons/fa';
 import { TiStopwatch } from 'react-icons/ti';
@@ -16,6 +16,7 @@ interface AvailableTestCardProps {
   attemptsAllowed: number;
   progress?: 'not-started' | 'in-progress' | null;
   sessionId: number | null;
+  testType?: TestType;
 }
 export default function AvailableTestCard({
   id,
@@ -27,10 +28,11 @@ export default function AvailableTestCard({
   attemptsAllowed,
   sessionId,
   progress,
+  testType,
 }: AvailableTestCardProps) {
   const { push } = useRouter();
 
- const setSelectedTest = useTestStore((s) => s.setSelectedTest);
+  const setSelectedTest = useTestStore((s) => s.setSelectedTest);
 
   const computeStatusClass = () => {
     switch (status) {
@@ -65,7 +67,9 @@ export default function AvailableTestCard({
       <div className='flex justify-between items-start'>
         <div>
           <h2 className='text-lg font-semibold'>{description}</h2>
-          <p className='text-neutral-500'>{title}</p>
+          <p className='text-neutral-500'>
+            {title} {testType ? `(${testType})` : ''}
+          </p>
         </div>
         <span
           className={`capitalize px-4 text-sm rounded-2xl ${computeStatusClass()}`}

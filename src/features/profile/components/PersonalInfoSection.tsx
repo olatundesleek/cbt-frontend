@@ -103,14 +103,14 @@ export default function PersonalInfoSection({
           placeholder='Not provided - Add your phone'
         />
 
-        <Input
+        {/* <Input
           label='Address'
           type='text'
           value={formData.address || ''}
           onChange={(e) => handleChange('address', e.target.value)}
           disabled={!isEditing}
           placeholder='Not provided - Add your address'
-        />
+        /> */}
 
         {isEditing && (
           <div className='flex gap-3 pt-2'>

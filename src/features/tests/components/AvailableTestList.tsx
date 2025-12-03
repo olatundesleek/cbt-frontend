@@ -27,6 +27,7 @@ export default function AvailableTestList({ tests = [] }: AvailableTestListProps
     attemptsAllowed: test.attemptsAllowed,
     sessionId: test.sessionId,
     progress: test.progress,
+    testType: test.type,
   }));
 
   const filteredTests = transformedTests.filter((test) => {
@@ -36,7 +37,6 @@ export default function AvailableTestList({ tests = [] }: AvailableTestListProps
     const matchesFilter = filter === 'all' || test.status === filter;
     return matchesSearch && matchesFilter;
   });
-
 
   const hasTests = tests.length > 0;
 
@@ -95,6 +95,7 @@ export default function AvailableTestList({ tests = [] }: AvailableTestListProps
                         attemptsAllowed={test.attemptsAllowed}
                         sessionId={test.sessionId}
                         progress={test.progress}
+                        testType={test.testType}
                       />
                     ))}
                   </div>

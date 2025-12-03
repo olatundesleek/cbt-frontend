@@ -12,6 +12,7 @@ interface UserState {
     lastname: string;
   }) => void;
   setRole: (role: 'admin' | 'teacher' | 'student') => void;
+  reset: () => void;
 }
 
 export const useUserStore = create<UserState>()((set) => ({
@@ -20,4 +21,5 @@ export const useUserStore = create<UserState>()((set) => ({
   role: undefined,
   setName: ({ firstname, lastname }) => set(() => ({ firstname, lastname })),
   setRole: (role: 'admin' | 'teacher' | 'student') => set(() => ({ role })),
+  reset: () => set(() => ({ firstname: '', lastname: '', role: undefined })),
 }));

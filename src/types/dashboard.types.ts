@@ -1,8 +1,10 @@
+import { TestType } from '@/lib/constants';
+
 export interface Course {
   subject: string;
   score: string;
   date: string;
-  status: "passed" | "failed";
+  status: 'passed' | 'failed';
 }
 
 export interface CourseInfo {
@@ -18,10 +20,10 @@ export interface CourseStats {
 }
 
 export interface TestSession {
-  score: number | "unrealesed";
+  score: number | 'unrealesed';
   startedAt: string;
   endedAt: string;
-  status: "failed" | "passed" | "null";
+  status: 'failed' | 'passed' | 'null';
 }
 
 export interface CourseTest {
@@ -29,7 +31,7 @@ export interface CourseTest {
   title: string;
   description: string;
   session: TestSession;
-  type: "EXAM" | "TEST";
+  type: 'EXAM' | 'TEST';
 }
 
 export interface CourseWithTests {
@@ -45,15 +47,15 @@ export interface ActiveTestCourse {
 export interface ActiveTest {
   id: number;
   title: string;
-  type: string;
+  type: TestType;
   startTime: string;
   endTime: string;
   course: ActiveTestCourse;
   attemptsAllowed?: number;
   duration?: number;
   totalQuestions?: number;
-  testState?: "active" | "scheduled" | "completed";
-  progress?: "not-started" | "in-progress" | null;
+  testState?: 'active' | 'scheduled' | 'completed';
+  progress?: 'not-started' | 'in-progress' | null;
   sessionId: number | null;
 }
 
@@ -179,7 +181,7 @@ export interface AllCourses {
   createdAt: string;
   teacherId: number;
   description: string;
-  teacher: Pick<AllTeachersResponse, "firstname" | "lastname" | "id">;
+  teacher: Pick<AllTeachersResponse, 'firstname' | 'lastname' | 'id'>;
 }
 
 export interface QuestionsInBank {

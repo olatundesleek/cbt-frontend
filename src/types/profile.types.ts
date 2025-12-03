@@ -13,6 +13,8 @@ export interface StudentProfile {
   firstname: string;
   lastname: string;
   username: string;
+  email: string | null;
+  phoneNumber: string | null;
   role: string;
   class: {
     id: number;
@@ -35,7 +37,7 @@ export interface PersonalInformation {
   lastname?: string;
   email?: string;
   phoneNumber?: string;
-  address?: string;
+  // address?: string;
 }
 
 export interface AcademicInformation {
@@ -47,6 +49,8 @@ export interface UpdateProfileRequest {
   firstname: string;
   lastname: string;
   username: string;
+  email: string;
+  phoneNumber: string;
 }
 
 export interface UpdateProfileResponse {
