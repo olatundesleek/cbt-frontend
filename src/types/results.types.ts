@@ -21,7 +21,9 @@ export interface CourseStats {
   averageScore: number; // raw average (backend-provided)
 }
 
-export type TestType = 'EXAM' | 'TEST' | string;
+import type { TestType as TestTypeConst } from '@/lib/constants';
+
+export type TestType = TestTypeConst;
 export type TestSessionStatus = 'PASSED' | 'FAILED' | 'IN_PROGRESS' | 'PENDING' | string;
 
 export interface TestSessionSummary {
@@ -77,10 +79,10 @@ export interface ResultEntry {
     highestScore: number;
   };
   tests: Array<{
-    id: number;
-    title: string;
-    type: 'EXAM' | 'TEST';
-    session: {
+  id: number;
+  title: string;
+  type: TestType;
+  session: {
       id: number;
       score: number;
       status: string;
@@ -154,7 +156,7 @@ export interface SingleResultStudent {
 export interface SingleResultTest {
   id: number;
   title: string;
-  type: string;
+  type: TestType;
   showResult?: boolean;
 }
 

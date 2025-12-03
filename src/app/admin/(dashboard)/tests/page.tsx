@@ -11,6 +11,7 @@ import { formatDate } from '../../../../../utils/helpers';
 import FilterBar, { FilterState } from '@/components/tests/FilterBar';
 import TestSummary from '@/components/tests/TestSummary';
 import { useEffect, useMemo, useState } from 'react';
+import type { TestType as TestTypeConst } from '@/lib/constants';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -24,6 +25,7 @@ import {
   useGetQuestionBank,
 } from '@/features/dashboard/queries/useDashboard';
 import { AllCourses, AllQuestionBank } from '@/types/dashboard.types';
+import { useToggleResultVisibility } from '@/hooks/useResultCourses';
 
 const createClassSchema = Yup.object({
   title: Yup.string().required('Test title is required'),
@@ -172,7 +174,7 @@ function UpdateForm({
 
     const payload = {
       title: data.title,
-      type: data.type?.toUpperCase(),
+      type: data.type as TestTypeConst,
       testState: data.testState,
       startTime,
       endTime,
@@ -214,6 +216,7 @@ function UpdateForm({
             >
               <option value='TEST'>TEST</option>
               <option value='EXAM'>EXAM</option>
+              <option value='PRACTICE'>PRACTICE</option>
             </select>
             {errors.type && (
               <small className='text-error-500'>{errors.type.message}</small>
@@ -394,7 +397,6 @@ function AddTestForm({
   isCoursesDataLoading?: boolean;
   questionBankLoading?: boolean;
 }) {
-
   const createTestMutation = useCreateTest();
 
   type FormValues = {
@@ -466,7 +468,7 @@ function AddTestForm({
 
     const payload = {
       title: data.title,
-      type: data.type?.toUpperCase(),
+      type: data.type as TestTypeConst,
       testState: data.testState,
       startTime,
       endTime,
@@ -508,6 +510,7 @@ function AddTestForm({
             >
               <option value='TEST'>TEST</option>
               <option value='EXAM'>EXAM</option>
+              <option value='PRACTICE'>PRACTICE</option>
             </select>
             {errors.type && (
               <small className='text-error-500'>{errors.type.message}</small>
@@ -693,12 +696,15 @@ export default function AdminTestPage() {
     isLoading: isCoursesDataLoading,
     error: coursesError,
   } = useGetCourses();
+
   const {
     data: allQuestionBank,
     isLoading: questionBankLoading,
     error: questionBankError,
   } = useGetQuestionBank();
+
   const deleteMutation = useDeleteTest();
+
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
     modalContent: AdminTestItem | null;
@@ -713,11 +719,21 @@ export default function AdminTestPage() {
     query: '',
   });
 
+  const toggleMutation = useToggleResultVisibility();
+
   const courses = useMemo(() => {
     const arr = (adminTestsData?.data ?? [])
       .map((d: AdminTestItem) => d.course?.title)
       .filter(Boolean) as string[];
     return Array.from(new Set(arr));
+  }, [adminTestsData]);
+
+  const availableTests = useMemo(() => {
+    const set = new Set<string>();
+    (adminTestsData?.data ?? []).forEach((t) => {
+      if (t?.title) set.add(String(t.title));
+    });
+    return Array.from(set).sort();
   }, [adminTestsData]);
 
   const classes = useMemo(() => {
@@ -754,6 +770,8 @@ export default function AdminTestPage() {
         const d = new Date(item.startTime).toISOString().slice(0, 10);
         if (d !== filter.startDate) return false;
       }
+      // test title
+      if (filter.testTitle && item.title !== filter.testTitle) return false;
       return true;
     });
   }, [adminTestsData, filter]);
@@ -763,7 +781,8 @@ export default function AdminTestPage() {
     'Class',
     'Course',
     'Test Type',
-    'Teacher',
+    'Created By',
+    'Result Status',
     'Status',
     'Start Date',
   ];
@@ -796,97 +815,123 @@ export default function AdminTestPage() {
   };
 
   return (
-    <section className='flex flex-col lg:flex-row gap-6 w-full'>
-      <div className='flex-1 flex flex-col gap-4'>
-        <div className='flex justify-between w-full'>
-          <h1 className='text-2xl font-semibold'>Manage Tests</h1>
-          <div>
-            <Button
-              onClick={() => {
-                updateModalState({ key: 'type', value: 'create' });
-                updateModalState({ key: 'isOpen', value: true });
-              }}
-              label='+ Create Test'
-            />
+    <section className='space-y-4'>
+      <div className='flex flex-col lg:flex-row gap-6 w-full'>
+        <div className='flex-1 flex flex-col gap-4'>
+          <div className='flex justify-between w-full'>
+            <h1 className='text-2xl font-semibold'>Manage Tests</h1>
+            <div>
+              <Button
+                onClick={() => {
+                  updateModalState({ key: 'type', value: 'create' });
+                  updateModalState({ key: 'isOpen', value: true });
+                }}
+                label='+ Create Test'
+              />
+            </div>
           </div>
-        </div>
 
-        <FilterBar
-          courses={courses}
-          classes={classes}
-          onChange={(s) => setFilter(s)}
-        />
-
-        <div>
-          <AppTable
-            isLoading={isAdminTestLoading}
-            headerColumns={tableHeaders}
-            data={filteredData}
-            itemKey={({ item }) => `${item.id}`}
-            centralizeLabel={false}
-            renderItem={({ item }) => {
-              return (
-                <>
-                  <TableDataItem>{item.title}</TableDataItem>
-                  <TableDataItem>
-                    {(item.course?.classes ?? [])
-                      .map((el) => el.className)
-                      .join(', ')}
-                  </TableDataItem>
-                  <TableDataItem>{item.course?.title}</TableDataItem>
-                  <TableDataItem>{item.type}</TableDataItem>
-                  <TableDataItem>
-                    {(item.course?.classes ?? [])
-                      .map((el) => el.teacherId)
-                      .join(', ')}
-                  </TableDataItem>
-                  <TableDataItem className='capitalize flex justify-center'>
-                    <Badge
-                      variant={getStatusVariant(
-                        item.testState as TestType['testState'],
-                      )}
-                    >
-                      {item.testState}
-                    </Badge>
-                  </TableDataItem>
-                  <TableDataItem>
-                    {item.startTime ? formatDate(item?.startTime) : '--'}
-                  </TableDataItem>
-                </>
-              );
-            }}
-            onActionClick={({ item }) => {
-              updateModalState({ key: 'modalContent', value: item });
-            }}
-            actionModalContent={
-              <div className='flex flex-col gap-2 w-full'>
-                <button
-                  onClick={() => {
-                    updateModalState({ key: 'type', value: 'update' });
-                    updateModalState({ key: 'isOpen', value: true });
-                  }}
-                  className='px-2 py-1 rounded bg-primary-500 text-white text-xs cursor-pointer'
-                >
-                  Update
-                </button>
-                <button
-                  onClick={() => {
-                    updateModalState({ key: 'type', value: 'delete' });
-                    updateModalState({ key: 'isOpen', value: true });
-                  }}
-                  className='px-2 py-1 rounded bg-error-500 text-white text-xs cursor-pointer'
-                >
-                  Delete
-                </button>
-              </div>
-            }
+          <FilterBar
+            courses={courses}
+            classes={classes}
+            tests={availableTests}
+            onChange={(s) => setFilter(s)}
           />
         </div>
+
+        <aside className='w-full lg:w-80'>
+          <TestSummary tests={adminTestsData?.data ?? []} />
+        </aside>
       </div>
 
-      <aside className='w-full lg:w-80'>
-        <TestSummary tests={adminTestsData?.data ?? []} />
-      </aside>
+      <div>
+        <AppTable
+          isLoading={isAdminTestLoading}
+          headerColumns={tableHeaders}
+          data={filteredData}
+          itemKey={({ item }) => `${item.id}`}
+          centralizeLabel={false}
+          renderItem={({ item }) => {
+            // setshowResult(item.showResult);
+            return (
+              <>
+                <TableDataItem>{item.title}</TableDataItem>
+                <TableDataItem>
+                  {(item.course?.classes ?? [])
+                    .map((el) => el.className)
+                    .join(', ')}
+                </TableDataItem>
+                <TableDataItem>{item.course?.title}</TableDataItem>
+                <TableDataItem>{item.type}</TableDataItem>
+                <TableDataItem>
+                  {item.createdBy.firstname} {item.createdBy.lastname}
+                </TableDataItem>
+                <TableDataItem>
+                  <div className='flex items-center justify-center'>
+                    <label className='relative inline-flex items-center cursor-pointer'>
+                      <input
+                        type='checkbox'
+                        className='sr-only peer'
+                        aria-label='Toggle release result'
+                        checked={item.showResult}
+                        onChange={(e) => {
+                          toggleMutation.mutate({
+                            testId: item.id,
+                            showResult: e.target.checked,
+                          });
+                          // setshowResult(e.target.checked);
+                        }}
+                      />
+                      <div className='w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-primary-600 relative'></div>
+                      <span
+                        className='absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow
+                   transition-transform translate-x-0 peer-checked:translate-x-5'
+                      />
+                    </label>
+                  </div>
+                </TableDataItem>
+                <TableDataItem className='capitalize flex justify-center'>
+                  <Badge
+                    variant={getStatusVariant(
+                      item.testState as TestType['testState'],
+                    )}
+                  >
+                    {item.testState}
+                  </Badge>
+                </TableDataItem>
+                <TableDataItem>
+                  {item.startTime ? formatDate(item?.startTime) : '--'}
+                </TableDataItem>
+              </>
+            );
+          }}
+          onActionClick={({ item }) => {
+            updateModalState({ key: 'modalContent', value: item });
+          }}
+          actionModalContent={
+            <div className='flex flex-col gap-2 w-full'>
+              <button
+                onClick={() => {
+                  updateModalState({ key: 'type', value: 'update' });
+                  updateModalState({ key: 'isOpen', value: true });
+                }}
+                className='px-2 py-1 rounded bg-primary-500 text-white text-xs cursor-pointer'
+              >
+                Update
+              </button>
+              <button
+                onClick={() => {
+                  updateModalState({ key: 'type', value: 'delete' });
+                  updateModalState({ key: 'isOpen', value: true });
+                }}
+                className='px-2 py-1 rounded bg-error-500 text-white text-xs cursor-pointer'
+              >
+                Delete
+              </button>
+            </div>
+          }
+        />
+      </div>
 
       <Modal
         modalIsOpen={modalState.isOpen}

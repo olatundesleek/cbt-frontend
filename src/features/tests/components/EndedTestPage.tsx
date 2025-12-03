@@ -24,7 +24,7 @@ export default function EndedTestPage() {
     if (testResult) {
       resetAttempt();
     }
-  }, [testResult, router, selectedTest]);
+  }, [testResult, router, selectedTest, resetAttempt]);
 
   if (!testResult || !selectedTest) {
     return null;
@@ -37,7 +37,7 @@ export default function EndedTestPage() {
   if (testResult.test?.type ?? false) {
     const { test, score } = testResult;
     const totalQuestions = selectedTest.totalQuestions;
-    const testType = test?.type.toLowerCase() as 'test' | 'exam';
+    const testType = test?.type.toLowerCase() as 'test' | 'exam' | 'practice';
 
     const handleGoToCorrections = () => {
       router.push('/corrections');
@@ -96,7 +96,7 @@ export default function EndedTestPage() {
 
             {/* Action Buttons */}
             <div className='space-y-3'>
-              {testType === 'test' && (
+              {testType === 'practice' && (
                 <button
                   onClick={handleGoToCorrections}
                   className='w-full flex items-center justify-between bg-linear-to-r from-primary-600 to-primary-700 text-white px-6 py-4 rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 group'
@@ -114,7 +114,7 @@ export default function EndedTestPage() {
               <button
                 onClick={handleGoToTests}
                 className={`w-full flex items-center justify-between ${
-                  testType === 'test'
+                  testType === 'practice'
                     ? 'bg-white border-2 border-gray-200 text-gray-700 hover:bg-gray-50'
                     : 'bg-linear-to-r from-primary-600 to-primary-700 text-white shadow-lg hover:shadow-xl'
                 } px-6 py-4 rounded-xl transition-all duration-200 transform hover:-translate-y-0.5 group`}
@@ -130,7 +130,7 @@ export default function EndedTestPage() {
             {/* Info Message */}
             <div className='bg-blue-50 border border-blue-100 rounded-xl p-4 mt-6'>
               <p className='text-sm text-blue-800 text-center'>
-                {testType === 'exam' ? (
+                {testType === 'exam' || testType === 'test' ? (
                   <>
                     📝 Your exam results will be available soon. Check back
                     later for detailed feedback.

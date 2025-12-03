@@ -136,8 +136,8 @@ const AppTable = <T,>({
                 }
                 className={`${
                   hasRowPress
-                    ? "cursor-pointer hover:bg-neutral-300 transition-colors"
-                    : "cursor-default"
+                    ? 'cursor-pointer hover:bg-neutral-300 transition-colors'
+                    : 'cursor-default'
                 }`}
               >
                 {renderItem({
@@ -146,9 +146,10 @@ const AppTable = <T,>({
                 })}
 
                 {onActionClick && (
-                  <td className="text-center">
+                  <td className='text-center'>
                     <button
-                      className="px-2 py-1 rounded bg-primary-500 text-white text-xs cursor-pointer"
+                      aria-label='actions'
+                      className='px-2 py-1 rounded bg-primary-500 text-white text-xs cursor-pointer'
                       onClick={(e) => openActionModal(item, itemIndex, e)}
                     >
                       <IoMdMore size={16} />

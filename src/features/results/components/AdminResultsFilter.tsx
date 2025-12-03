@@ -10,6 +10,7 @@ interface Filters {
   className?: string;
   courseId?: number | '';
   type?: string;
+  testTitle?: string;
   startDate?: string;
   endDate?: string;
 }
@@ -17,17 +18,20 @@ interface Filters {
 interface Props {
   classes?: string[];
   courses?: CourseOption[];
+  tests?: string[];
   onFilter?: (filters: Filters) => void;
 }
 
 export default function AdminResultsFilter({
   classes = [],
   courses = [],
+  tests = [],
   onFilter,
 }: Props) {
   const [selectedClass, setSelectedClass] = useState<string>('');
   const [selectedCourse, setSelectedCourse] = useState<number | ''>('');
   const [selectedType, setSelectedType] = useState<string>('');
+  const [selectedTestTitle, setSelectedTestTitle] = useState<string>('');
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
 
@@ -36,6 +40,7 @@ export default function AdminResultsFilter({
       className: selectedClass || undefined,
       courseId: selectedCourse === '' ? undefined : selectedCourse,
       type: selectedType || undefined,
+      testTitle: selectedTestTitle || undefined,
       startDate: startDate || undefined,
       endDate: endDate || undefined,
     });
@@ -45,6 +50,7 @@ export default function AdminResultsFilter({
     setSelectedClass('');
     setSelectedCourse('');
     setSelectedType('');
+    setSelectedTestTitle('');
     setStartDate('');
     setEndDate('');
     onFilter?.({});
@@ -99,6 +105,28 @@ export default function AdminResultsFilter({
           <div>
             <label
               className='text-sm text-neutral-600'
+              htmlFor='test-title-select'
+            >
+              Test Title
+            </label>
+            <select
+              id='test-title-select'
+              value={selectedTestTitle}
+              onChange={(e) => setSelectedTestTitle(e.target.value)}
+              className='w-full border rounded px-3 py-2 text-sm'
+            >
+              <option value=''>All Tests</option>
+              {tests.map((t: string) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label
+              className='text-sm text-neutral-600'
               htmlFor='test-type-select'
             >
               Test Type
@@ -113,6 +141,7 @@ export default function AdminResultsFilter({
               <option value=''>All Types</option>
               <option value='TEST'>Test</option>
               <option value='EXAM'>Exam</option>
+              <option value='PRACTICE'>Practice</option>
             </select>
           </div>
 

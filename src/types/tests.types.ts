@@ -1,4 +1,5 @@
 import { TestStatus } from '@/lib/constants';
+import type { TestType as TestTypeConst } from '@/lib/constants';
 
 export interface StartTestSessionRequest {
   testId: number | string;
@@ -103,7 +104,7 @@ export type SubmitAnswersAndGetNextResponse =
           test: {
             id: number;
             title: string;
-            type: 'TEST';
+            type: TestTypeConst;
             testState: string;
             showResult: boolean;
             startTime: string;
@@ -142,7 +143,7 @@ export type SubmitAnswersAndGetNextResponse =
         status: TestStatus;
         startedAt: string;
         endedAt: string;
-        type: 'EXAM';
+        type: TestTypeConst;
       };
     };
 
@@ -197,7 +198,7 @@ export interface SubmitTestSessionResponse {
     test: {
       id: number;
       title: string;
-      type: 'TEST' | 'EXAM';
+      type: TestTypeConst;
       testState: string;
       showResult: boolean;
       startTime: string;
@@ -308,7 +309,6 @@ export interface RegisteredCourse {
 // API returns direct array, not wrapped in success/message/data
 export type RegisteredCoursesResponse = RegisteredCourse[];
 
-
 export interface AdminTestsResponse {
   success: boolean;
   message: string;
@@ -325,7 +325,12 @@ export interface AdminTestsResponse {
     passMark: number;
     courseId: number;
     bankId: number;
-    createdBy: number;
+    createdBy: {
+      id: number;
+      firstname: string;
+      lastname: string;
+      username: string;
+    };
     createdAt: string;
     course: {
       title: string;
@@ -345,12 +350,12 @@ export interface AdminTestsResponse {
       sessions: number;
     };
   }[];
-} 
+}
 
 // Create Test request payload
 export interface CreateTestRequest {
   title: string;
-  type: 'TEST' | 'EXAM' | string;
+  type: TestTypeConst;
   testState: 'active' | 'scheduled' | 'completed' | string;
   startTime: string | null;
   endTime: string | null;

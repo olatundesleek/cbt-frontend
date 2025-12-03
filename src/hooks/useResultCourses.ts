@@ -1,4 +1,3 @@
-import { queryClient } from '@/providers/query-provider';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { resultsServices } from '@/services/resultsService';
 import type {
@@ -7,7 +6,10 @@ import type {
   getAllResultAdminResponse,
   AdminSingleResultResponse,
 } from '@/types/results.types';
+import type { AdminTestsResponse } from '@/types/tests.types';
 import { AppError } from '@/types/errors.types';
+import toast from 'react-hot-toast';
+import getErrorDetails from '@/utils/getErrorDetails';
 
 export function useResultCourses() {
   const { data, isLoading, error, refetch } = useQuery({
@@ -37,7 +39,6 @@ export function useAdminResult() {
 
 export function useToggleResultVisibility() {
   const queryClient = useQueryClient();
-
   const mutation = useMutation({
     mutationFn: ({
       testId,
@@ -46,20 +47,102 @@ export function useToggleResultVisibility() {
       testId: number;
       showResult: boolean;
     }) => resultsServices.updateResultVisibility(testId, showResult),
-    onSuccess: () => {
-      // refresh admin results after toggling
+    // optimistic update: update cache immediately then rollback on error
+    onMutate: async ({ testId, showResult }) => {
+      await queryClient.cancelQueries({ queryKey: ['adminTests'] });
+      await queryClient.cancelQueries({ queryKey: ['adminResult'] });
+
+      const previousAdminTests = queryClient.getQueryData<AdminTestsResponse>([
+        'adminTests',
+      ]);
+      const previousAdminResult =
+        queryClient.getQueryData<getAllResultAdminResponse>(['adminResult']);
+
+      if (previousAdminTests) {
+        queryClient.setQueryData<AdminTestsResponse>(['adminTests'], (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            data: (old.data ?? []).map((t) =>
+              t.id === testId ? { ...t, showResult } : t,
+            ),
+          } as AdminTestsResponse;
+        });
+      }
+
+      if (previousAdminResult) {
+        // adminResult shape may differ; try to update any test entries found
+        queryClient.setQueryData<getAllResultAdminResponse>(
+          ['adminResult'],
+          (old) => {
+            if (!old) return old;
+            // if old has a data array of courses/tests, attempt to update nested tests
+            if (Array.isArray(old.data?.courses)) {
+              const updated = {
+                ...old,
+                data: {
+                  ...old.data,
+                  courses: old.data.courses.map((course) => ({
+                    ...course,
+                    tests: Array.isArray(course.tests)
+                      ? course.tests.map((t) =>
+                          t.id === testId ? { ...t, showResult } : t,
+                        )
+                      : course.tests,
+                  })),
+                },
+              } as getAllResultAdminResponse;
+              return updated;
+            }
+            return old;
+          },
+        );
+      }
+
+      return { previousAdminTests, previousAdminResult };
+    },
+    onError: (
+      err,
+      variables,
+      context?: {
+        previousAdminTests?: AdminTestsResponse;
+        previousAdminResult?: getAllResultAdminResponse;
+      },
+    ) => {
+      // rollback to previous cache state
+      if (context?.previousAdminTests) {
+        queryClient.setQueryData<AdminTestsResponse>(
+          ['adminTests'],
+          context.previousAdminTests,
+        );
+      }
+      if (context?.previousAdminResult) {
+        queryClient.setQueryData<getAllResultAdminResponse>(
+          ['adminResult'],
+          context.previousAdminResult,
+        );
+      }
+      toast.error(getErrorDetails(err));
+    },
+    onSettled: () => {
+      // ensure server state is reflected
+      queryClient.invalidateQueries({ queryKey: ['adminTests'] });
       queryClient.invalidateQueries({ queryKey: ['adminResult'] });
+    },
+
+    onSuccess: (data) => {
+      toast.success(data.message);
     },
   });
 
   return mutation;
 }
 
-export function useAdminSingleResult(testId?: number | null) {
+export function useAdminSingleResult(sessionId?: number | null) {
   const queryResponse = useQuery<AdminSingleResultResponse, AppError>({
-    queryKey: ['adminSingleResult', testId],
-    queryFn: () => resultsServices.getTestById(testId as number),
-    enabled: !!testId,
+    queryKey: ['adminSingleResult', sessionId],
+    queryFn: () => resultsServices.getTestBySessionId(sessionId as number),
+    enabled: !!sessionId,
   });
 
   return queryResponse;

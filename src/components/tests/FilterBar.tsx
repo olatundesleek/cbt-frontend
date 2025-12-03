@@ -6,6 +6,7 @@ export type FilterState = {
   course?: string;
   className?: string;
   status?: string;
+  testTitle?: string;
   startDate?: string;
 };
 
@@ -15,6 +16,7 @@ type Props = {
   statuses?: string[];
   initial?: Partial<FilterState>;
   onChange?: (state: FilterState) => void;
+  tests?: string[];
 };
 
 export default function FilterBar({
@@ -23,12 +25,14 @@ export default function FilterBar({
   statuses = ['active', 'scheduled', 'completed'],
   initial,
   onChange,
+  tests = [],
 }: Props) {
   const [state, setState] = useState<FilterState>({
     query: initial?.query ?? '',
     course: initial?.course ?? '',
     className: initial?.className ?? '',
     status: initial?.status ?? '',
+    testTitle: initial?.testTitle ?? '',
     startDate: initial?.startDate ?? '',
   });
 
@@ -110,6 +114,24 @@ export default function FilterBar({
             {statuses.map((s) => (
               <option key={s} value={s}>
                 {s}
+              </option>
+            ))}
+          </select>
+
+          <select
+            aria-label='test-title-select'
+            className='w-full md:w-auto min-w-[160px] border border-slate-200 rounded-md px-3 py-2'
+            value={state.testTitle}
+            onChange={(e) =>
+              setState((s) => ({ ...s, testTitle: e.target.value }))
+            }
+          >
+            <option value='' disabled>
+              Test Title
+            </option>
+            {tests.map((t) => (
+              <option key={t} value={t}>
+                {t}
               </option>
             ))}
           </select>

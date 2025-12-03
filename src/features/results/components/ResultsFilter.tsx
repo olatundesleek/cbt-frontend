@@ -55,6 +55,7 @@ const ResultsFilter: React.FC<ResultsFilterProps> = ({
           <option value=''>All</option>
           <option value='EXAM'>Exam</option>
           <option value='TEST'>Test</option>
+          <option value='PRACTICE'>Practice</option>
         </select>
       </div>
       <div>
