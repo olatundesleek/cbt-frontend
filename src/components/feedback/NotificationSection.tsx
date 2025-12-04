@@ -1,15 +1,10 @@
 'use client';
 
 import NotificationCard from '@/components/feedback/NotificationCard';
-
-interface Notification {
-  id: number;
-  message: string;
-  time: string;
-}
+import type { Notification as NotificationType } from '@/types/notification.types';
 
 interface NotificationsSectionProps {
-  notifications?: Notification[];
+  notifications?: NotificationType[];
 }
 
 export default function NotificationsSection({
@@ -25,7 +20,7 @@ export default function NotificationsSection({
             <NotificationCard
               key={note.id}
               message={note.message}
-              time={note.time}
+              time={new Date(note.createdAt).toLocaleString()}
               type='info'
             />
           ))}
