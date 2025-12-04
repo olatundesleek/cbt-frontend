@@ -89,11 +89,7 @@ export interface TotalScore {
   };
 }
 
-export interface Notification {
-  id: number;
-  message: string;
-  time: string;
-}
+
 
 export interface DashboardData {
   className: string;
@@ -104,7 +100,7 @@ export interface DashboardData {
   completedTests: number;
   inProgressTests: number;
   totalScore: TotalScore;
-  notifications?: Notification[];
+  // notifications?: Notification[];
 
   // for admins
   classCount: number;

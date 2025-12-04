@@ -14,7 +14,7 @@ import { SpinnerMini } from '@/components/ui';
 import { AiFillHome } from 'react-icons/ai';
 import { GiGraduateCap, GiTeacher } from 'react-icons/gi';
 import { IoIosSettings } from 'react-icons/io';
-import { BiNotepad, BiPause, BiUser } from 'react-icons/bi';
+import { BiBell, BiNotepad, BiPause, BiUser } from 'react-icons/bi';
 import { FiTarget } from 'react-icons/fi';
 
 const adminRoutes: { path: string; label: string; icon: ReactNode }[] = [
@@ -34,6 +34,16 @@ const adminRoutes: { path: string; label: string; icon: ReactNode }[] = [
     icon: <BiPause size={20} />,
   },
   {
+    path: '/admin/questions',
+    label: 'Question Bank',
+    icon: <FiTarget size={20} />,
+  },
+  {
+    path: '/admin/tests',
+    label: 'Tests',
+    icon: <BiNotepad size={20} />,
+  },
+  {
     path: '/admin/students',
     label: 'Students',
     icon: <BiUser size={20} />,
@@ -43,31 +53,26 @@ const adminRoutes: { path: string; label: string; icon: ReactNode }[] = [
     label: 'Teachers',
     icon: <GiTeacher size={20} />,
   },
-
-  {
-    path: '/admin/tests',
-    label: 'Tests',
-    icon: <BiNotepad size={20} />,
-  },
   {
     path: '/admin/results',
     label: 'Results',
     icon: <AiFillHome size={20} />,
   },
   {
-    path: '/admin/questions',
-    label: 'Question Bank',
-    icon: <FiTarget size={20} />,
+    path: '/admin/notifications',
+    label: 'Notifications',
+    icon: <BiBell size={20} />,
+  },
+
+  {
+    path: '/admin/settings',
+    label: 'System Settings',
+    icon: <IoIosSettings size={20} />,
   },
   {
     path: '/admin/profile',
     label: 'Profile',
     icon: <BiUser size={20} />,
-  },
-  {
-    path: '/admin/settings',
-    label: 'System Settings',
-    icon: <IoIosSettings size={20} />,
   },
 ];
 

@@ -7,6 +7,7 @@ import ResultsTable from '@/features/results/components/ResultsTable';
 import DashboardTestCard from '@/features/dashboard/components/DashboardTestCard';
 import useDashboard from '../queries/useDashboard';
 import Link from 'next/link';
+import { useNotification } from '@/hooks/useNotification';
 
 export default function StudentDashboardPage() {
   const {
@@ -14,6 +15,12 @@ export default function StudentDashboardPage() {
     error: dashboardDataError,
     isLoading: isDashboardDataLoading,
   } = useDashboard();
+
+  const {
+    data: notificationData,
+    isLoading: isNotificationLoading,
+    error: notificationError,
+  } = useNotification();
 
   // Loading state
   if (isDashboardDataLoading) {
@@ -70,7 +77,7 @@ export default function StudentDashboardPage() {
   const activeTests = data?.activeTests || [];
   const hasActiveTests = activeTests.length > 0;
   const recentResultsCourses = data?.recentResults?.courses || [];
-  const notifications = data?.notifications || [];
+  const notifications = notificationData?.data || [];
   const studentClass = data?.className || 'N/A';
 
   // Transform recent results for table

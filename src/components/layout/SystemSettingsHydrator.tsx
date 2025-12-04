@@ -3,6 +3,7 @@
 import { useSystemSettingsStore } from '@/store/useSystemSettingsStore';
 import { SystemSettingsResponse } from '@/types/settings.types';
 import { useEffect } from 'react';
+import { generateColorShades } from '../../../utils/helpers';
 
 export default function SystemSettingsHydrator({
   systemSettings,
@@ -30,10 +31,12 @@ export default function SystemSettingsHydrator({
       }
 
       if (systemSettings.primaryColor) {
-        document.documentElement.style.setProperty(
-          '--token-color-primary-600',
-          systemSettings.primaryColor,
-        );
+        const shades = generateColorShades(systemSettings.primaryColor);
+        const root = document.documentElement;
+
+        Object.entries(shades).forEach(([key, val]) => {
+          root.style.setProperty(`--token-color-primary-${key}`, val);
+        });
       }
     }
   }, [systemSettings, setSettings]);
