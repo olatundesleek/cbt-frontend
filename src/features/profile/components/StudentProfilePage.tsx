@@ -17,7 +17,6 @@ export default function StudentProfilePage({
 }: {
   role?: 'admin' | 'student' | 'teacher';
 }) {
-  console.log({ role });
   const { profileData, isProfileLoading, profileError } = useProfile();
   const { mutate: updateProfile, isPending: isUpdatingProfile } =
     useUpdateProfile();

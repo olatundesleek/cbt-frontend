@@ -1,16 +1,38 @@
 'use client';
 
 import NotificationCard from '@/components/feedback/NotificationCard';
+import { AppError } from '@/types/errors.types';
 import type { Notification as NotificationType } from '@/types/notification.types';
+import { SpinnerMini } from '../ui';
 
 interface NotificationsSectionProps {
   notifications?: NotificationType[];
+  isLoading?: boolean;
+  error: AppError | null;
 }
 
 export default function NotificationsSection({
   notifications = [],
+  isLoading,
+  error,
 }: NotificationsSectionProps) {
   const hasNotifications = notifications && notifications.length > 0;
+
+  if (isLoading) {
+    return (
+      <section className='space-y-4 p-2 bg-gray-50 rounded-xl shadow-sm border border-gray-100 justify-center flex'>
+        <SpinnerMini color='primary-500' />
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className='space-y-4 p-2 bg-gray-50 rounded-xl shadow-sm border border-gray-100 justify-center flex'>
+        <h1 className='text-red-600'>Error loading notifications</h1>
+      </section>
+    );
+  }
 
   return (
     <section className='space-y-4 p-2 bg-gray-50 rounded-xl shadow-sm border border-gray-100'>

@@ -50,7 +50,7 @@ export default function AdminNotificationPage() {
     }));
   };
 
-  const notifications = notificationData?.data || [];
+  const notifications = notificationData?.data.data || [];
   return (
     <div className='w-full space-y-4'>
       <div className='flex w-full justify-between'>
@@ -406,7 +406,7 @@ function CreateNotificationForm() {
                 className='block w-full rounded-md border border-neutral-300 p-1 h-10 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 bg-background text-foreground caret-foreground'
               >
                 <option value=''>Select a class</option>
-                {(classesData ?? []).map((c: AllClassesResponse) => (
+                {(classesData?.data ?? []).map((c) => (
                   <option key={c.id} value={String(c.id)}>
                     {c.className}
                   </option>
@@ -431,7 +431,7 @@ function CreateNotificationForm() {
                 className='block w-full rounded-md border border-neutral-300 p-1 h-10 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 bg-background text-foreground caret-foreground'
               >
                 <option value=''>Select a course</option>
-                {(coursesData ?? []).map((c: AllCourses) => (
+                {(coursesData?.data ?? []).map((c: AllCourses) => (
                   <option key={c.id} value={String(c.id)}>
                     {c.title}
                   </option>

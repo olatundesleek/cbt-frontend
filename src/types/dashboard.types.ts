@@ -89,8 +89,6 @@ export interface TotalScore {
   };
 }
 
-
-
 export interface DashboardData {
   className: string;
   totalTests: number;
@@ -150,7 +148,7 @@ interface Courses {
   teacherId: number;
   title: string;
 }
-export interface AllClassesResponse {
+export interface AllClasses {
   teacherId: number;
   createdAt: string;
   id: number;
@@ -163,12 +161,34 @@ export interface AllClassesResponse {
   courses: Courses[];
 }
 
-export interface AllTeachersResponse {
+export interface AllClassesResponse {
+  data: AllClasses[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+}
+
+export interface AllTeachers {
   firstname: string;
   id: number;
   lastname: string;
   courses: Courses[];
   teacherOf: { id: number; className: string }[];
+}
+
+export interface AllTeachersResponse {
+  success: boolean;
+  message: string;
+  data: AllTeachers[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
 }
 
 export interface AllCourses {
@@ -177,7 +197,19 @@ export interface AllCourses {
   createdAt: string;
   teacherId: number;
   description: string;
-  teacher: Pick<AllTeachersResponse, 'firstname' | 'lastname' | 'id'>;
+  teacher: Pick<AllTeachers, 'firstname' | 'lastname' | 'id'>;
+}
+
+export interface AllCoursesResponse {
+  success: boolean;
+  message: string;
+  data: AllCourses[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
 }
 
 export interface QuestionsInBank {
@@ -199,6 +231,20 @@ export interface AllQuestionBank {
   id: number;
   questionBankName: string;
   questions: QuestionsInBank[];
-  teacher: Pick<AllTeachersResponse, 'firstname' | 'lastname'>;
+  teacher: Pick<AllTeachers, 'firstname' | 'lastname'>;
   _count: { questions: number };
+}
+
+export interface AllQuestionBankResponse {
+  success: boolean;
+  message: string;
+  data: {
+    data: AllQuestionBank[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      pages: number;
+    };
+  };
 }

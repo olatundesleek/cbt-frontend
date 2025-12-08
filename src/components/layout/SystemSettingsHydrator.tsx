@@ -11,7 +11,6 @@ export default function SystemSettingsHydrator({
   systemSettings: SystemSettingsResponse['data'];
 }) {
   const setSettings = useSystemSettingsStore((store) => store.setSettings);
-  //   console.log(setSettings);
 
   useEffect(() => {
     if (systemSettings) {

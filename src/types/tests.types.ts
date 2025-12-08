@@ -257,7 +257,15 @@ export interface Test {
 export interface TestsResponse {
   success: boolean;
   message: string;
-  data: Test[];
+  data: {
+    data: Test[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      pages: number;
+    };
+  };
 }
 
 // Fetch questions by question number (pair containing that question)
@@ -313,43 +321,51 @@ export interface AdminTestsResponse {
   success: boolean;
   message: string;
   data: {
-    id: number;
-    title: string;
-    type: string;
-    testState: string;
-    showResult: boolean;
-    startTime: string | null;
-    endTime: string | null;
-    duration: number;
-    attemptsAllowed: number;
-    passMark: number;
-    courseId: number;
-    bankId: number;
-    createdBy: {
+    data: {
       id: number;
-      firstname: string;
-      lastname: string;
-      username: string;
-    };
-    createdAt: string;
-    course: {
       title: string;
-      classes: {
+      type: string;
+      testState: string;
+      showResult: boolean;
+      startTime: string | null;
+      endTime: string | null;
+      duration: number;
+      attemptsAllowed: number;
+      passMark: number;
+      courseId: number;
+      bankId: number;
+      createdBy: {
         id: number;
-        className: string;
-        teacherId: number;
-        createdAt: string;
-      }[];
-    };
-    bank: {
-      _count: {
-        questions: number;
+        firstname: string;
+        lastname: string;
+        username: string;
       };
+      createdAt: string;
+      course: {
+        title: string;
+        classes: {
+          id: number;
+          className: string;
+          teacherId: number;
+          createdAt: string;
+        }[];
+      };
+      bank: {
+        _count: {
+          questions: number;
+        };
+      };
+      _count: {
+        sessions: number;
+      };
+    }[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      pages: number;
     };
-    _count: {
-      sessions: number;
-    };
-  }[];
+  };
 }
 
 // Create Test request payload
@@ -369,5 +385,5 @@ export interface CreateTestRequest {
 export interface CreateTestResponse {
   success: boolean;
   message: string;
-  data: AdminTestsResponse['data'][number];
+  data: AdminTestsResponse['data']['data'][number];
 }

@@ -77,7 +77,7 @@ export default function StudentDashboardPage() {
   const activeTests = data?.activeTests || [];
   const hasActiveTests = activeTests.length > 0;
   const recentResultsCourses = data?.recentResults?.courses || [];
-  const notifications = notificationData?.data || [];
+  const notifications = notificationData?.data.data || [];
   const studentClass = data?.className || 'N/A';
 
   // Transform recent results for table
@@ -167,7 +167,11 @@ export default function StudentDashboardPage() {
         <div className='space-y-2'>
           <h1 className='text-2xl'>Notifications</h1>
 
-          <NotificationsSection notifications={notifications} />
+          <NotificationsSection
+            notifications={notifications}
+            isLoading={isNotificationLoading}
+            error={notificationError}
+          />
         </div>
 
         {/* Exam Tips */}

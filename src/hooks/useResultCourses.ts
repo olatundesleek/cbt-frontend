@@ -61,11 +61,15 @@ export function useToggleResultVisibility() {
       if (previousAdminTests) {
         queryClient.setQueryData<AdminTestsResponse>(['adminTests'], (old) => {
           if (!old) return old;
+          const updatedDataArray = (old.data?.data ?? []).map((t) =>
+            t.id === testId ? { ...t, showResult } : t,
+          );
           return {
             ...old,
-            data: (old.data ?? []).map((t) =>
-              t.id === testId ? { ...t, showResult } : t,
-            ),
+            data: {
+              ...old.data,
+              data: updatedDataArray,
+            },
           } as AdminTestsResponse;
         });
       }

@@ -34,6 +34,7 @@ type Row = {
 
 export default function AdminResultPage() {
   const { data: resp, isLoading, error } = useAdminResult();
+  // console.log(resp);
 
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -128,13 +129,12 @@ export default function AdminResultPage() {
     return out;
   }, [coursesData]);
 
-  console.log({ rows });
   const availableClasses = useMemo(() => {
-    return (classesResp ?? []).map((c: AllClassesResponse) => c.className);
+    return (classesResp?.data ?? []).map((c) => c.className);
   }, [classesResp]);
 
   const availableCourses = useMemo(() => {
-    return (coursesResp ?? []).map((c: AllCourses) => ({
+    return (coursesResp?.data ?? []).map((c: AllCourses) => ({
       id: c.id,
       title: c.title,
     }));
@@ -182,12 +182,11 @@ export default function AdminResultPage() {
       ? Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 10) /
         10
       : 0;
-    console.log({ scores });
-    console.log({ avg });
+
     const highest = scores.length ? Math.max(...scores) : 0;
     const lowest = scores.length ? Math.min(...scores) : 0;
     const totalStudents =
-      adminStudentsResp?.data?.length ??
+      adminStudentsResp?.data.data?.length ??
       new Set(rows.map((r) => r.studentName)).size;
 
     return { avg, highest, lowest, totalStudents };
@@ -277,10 +276,8 @@ export default function AdminResultPage() {
             </>
           )}
         />
-      </div>;
-      {
-        /* Result detail modal */
-      }
+      </div>
+      ;{/* Result detail modal */}
       <Modal modalIsOpen={modalOpen} setModalIsOpen={setModalOpen}>
         <div className='p-6'>
           <div className='flex justify-between items-center'>
@@ -388,8 +385,8 @@ export default function AdminResultPage() {
             </div>
           )}
         </div>
-      </Modal>;
-
+      </Modal>
+      ;
       <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
         <div className='bg-white rounded p-4 shadow-sm text-center'>
           <div className='text-sm text-neutral-500'>Average Score</div>

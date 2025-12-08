@@ -6,7 +6,7 @@ import Input from '@/components/ui/input';
 import { useAdminTest } from '@/features/tests/hooks/useTests';
 import { errorLogger } from '@/lib/axios';
 import { Test as TestType, AdminTestsResponse } from '@/types/tests.types';
-type AdminTestItem = AdminTestsResponse['data'][number];
+type AdminTestItem = AdminTestsResponse['data']['data'][number];
 import { formatDate } from '../../../../../utils/helpers';
 import FilterBar, { FilterState } from '@/components/tests/FilterBar';
 import TestSummary from '@/components/tests/TestSummary';
@@ -691,6 +691,7 @@ export default function AdminTestPage() {
     isLoading: isAdminTestLoading,
     error: adminTestError,
   } = useAdminTest();
+
   const {
     data: coursesData,
     isLoading: isCoursesDataLoading,
@@ -722,7 +723,7 @@ export default function AdminTestPage() {
   const toggleMutation = useToggleResultVisibility();
 
   const courses = useMemo(() => {
-    const arr = (adminTestsData?.data ?? [])
+    const arr = (adminTestsData?.data.data ?? [])
       .map((d: AdminTestItem) => d.course?.title)
       .filter(Boolean) as string[];
     return Array.from(new Set(arr));
@@ -730,14 +731,14 @@ export default function AdminTestPage() {
 
   const availableTests = useMemo(() => {
     const set = new Set<string>();
-    (adminTestsData?.data ?? []).forEach((t) => {
+    (adminTestsData?.data.data ?? []).forEach((t) => {
       if (t?.title) set.add(String(t.title));
     });
     return Array.from(set).sort();
   }, [adminTestsData]);
 
   const classes = useMemo(() => {
-    const arr = (adminTestsData?.data ?? []).flatMap(
+    const arr = (adminTestsData?.data.data ?? []).flatMap(
       (d: AdminTestItem) =>
         d.course?.classes?.map((c) => c.className) ?? ([] as string[]),
     );
@@ -745,7 +746,7 @@ export default function AdminTestPage() {
   }, [adminTestsData]);
 
   const filteredData = useMemo(() => {
-    const list = adminTestsData?.data ?? ([] as AdminTestItem[]);
+    const list = adminTestsData?.data.data ?? ([] as AdminTestItem[]);
     return list.filter((item: AdminTestItem) => {
       // search
       if (
@@ -840,7 +841,7 @@ export default function AdminTestPage() {
         </div>
 
         <aside className='w-full lg:w-80'>
-          <TestSummary tests={adminTestsData?.data ?? []} />
+          <TestSummary tests={adminTestsData?.data.data ?? []} />
         </aside>
       </div>
 
@@ -941,15 +942,15 @@ export default function AdminTestPage() {
       >
         {modalState.type === 'create' ? (
           <AddTestForm
-            coursesData={coursesData ?? []}
-            allQuestionBank={allQuestionBank}
+            coursesData={coursesData?.data ?? []}
+            allQuestionBank={allQuestionBank?.data}
             isCoursesDataLoading={isCoursesDataLoading}
             questionBankLoading={questionBankLoading}
           />
         ) : modalState.type === 'update' ? (
           <UpdateForm
-            coursesData={coursesData ?? []}
-            allQuestionBank={allQuestionBank}
+            coursesData={coursesData?.data ?? []}
+            allQuestionBank={allQuestionBank?.data}
             initialData={modalState.modalContent}
             onClose={() => {
               updateModalState({ key: 'isOpen', value: false });
