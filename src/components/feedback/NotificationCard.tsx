@@ -26,7 +26,9 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
       <div className='mt-1'>{iconMap[type]}</div>
 
       <div className='flex flex-col'>
-        <p className='text-sm text-gray-800 '>{message}</p>
+        <p className='text-sm text-gray-800 first-letter:capitalize'>
+          {message}
+        </p>
         <span className='text-xs text-gray-500  mt-1'>{time}</span>
       </div>
     </div>

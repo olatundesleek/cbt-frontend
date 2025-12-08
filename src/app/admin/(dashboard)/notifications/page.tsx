@@ -6,12 +6,13 @@ import { Button } from '@/components/ui';
 import Input from '@/components/ui/input';
 import {
   useCreateNotification,
+  useDeleteNotification,
   useNotification,
+  useUpdateNotification,
 } from '@/hooks/useNotification';
 import { Notification } from '@/types/notification.types';
 import { useState, useEffect } from 'react';
-import toast from 'react-hot-toast';
-import type { AllClassesResponse, AllCourses } from '@/types/dashboard.types';
+import type { AllCourses } from '@/types/dashboard.types';
 import { useForm } from 'react-hook-form';
 import type { Resolver } from 'react-hook-form';
 import * as yup from 'yup';
@@ -22,9 +23,70 @@ import {
 } from '@/features/dashboard/queries/useDashboard';
 import { formatDate } from '../../../../../utils/helpers';
 
+const notificationTypes = [
+  'GENERAL',
+  'STUDENT',
+  'TEACHER',
+  'CLASS',
+  'COURSE',
+] as const;
+
+type NotificationFormValues = {
+  title: string;
+  message: string;
+  type: 'GENERAL' | 'STUDENT' | 'TEACHER' | 'CLASS' | 'COURSE';
+  classId?: number;
+  courseId?: number;
+};
+
+const notificationSchema = yup.object({
+  title: yup.string().min(2).max(200).required('Title is required'),
+  message: yup.string().min(2).max(1000).required('Message is required'),
+  type: yup
+    .string()
+    .oneOf(['GENERAL', 'STUDENT', 'TEACHER', 'CLASS', 'COURSE'])
+    .required('Notification type is required'),
+  classId: yup.number().when('type', {
+    is: 'CLASS',
+    then: (schema) =>
+      schema
+        .transform((value, originalValue) =>
+          originalValue === '' || originalValue == null
+            ? undefined
+            : Number(originalValue),
+        )
+        .required('classId is required for CLASS'),
+    otherwise: (schema) =>
+      schema.transform((value, originalValue) =>
+        originalValue === '' || originalValue == null
+          ? undefined
+          : Number(originalValue),
+      ),
+  }),
+  courseId: yup.number().when('type', {
+    is: 'COURSE',
+    then: (schema) =>
+      schema
+        .transform((value, originalValue) =>
+          originalValue === '' || originalValue == null
+            ? undefined
+            : Number(originalValue),
+        )
+        .required('courseId is required for COURSE'),
+    otherwise: (schema) =>
+      schema.transform((value, originalValue) =>
+        originalValue === '' || originalValue == null
+          ? undefined
+          : Number(originalValue),
+      ),
+  }),
+});
+
 export default function AdminNotificationPage() {
   const { data: notificationData, isLoading: isNotificationLoading } =
     useNotification();
+  const { mutate: deleteNotification, isPending: isDeletingNotification } =
+    useDeleteNotification();
 
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
@@ -48,6 +110,12 @@ export default function AdminNotificationPage() {
       ...prev,
       [key]: value,
     }));
+  };
+
+  const handleDeleteNotification = (id: number) => {
+    deleteNotification(id);
+    updateModalState({ key: 'isOpen', value: false });
+    updateModalState({ key: 'modalContent', value: null });
   };
 
   const notifications = notificationData?.data.data || [];
@@ -144,16 +212,15 @@ export default function AdminNotificationPage() {
               <div className='flex flex-row items-center gap-2 w-full max-w-[50%] mx-auto'>
                 <Button
                   variant='danger'
+                  disabled={isDeletingNotification}
                   onClick={() => {
-                    // placeholder: deletion not implemented yet
-                    toast.success('Notification deleted (UI-only)');
-                    updateModalState({ key: 'isOpen', value: false });
-                    updateModalState({ key: 'modalContent', value: null });
+                    handleDeleteNotification(modalState.modalContent!.id);
                   }}
                 >
                   Delete
                 </Button>
                 <Button
+                  disabled={isDeletingNotification}
                   onClick={() =>
                     updateModalState({ key: 'isOpen', value: false })
                   }
@@ -176,16 +243,25 @@ function UpdateNotificationForm({
   initialData: Notification | null;
   onClose?: () => void;
 }) {
+  const { mutate: updateNotification, isPending: isUpdatingNotification } =
+    useUpdateNotification();
+
+  const { data: classesData, isLoading: isClassesLoading } = useGetClasses();
+  const { data: coursesData, isLoading: isCoursesLoading } = useGetCourses();
+
   const {
     register,
     handleSubmit,
     setValue,
     formState: { errors },
+    watch,
   } = useForm<NotificationFormValues>({
     resolver: yupResolver(
       notificationSchema,
     ) as unknown as Resolver<NotificationFormValues>,
   });
+
+  const watchedType = watch('type');
 
   useEffect(() => {
     if (!initialData) return;
@@ -197,18 +273,9 @@ function UpdateNotificationForm({
   }, [initialData, setValue]);
 
   const onSubmit = (data: NotificationFormValues) => {
-    // placeholder: perform update
-    toast.success(`Notification "${data.title}" updated (UI-only)`);
+    updateNotification({ payload: data, id: initialData!.id });
     if (onClose) onClose();
   };
-
-  const notificationTypes = [
-    'GENERAL',
-    'STUDENT',
-    'TEACHER',
-    'CLASS',
-    'COURSE',
-  ] as const;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
@@ -245,6 +312,56 @@ function UpdateNotificationForm({
             )}
           </label>
         </div>
+
+        {watchedType === 'CLASS' && (
+          <div className='flex flex-col gap-1 w-full'>
+            <label htmlFor='classId'>
+              <span className='text-sm text-neutral-600'>Select Class</span>
+              <select
+                id='classId'
+                {...register('classId')}
+                className='block w-full rounded-md border border-neutral-300 p-1 h-10 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 bg-background text-foreground caret-foreground'
+              >
+                <option value=''>Select a class</option>
+                {(classesData?.data ?? []).map((c) => (
+                  <option key={c.id} value={String(c.id)}>
+                    {c.className}
+                  </option>
+                ))}
+              </select>
+              {errors.classId?.message && (
+                <small className='text-error-500'>
+                  {String(errors.classId?.message)}
+                </small>
+              )}
+            </label>
+          </div>
+        )}
+
+        {watchedType === 'COURSE' && (
+          <div className='flex flex-col gap-1 w-full'>
+            <label htmlFor='courseId'>
+              <span className='text-sm text-neutral-600'>Select Course</span>
+              <select
+                id='courseId'
+                {...register('courseId')}
+                className='block w-full rounded-md border border-neutral-300 p-1 h-10 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 bg-background text-foreground caret-foreground'
+              >
+                <option value=''>Select a course</option>
+                {(coursesData?.data ?? []).map((c: AllCourses) => (
+                  <option key={c.id} value={String(c.id)}>
+                    {c.title}
+                  </option>
+                ))}
+              </select>
+              {errors.courseId?.message && (
+                <small className='text-error-500'>
+                  {String(errors.courseId?.message)}
+                </small>
+              )}
+            </label>
+          </div>
+        )}
       </div>
 
       <div className='flex gap-4'>
@@ -262,63 +379,19 @@ function UpdateNotificationForm({
 
       <div className='w-full flex justify-end'>
         <div className='w-fit'>
-          <Button type='submit'>Update Notification</Button>
+          <Button
+            disabled={
+              isUpdatingNotification || isClassesLoading || isCoursesLoading
+            }
+            type='submit'
+          >
+            Update Notification
+          </Button>
         </div>
       </div>
     </form>
   );
 }
-
-type NotificationFormValues = {
-  title: string;
-  message: string;
-  type: 'GENERAL' | 'STUDENT' | 'TEACHER' | 'CLASS' | 'COURSE';
-  classId?: number;
-  courseId?: number;
-};
-
-const notificationSchema = yup.object({
-  title: yup.string().min(2).max(200).required('Title is required'),
-  message: yup.string().min(2).max(1000).required('Message is required'),
-  type: yup
-    .string()
-    .oneOf(['GENERAL', 'STUDENT', 'TEACHER', 'CLASS', 'COURSE'])
-    .required('Notification type is required'),
-  classId: yup.number().when('type', {
-    is: 'CLASS',
-    then: (schema) =>
-      schema
-        .transform((value, originalValue) =>
-          originalValue === '' || originalValue == null
-            ? undefined
-            : Number(originalValue),
-        )
-        .required('classId is required for CLASS'),
-    otherwise: (schema) =>
-      schema.transform((value, originalValue) =>
-        originalValue === '' || originalValue == null
-          ? undefined
-          : Number(originalValue),
-      ),
-  }),
-  courseId: yup.number().when('type', {
-    is: 'COURSE',
-    then: (schema) =>
-      schema
-        .transform((value, originalValue) =>
-          originalValue === '' || originalValue == null
-            ? undefined
-            : Number(originalValue),
-        )
-        .required('courseId is required for COURSE'),
-    otherwise: (schema) =>
-      schema.transform((value, originalValue) =>
-        originalValue === '' || originalValue == null
-          ? undefined
-          : Number(originalValue),
-      ),
-  }),
-});
 
 function CreateNotificationForm() {
   const {
@@ -351,14 +424,6 @@ function CreateNotificationForm() {
     };
     createNotification(payload);
   };
-
-  const notificationTypes = [
-    'GENERAL',
-    'STUDENT',
-    'TEACHER',
-    'CLASS',
-    'COURSE',
-  ] as const;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>

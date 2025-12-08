@@ -122,6 +122,7 @@ export interface AdminDashboardData {
   testCount: number;
   classCount: number;
   courseCount: number;
+  adminCount: number;
 }
 
 export interface TeacherDashboardData {

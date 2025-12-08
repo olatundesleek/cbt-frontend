@@ -1,49 +1,45 @@
 'use client';
 
 import NotificationCard from '@/components/feedback/NotificationCard';
-import { AppError } from '@/types/errors.types';
-import type { Notification as NotificationType } from '@/types/notification.types';
 import { SpinnerMini } from '../ui';
+import { useNotification } from '@/hooks/useNotification';
 
-interface NotificationsSectionProps {
-  notifications?: NotificationType[];
-  isLoading?: boolean;
-  error: AppError | null;
-}
+export default function NotificationsSection() {
+  const {
+    data: notificationData,
+    isLoading: isNotificationLoading,
+    error: notificationError,
+  } = useNotification();
 
-export default function NotificationsSection({
-  notifications = [],
-  isLoading,
-  error,
-}: NotificationsSectionProps) {
-  const hasNotifications = notifications && notifications.length > 0;
+  const hasNotifications =
+    notificationData && notificationData.data.data.length > 0;
 
-  if (isLoading) {
+  if (isNotificationLoading) {
     return (
-      <section className='space-y-4 p-2 bg-gray-50 rounded-xl shadow-sm border border-gray-100 justify-center flex'>
+      <section className='space-y-4 p-2 bg-gray-50 rounded-xl shadow-sm border border-gray-100 justify-center flex h-[10vh] items-center'>
         <SpinnerMini color='primary-500' />
       </section>
     );
   }
 
-  if (error) {
+  if (notificationError) {
     return (
-      <section className='space-y-4 p-2 bg-gray-50 rounded-xl shadow-sm border border-gray-100 justify-center flex'>
+      <section className='space-y-4 p-2 bg-gray-50 rounded-xl shadow-sm border border-gray-100 justify-center flex h-[10vh] items-center'>
         <h1 className='text-red-600'>Error loading notifications</h1>
       </section>
     );
   }
 
   return (
-    <section className='space-y-4 p-2 bg-gray-50 rounded-xl shadow-sm border border-gray-100'>
+    <section className='space-y-4 p-2 bg-gray-50 rounded-xl shadow-sm border border-gray-100 h-full max-h-[45vh] overflow-y-auto'>
       {hasNotifications ? (
         <div className='space-y-3'>
-          {notifications.map((note) => (
+          {notificationData.data.data.map((note) => (
             <NotificationCard
               key={note.id}
               message={note.message}
               time={new Date(note.createdAt).toLocaleString()}
-              type='info'
+              type={'info'}
             />
           ))}
         </div>

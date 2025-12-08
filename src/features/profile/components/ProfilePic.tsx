@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { FaUser } from 'react-icons/fa';
 
 interface ProfilePicProps {
@@ -6,6 +7,7 @@ interface ProfilePicProps {
   name?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
+  role?: 'student' | 'admin' | 'teacher';
 }
 
 /**
@@ -17,6 +19,7 @@ export default function ProfilePic({
   name = 'User',
   size = 'md',
   className = '',
+  role = 'student',
 }: ProfilePicProps) {
   const sizeClasses = {
     sm: 'w-8 h-8',
@@ -33,11 +36,12 @@ export default function ProfilePic({
   };
 
   return (
-    <div
+    <Link
+      href={role === 'student' ? '/profile' : '/admin/profile'}
       className={`
         relative rounded-full overflow-hidden 
         bg-linear-to-br from-primary-400 to-primary-600 
-        flex items-center justify-center shadow-md
+        flex items-center justify-center shadow-md cursor-pointer
         ${sizeClasses[size]}
         ${className}
       `}
@@ -47,6 +51,6 @@ export default function ProfilePic({
       ) : (
         <FaUser className='text-white' size={iconSizes[size]} />
       )}
-    </div>
+    </Link>
   );
 }

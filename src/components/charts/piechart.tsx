@@ -2,65 +2,72 @@
 
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
-type CellTypes = "teacher" | "student" | "admin";
+type CellTypes = 'teacher' | 'student' | 'class' | 'course' | 'test' | 'admin';
 
 const getPieChartCellColor = (type: CellTypes): string => {
   switch (type) {
-    case "teacher": {
-      return "#00C49F";
+    case 'teacher': {
+      return '#00C49F';
     }
 
-    case "student": {
-      return "#FFBB28";
+    case 'student': {
+      return '#FFBB28';
     }
 
-    //return admin by default
+    case 'class': {
+      return '#0088FE';
+    }
+
+    case 'course': {
+      return '#FF8042';
+    }
+
+    case 'test': {
+      return '#8884D8';
+    }
+      
+    case 'admin': {
+      return '#09ff1d';
+    }
+
     default: {
-      return "#0088FE";
+      return '#0088FE';
     }
   }
 };
 
-const getPieChartData = () => {
-  const pieChartData: { name: CellTypes; value: number }[] = [
-    {
-      name: "teacher",
-      value: 350,
-    },
-    {
-      name: "student",
-      value: 550,
-    },
-    {
-      name: "admin",
-      value: 100,
-    },
-  ];
+interface PieChartData {
+  name: CellTypes;
+  value: number;
+  [key: string]: string | number;
+}
 
-  const pieChartColors = [
-    { color: "#00C49F", type: "teacher" },
-    { color: "#FFBB28", type: "student" },
-    { color: "#0088FE", type: "admin" },
-  ];
+interface PieChartColor {
+  color: string;
+  type: CellTypes;
+}
 
-  return { pieChartData, pieChartColors };
-};
+interface PieChartComponentProps {
+  pieChartData: PieChartData[];
+  pieChartColors: PieChartColor[];
+}
 
-export const PieChartComponent = () => {
-  const { pieChartData, pieChartColors } = getPieChartData();
-
+export const PieChartComponent = ({
+  pieChartData,
+  pieChartColors,
+}: PieChartComponentProps) => {
   return (
-    <div className="flex flex-col items-center gap-4 flex-1">
-      <ResponsiveContainer width="100%" height="100%" minHeight={300}>
+    <div className='flex flex-col items-center gap-4 flex-1'>
+      <ResponsiveContainer width='100%' height='100%' minHeight={300}>
         <PieChart>
           <Pie
-            dataKey="value"
+            dataKey='value'
             isAnimationActive={false}
             data={pieChartData}
-            cx="50%"
-            cy="50%"
+            cx='50%'
+            cy='50%'
             outerRadius={80}
-            fill="#8884d8"
+            fill='#8884d8'
             innerRadius={50}
             label
           >
@@ -76,11 +83,12 @@ export const PieChartComponent = () => {
         </PieChart>
       </ResponsiveContainer>
 
-      <div className="flex flex-row items-center justify-center flex-wrap gap-4">
+      <div className='flex flex-row items-center justify-center flex-wrap gap-4'>
         {pieChartColors.map((item) => (
-          <div key={item.color} className="flex flex-row items-center gap-1">
-            <div style={{ backgroundColor: item.color }} className="w-3 h-3" />
-            <span className="text-sm font-medium capitalize">{item.type}</span>
+          <div key={item.color} className='flex flex-row items-center gap-1'>
+            {/* eslint-disable-next-line react/forbid-dom-props */}
+            <div className='w-3 h-3' style={{ backgroundColor: item.color }} />
+            <span className='text-sm font-medium capitalize'>{item.type}</span>
           </div>
         ))}
       </div>

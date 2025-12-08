@@ -6,9 +6,10 @@ import { useUserStore } from "@/store/useUserStore";
 
 interface AdminTopBarProps {
   setIsOpen: Dispatch<SetStateAction<boolean>>;
+  role: 'admin' | 'teacher' | 'student';
 }
 
-const AdminTopBar = ({ setIsOpen }: AdminTopBarProps) => {
+const AdminTopBar = ({ setIsOpen, role }: AdminTopBarProps) => {
   const { firstname, lastname } = useUserStore();
 
   const handleToggleSideBar = () => {
@@ -31,7 +32,7 @@ const AdminTopBar = ({ setIsOpen }: AdminTopBarProps) => {
         />
 
         <div className='hidden sm:block'>
-          <ProfilePic />
+          <ProfilePic role={role} />
         </div>
 
         <div className='block md:hidden'>

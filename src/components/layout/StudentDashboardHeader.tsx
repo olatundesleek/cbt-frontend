@@ -13,6 +13,8 @@ import { useState } from 'react';
 import { HiArrowRightOnRectangle } from 'react-icons/hi2';
 import useLogout from '@/hooks/useLogout';
 import { SpinnerMini } from '../ui';
+import { useUserStore } from '@/store/useUserStore';
+import { useNotification } from '@/hooks/useNotification';
 
 const navigationLinks = [
   { name: 'Dashboard', href: '/dashboard' },
@@ -22,6 +24,8 @@ const navigationLinks = [
 ];
 
 export default function StudentDashboardHeader() {
+  const userRole = useUserStore((state) => state.role);
+  const { data: notificationData } = useNotification();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { logout, isLoggingOut } = useLogout();
@@ -60,16 +64,25 @@ export default function StudentDashboardHeader() {
 
         {/* Right Side Icons */}
         <div className='flex gap-2 sm:gap-4 items-center text-primary-900'>
-          <ButtonIcon
-            onClick={() => toast('Notifications')}
-            ariaLabel='Notifications'
-            // className='hidden sm:flex'
-          >
-            <IoIosNotifications size={24} />
-          </ButtonIcon>
-          <div className='hidden sm:block'>
-            <ThemeToggle />
+          <div className='relative'>
+            <ButtonIcon
+              onClick={() => toast('Notifications')}
+              ariaLabel='Notifications'
+              // className='hidden sm:flex'
+            >
+              <IoIosNotifications size={24} />
+            </ButtonIcon>
+            {notificationData?.data?.data.length &&
+              notificationData.data.data.length > 0 && (
+                <span className='text-xs border border-white bg-white text-primary-500 font-black rounded-full w-4 h-4 absolute flex justify-center items-center  -top-2 -right-2'>
+                  {notificationData?.data.data.length || 0}
+                </span>
+              )}
           </div>
+          {/* Uncomment theme toggle during future updates for light/dark mode */}
+          {/* <div className='hidden sm:block'>
+            <ThemeToggle />
+          </div> */}
           <div className='hidden sm:block'>
             <ButtonIcon
               onClick={logout}
@@ -84,7 +97,7 @@ export default function StudentDashboardHeader() {
             </ButtonIcon>
           </div>
           <div className='hidden sm:block'>
-            <ProfilePic />
+            <ProfilePic role={userRole} />
           </div>
 
           {/* Mobile Menu Button */}

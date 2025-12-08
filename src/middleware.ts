@@ -38,8 +38,20 @@ export async function middleware(request: NextRequest) {
   }
 
   // Admin/Teacher trying to access login while logged in
-  if (pathname === "/" && authToken && role !== "student") {
-    return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+  if (
+    pathname === '/' &&
+    authToken &&
+    (role === 'admin' || role === 'teacher')
+  ) {
+    return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+  }
+
+  if (
+    !pathname.startsWith('/admin') &&
+    authToken &&
+    (role === 'admin' || role === 'teacher')
+  ) {
+    return NextResponse.redirect(new URL(`/admin/${pathname}`, request.url));
   }
 
   return NextResponse.next();

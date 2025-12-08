@@ -145,7 +145,7 @@ export default function AdminShell({
         </div>
       ) : (
         <section className='relative flex-1 flex flex-col gap-4 w-full'>
-          <AdminTopBar setIsOpen={setIsOpen} />
+          <AdminTopBar setIsOpen={setIsOpen} role={role} />
 
           <div className='flex-1 w-full p-4'>{children}</div>
 

@@ -7,7 +7,7 @@ import ResultsTable from '@/features/results/components/ResultsTable';
 import DashboardTestCard from '@/features/dashboard/components/DashboardTestCard';
 import useDashboard from '../queries/useDashboard';
 import Link from 'next/link';
-import { useNotification } from '@/hooks/useNotification';
+import { useSystemSettingsStore } from '@/store/useSystemSettingsStore';
 
 export default function StudentDashboardPage() {
   const {
@@ -15,12 +15,7 @@ export default function StudentDashboardPage() {
     error: dashboardDataError,
     isLoading: isDashboardDataLoading,
   } = useDashboard();
-
-  const {
-    data: notificationData,
-    isLoading: isNotificationLoading,
-    error: notificationError,
-  } = useNotification();
+  const settings = useSystemSettingsStore((state) => state.settings);
 
   // Loading state
   if (isDashboardDataLoading) {
@@ -77,7 +72,6 @@ export default function StudentDashboardPage() {
   const activeTests = data?.activeTests || [];
   const hasActiveTests = activeTests.length > 0;
   const recentResultsCourses = data?.recentResults?.courses || [];
-  const notifications = notificationData?.data.data || [];
   const studentClass = data?.className || 'N/A';
 
   // Transform recent results for table
@@ -167,11 +161,7 @@ export default function StudentDashboardPage() {
         <div className='space-y-2'>
           <h1 className='text-2xl'>Notifications</h1>
 
-          <NotificationsSection
-            notifications={notifications}
-            isLoading={isNotificationLoading}
-            error={notificationError}
-          />
+          <NotificationsSection />
         </div>
 
         {/* Exam Tips */}
@@ -181,6 +171,12 @@ export default function StudentDashboardPage() {
           {/* Calender */}
           <Calender />
         </div>
+
+        {settings?.supportEmail && (
+          <p className='text-sm text-neutral-600 text-center'>
+            {settings?.supportEmail}
+          </p>
+        )}
       </div>
     </div>
   );

@@ -17,4 +17,17 @@ export const notificationService = {
     const response = await api.post('/notification', payload);
     return response.data as Notification;
   },
+
+  updatNotification: async (
+    id: number,
+    payload: CreateNotificationPayload,
+  ): Promise<Notification> => {
+    const response = await api.patch(`/notification/${id}`, payload);
+    return response.data as Notification;
+  },
+
+  deleteNotification: async (id: number): Promise<{ message: string }> => {
+    const response = await api.delete(`/notification/${id}`);
+    return response.data as { message: string };
+  },
 };
