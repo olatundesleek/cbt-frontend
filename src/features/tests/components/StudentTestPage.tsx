@@ -58,7 +58,7 @@ export default function StudentTestPage() {
     );
   }
 
-  const tests = testsData?.data || [];
+  const tests = testsData?.data.data || [];
 
   return (
     <div className='grid grid-cols-1 md:flex gap-6'>

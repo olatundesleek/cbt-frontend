@@ -31,18 +31,14 @@ export default function AdminStudentsPage() {
   const [filter, setFilter] = useState<FilterState>({ query: '' });
 
   const students = useMemo<Student[]>(
-    () => adminStudentsData?.data ?? [],
+    () => adminStudentsData?.data.data ?? [],
     [adminStudentsData],
   );
 
   const classes = useMemo(() => {
-    const arr = allClasses?.flatMap((c) => c.className);
+    const arr = allClasses?.data?.flatMap((c) => c.className);
     return Array.from(new Set(arr)).filter((v): v is string => !!v);
   }, [allClasses]);
-
- 
-
- 
 
   const courses = useMemo(() => {
     const arr = students.flatMap((s) =>
@@ -50,7 +46,6 @@ export default function AdminStudentsPage() {
     );
     return Array.from(new Set(arr));
   }, [students]);
- 
 
   const filteredData = useMemo(() => {
     return students.filter((s) => {
@@ -203,7 +198,7 @@ export default function AdminStudentsPage() {
       >
         {modalState.type === 'create' ? (
           <AddStudentForm
-            classes={allClasses || []}
+            classes={allClasses?.data || []}
             onClose={() => {
               updateModalState({ key: 'isOpen', value: false });
               updateModalState({ key: 'modalContent', value: null });
@@ -211,7 +206,7 @@ export default function AdminStudentsPage() {
           />
         ) : modalState.type === 'update' ? (
           <UpdateStudentForm
-            classes={allClasses || []}
+            classes={allClasses?.data || []}
             initialData={modalState.modalContent}
             onClose={() => {
               updateModalState({ key: 'isOpen', value: false });
@@ -220,7 +215,7 @@ export default function AdminStudentsPage() {
           />
         ) : modalState.type === 'assign' ? (
           <AssignToClassForm
-            classes={allClasses || []}
+            classes={allClasses?.data || []}
             initialData={modalState.modalContent}
             onClose={() => {
               updateModalState({ key: 'isOpen', value: false });
@@ -280,7 +275,7 @@ function AssignToClassForm({
   initialData,
   onClose,
 }: {
-  classes: AllClassesResponse[];
+  classes: AllClassesResponse['data'];
   initialData: Student | null;
   onClose?: () => void;
 }) {
@@ -368,7 +363,7 @@ function AddStudentForm({
   classes,
   onClose,
 }: {
-  classes: AllClassesResponse[];
+  classes: AllClassesResponse['data'];
   onClose?: () => void;
 }) {
   type FormValues = {
@@ -461,7 +456,7 @@ function UpdateStudentForm({
   initialData,
   onClose,
 }: {
-  classes: AllClassesResponse[];
+  classes: AllClassesResponse['data'];
   initialData: Student | null;
   onClose?: () => void;
 }) {

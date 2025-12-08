@@ -23,7 +23,15 @@ export interface Student {
 export interface AdminStudentsResponse {
   success: boolean;
   message: string;
-  data: Student[];
+  data: {
+    data: Student[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      pages: number;
+    };
+  };
 }
 
 

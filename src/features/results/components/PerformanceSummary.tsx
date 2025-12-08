@@ -82,8 +82,9 @@ const PerformanceSummary: React.FC<PerformanceSummaryProps> = ({
         id='format'
         value={format}
         onChange={(e) => setFormat(e.target.value as 'pdf' | 'excel')}
+        defaultValue={''}
       >
-        <option value='' selected disabled>
+        <option value='' disabled>
           Select download format
         </option>
         <option value='pdf'>PDF</option>

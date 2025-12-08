@@ -32,5 +32,13 @@ export interface CreateNotificationPayload {
 export type NotificationsListResponse = {
   success: boolean;
   message: string;
-  data: Notification[];
+  data: {
+    data: Notification[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      pages: number;
+    };
+  };
 };

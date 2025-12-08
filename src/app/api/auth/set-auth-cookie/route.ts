@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     });
 
     const isProd = process.env.NODE_ENV === 'production';
-    console.log(process.env.NODE_ENV === 'production');
+
 
     response.cookies.set('token', token, {
       httpOnly: true,

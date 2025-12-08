@@ -27,8 +27,8 @@ import {
 import Modal from '@/components/modal';
 
 interface UpdateClassProps {
-  singleClass: AllClassesResponse | null;
-  allTeachers: AllTeachersResponse[];
+  singleClass: AllClassesResponse['data'][number] | null;
+  allTeachers: AllTeachersResponse['data'];
   closeModal: () => void;
   coursesData: AllCourses[];
 }
@@ -192,7 +192,7 @@ const AdminClasses = () => {
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
-    modalContent: AllClassesResponse | null;
+    modalContent: AllClassesResponse['data'][number] | null;
     type: 'update' | 'delete';
   }>({
     isOpen: false,
@@ -254,12 +254,12 @@ const AdminClasses = () => {
     {
       icon: <LuBuilding2 color='#0284c7' />,
       label: 'Total Classes',
-      count: allClasses ? allClasses?.length : 0,
+      count: allClasses?.data ? allClasses.data?.length : 0,
     },
     {
       icon: <HiUserGroup color='#0284c7' />,
       label: 'Total Teachers',
-      count: allTeachers ? allTeachers.length : 0,
+      count: allTeachers?.data ? allTeachers?.data.length : 0,
     },
   ];
 
@@ -269,7 +269,11 @@ const AdminClasses = () => {
     value,
   }: {
     key: keyof typeof modalState;
-    value: boolean | AllClassesResponse | ('update' | 'delete') | null;
+    value:
+      | boolean
+      | AllClassesResponse['data'][number]
+      | ('update' | 'delete')
+      | null;
   }) => {
     setModalState((prev) => ({
       ...prev,
@@ -360,13 +364,13 @@ const AdminClasses = () => {
                   <select
                     id='teacher'
                     {...register('teacher')}
-                    disabled={teachersLoading || !allTeachers}
+                    disabled={teachersLoading || !allTeachers?.data}
                     className='block w-full rounded-md border border-neutral-300 p-1 h-10 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 bg-background text-foreground caret-foreground'
                   >
                     <option value={''} disabled>
                       Select Teacher
                     </option>
-                    {allTeachers?.map((teacher) => (
+                    {allTeachers?.data?.map((teacher) => (
                       <option key={teacher.id} value={teacher.id}>
                         {teacher.firstname + ' ' + teacher.lastname}
                       </option>
@@ -393,7 +397,7 @@ const AdminClasses = () => {
               <div>
                 <span className='text-sm text-neutral-600'>Select Courses</span>
                 <div className='w-full flex gap-4 flex-wrap'>
-                  {coursesData?.map((course) => (
+                  {coursesData?.data?.map((course) => (
                     <label
                       htmlFor={`course-${course.id}`}
                       key={course.id}
@@ -438,7 +442,7 @@ const AdminClasses = () => {
           </div>
 
           <AppTable
-            data={allClasses ?? []}
+            data={allClasses?.data ?? []}
             label='All Classes'
             isLoading={classesLoading}
             headerColumns={headerColumns}
@@ -502,13 +506,13 @@ const AdminClasses = () => {
                   <select
                     id='teacher'
                     {...assignTeacherReg('teacher')}
-                    disabled={teachersLoading || !allTeachers}
+                    disabled={teachersLoading || !allTeachers?.data}
                     className='block w-full rounded-md border border-neutral-300 p-1 h-10 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 bg-background text-foreground caret-foreground'
                   >
                     <option value={''} disabled>
                       Select Teacher
                     </option>
-                    {allTeachers?.map((teacher) => (
+                    {allTeachers?.data?.map((teacher) => (
                       <option key={teacher.id} value={teacher.id}>
                         {teacher.firstname + ' ' + teacher.lastname}
                       </option>
@@ -536,7 +540,7 @@ const AdminClasses = () => {
                     <option value={''} disabled>
                       Select Class
                     </option>
-                    {allClasses?.map((item) => (
+                    {allClasses?.data?.map((item) => (
                       <option key={item.id} value={item.id}>
                         {item.className}
                       </option>
@@ -598,9 +602,9 @@ const AdminClasses = () => {
         {modalState.type === 'update' ? (
           <UpdateClass
             singleClass={modalState.modalContent}
-            allTeachers={allTeachers ?? []}
+            allTeachers={allTeachers?.data ?? []}
             closeModal={() => updateModalState({ key: 'isOpen', value: false })}
-            coursesData={coursesData ?? []}
+            coursesData={coursesData?.data ?? []}
           />
         ) : (
           <div className='w-full h-full flex flex-col gap-6'>

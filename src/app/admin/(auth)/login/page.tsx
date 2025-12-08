@@ -23,7 +23,7 @@ export default function AdminLoginPage() {
     try {
       setIsLoading(true);
       // TODO: Implement actual login logic
-      console.log('Login data:', data);
+      // console.log('Login data:', data);
       toast.success('Login successful!');
     } catch (error) {
       console.error(error);
