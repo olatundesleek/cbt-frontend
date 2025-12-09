@@ -1,8 +1,12 @@
-import type { Metadata } from "next";
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
+
+import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { ToastProvider } from '@/providers/toast-provider';
-import api from '@/lib/axios';
+// import api from '@/lib/axios';
 import { SystemSettingsResponse } from '@/types/settings.types';
 import SystemSettingsHydrator from '@/components/layout/SystemSettingsHydrator';
 
@@ -12,13 +16,26 @@ const inter = Inter({
 });
 
 async function getSystemSettings(): Promise<SystemSettingsResponse> {
-  const res = await api.get('/system-settings');
-  return res.data;
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/system-settings`,
+    {
+      cache: 'no-store',
+    },
+  );
+
+  return res.json();
+  // const res = await api.get('/system-settings');
+  // return res.data;
 }
 
 // generateMetadata for dynamic SEO tags
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getSystemSettings(); // Next.js caches this fetch
+  const settings = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/system-settings`,
+    {
+      cache: 'no-store',
+    },
+  ).then((r) => r.json());
 
   return {
     title: settings.data.appName, // Dynamically set the title
