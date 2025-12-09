@@ -10,7 +10,9 @@ export default function RegisteredCoursesSection() {
     registeredCoursesError,
   } = useRegisteredCourses();
 
-  const courses = registeredCourses || [];
+  console.log(registeredCourses);
+
+  const courses = registeredCourses?.data || [];
   const hasCourses = courses.length > 0;
 
   return (

@@ -27,12 +27,17 @@ const teacherRoutes: { path: string; label: string; icon: ReactNode }[] = [
     icon: <BiNotepad size={20} />,
   },
   {
+    path: '/admin/students',
+    label: 'Students',
+    icon: <BiUser size={20} />,
+  },
+  {
     path: '/admin/results',
     label: 'Results',
     icon: <AiFillHome size={20} />,
   },
   {
-    path: '/admin/question-bank',
+    path: '/admin/questions',
     label: 'Question Bank',
     icon: <FiTarget size={20} />,
   },

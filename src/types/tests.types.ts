@@ -315,7 +315,15 @@ export interface RegisteredCourse {
 }
 
 // API returns direct array, not wrapped in success/message/data
-export type RegisteredCoursesResponse = RegisteredCourse[];
+export type RegisteredCoursesResponse = {
+  data: RegisteredCourse[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+};
 
 export interface AdminTestsResponse {
   success: boolean;

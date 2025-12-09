@@ -26,6 +26,7 @@ import {
 } from '@/features/dashboard/queries/useDashboard';
 import { AllCourses, AllQuestionBank } from '@/types/dashboard.types';
 import { useToggleResultVisibility } from '@/hooks/useResultCourses';
+import { useUserStore } from '@/store/useUserStore';
 
 const createClassSchema = Yup.object({
   title: Yup.string().required('Test title is required'),
@@ -65,11 +66,13 @@ function UpdateForm({
   allQuestionBank,
   initialData,
   onClose,
+  role = 'teacher',
 }: {
   coursesData: AllCourses[];
   allQuestionBank: { data: AllQuestionBank[] } | undefined;
   initialData: AdminTestItem | null;
   onClose?: () => void;
+  role?: 'admin' | 'teacher' | 'student';
 }) {
   type FormValues = {
     title: string;
@@ -231,7 +234,8 @@ function UpdateForm({
             <select
               id='testState'
               {...register('testState', { required: 'Test state is required' })}
-              className='block w-full rounded-md border border-neutral-300 p-1 h-10 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 bg-background text-foreground caret-foreground'
+              className='block w-full rounded-md border border-neutral-300 p-1 h-10 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 bg-background text-foreground caret-foreground disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-100'
+              disabled={role !== 'admin'}
             >
               <option value='active'>ACTIVE</option>
               <option value='scheduled'>SCHEDULED</option>
@@ -391,11 +395,13 @@ function AddTestForm({
   allQuestionBank,
   isCoursesDataLoading,
   questionBankLoading,
+  role = 'teacher',
 }: {
   coursesData: AllCourses[];
   allQuestionBank?: { data: AllQuestionBank[] };
   isCoursesDataLoading?: boolean;
   questionBankLoading?: boolean;
+  role?: 'admin' | 'teacher' | 'student';
 }) {
   const createTestMutation = useCreateTest();
 
@@ -525,7 +531,8 @@ function AddTestForm({
             <select
               id='testState'
               {...register('testState', { required: 'Test state is required' })}
-              className='block w-full rounded-md border border-neutral-300 p-1 h-10 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 bg-background text-foreground caret-foreground'
+              className='block w-full rounded-md border border-neutral-300 p-1 h-10 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 bg-background text-foreground caret-foreground disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-100'
+              disabled={role !== 'admin'}
             >
               <option value='active'>ACTIVE</option>
               <option value='scheduled'>SCHEDULED</option>
@@ -691,6 +698,7 @@ export default function AdminTestPage() {
     isLoading: isAdminTestLoading,
     error: adminTestError,
   } = useAdminTest();
+  const role = useUserStore((state) => state.role);
 
   const {
     data: coursesData,
@@ -865,14 +873,14 @@ export default function AdminTestPage() {
                 <TableDataItem>{item.course?.title}</TableDataItem>
                 <TableDataItem>{item.type}</TableDataItem>
                 <TableDataItem>
-                  {item.createdBy.firstname} {item.createdBy.lastname}
+                  {item.createdBy.firstname} {item.createdBy.lastname || 'N/A'}
                 </TableDataItem>
                 <TableDataItem>
                   <div className='flex items-center justify-center'>
                     <label className='relative inline-flex items-center cursor-pointer'>
                       <input
                         type='checkbox'
-                        className='sr-only peer'
+                        className='sr-only peer disabled:cursor-not-allowed'
                         aria-label='Toggle release result'
                         checked={item.showResult}
                         onChange={(e) => {
@@ -880,13 +888,19 @@ export default function AdminTestPage() {
                             testId: item.id,
                             showResult: e.target.checked,
                           });
+
                           // setshowResult(e.target.checked);
                         }}
+                        disabled={
+                          role !== 'admin' ||
+                          item.type.toLowerCase() === 'practice' ||
+                          toggleMutation.isPending
+                        }
                       />
-                      <div className='w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-primary-600 relative'></div>
+                      <div className='w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-primary-600 relative peer-disabled:opacity-50 peer-disabled:cursor-not-allowed'></div>
                       <span
                         className='absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow
-                   transition-transform translate-x-0 peer-checked:translate-x-5'
+                   transition-transform translate-x-0 peer-checked:translate-x-5 peer-disabled:opacity-50 peer-disabled:cursor-not-allowed'
                       />
                     </label>
                   </div>
@@ -946,6 +960,7 @@ export default function AdminTestPage() {
             allQuestionBank={allQuestionBank?.data}
             isCoursesDataLoading={isCoursesDataLoading}
             questionBankLoading={questionBankLoading}
+            role={role}
           />
         ) : modalState.type === 'update' ? (
           <UpdateForm
@@ -956,6 +971,7 @@ export default function AdminTestPage() {
               updateModalState({ key: 'isOpen', value: false });
               updateModalState({ key: 'modalContent', value: null });
             }}
+            role={role}
           />
         ) : (
           <div className='w-full h-full flex flex-col gap-6'>

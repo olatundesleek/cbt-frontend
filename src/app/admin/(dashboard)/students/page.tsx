@@ -21,8 +21,10 @@ import type { Student } from '@/types/students.types';
 import useAssignClass from '@/features/students/hooks/useAssignClass';
 import { useGetClasses } from '@/features/dashboard/queries/useDashboard';
 import { AllClassesResponse } from '@/types/dashboard.types';
+import { useUserStore } from '@/store/useUserStore';
 
 export default function AdminStudentsPage() {
+  const role = useUserStore((s) => s.role);
   const { data: adminStudentsData, isLoading: isStudentsLoading } =
     useAdminStudents();
 
@@ -103,15 +105,18 @@ export default function AdminStudentsPage() {
       <div className='flex-1 flex flex-col gap-4'>
         <div className='flex justify-between w-full'>
           <h1 className='text-2xl font-semibold'>Manage Students</h1>
-          <div>
-            <Button
-              onClick={() => {
-                updateModalState({ key: 'type', value: 'create' });
-                updateModalState({ key: 'isOpen', value: true });
-              }}
-              label='+ Create Student'
-            />
-          </div>
+          {role === 'admin' && (
+            <div>
+              <Button
+                onClick={() => {
+                  updateModalState({ key: 'type', value: 'create' });
+                  updateModalState({ key: 'isOpen', value: true });
+                }}
+                label='+ Create Student'
+                disabled={role !== 'admin'}
+              />
+            </div>
+          )}
         </div>
 
         <FilterBar
@@ -121,68 +126,103 @@ export default function AdminStudentsPage() {
         />
 
         <div>
-          <AppTable
-            isLoading={isStudentsLoading || classesLoading}
-            headerColumns={tableHeaders}
-            data={filteredData}
-            itemKey={({ item }) => `${item.username}`}
-            centralizeLabel={false}
-            renderItem={({ item }) => {
-              return (
-                <>
-                  <TableDataItem>
-                    {item.firstname} {item.lastname}
-                  </TableDataItem>
-                  <TableDataItem>{item.username ?? '--'}</TableDataItem>
-                  <TableDataItem>{item.class?.className ?? '--'}</TableDataItem>
-                  <TableDataItem>
-                    {(item.class.courses ?? [])
-                      .map((c) => c.title)
-                      .join(', ') || '--'}
-                  </TableDataItem>
-                  <TableDataItem>
-                    {item.class?.createdAt
-                      ? formatDate(item.class.createdAt)
-                      : '--'}
-                  </TableDataItem>
-                </>
-              );
-            }}
-            onActionClick={({ item }) =>
-              updateModalState({ key: 'modalContent', value: item })
-            }
-            actionModalContent={
-              <div className='flex flex-col gap-2 w-full'>
-                <button
-                  onClick={() => {
-                    updateModalState({ key: 'type', value: 'assign' });
-                    updateModalState({ key: 'isOpen', value: true });
-                  }}
-                  className='px-2 py-1 rounded bg-emerald-600 text-white text-xs cursor-pointer'
-                >
-                  Assign
-                </button>
-                <button
-                  onClick={() => {
-                    updateModalState({ key: 'type', value: 'update' });
-                    updateModalState({ key: 'isOpen', value: true });
-                  }}
-                  className='px-2 py-1 rounded bg-primary-500 text-white text-xs cursor-pointer'
-                >
-                  Update
-                </button>
-                <button
-                  onClick={() => {
-                    updateModalState({ key: 'type', value: 'delete' });
-                    updateModalState({ key: 'isOpen', value: true });
-                  }}
-                  className='px-2 py-1 rounded bg-error-500 text-white text-xs cursor-pointer'
-                >
-                  Delete
-                </button>
-              </div>
-            }
-          />
+          {role === 'admin' ? (
+            <AppTable
+              isLoading={isStudentsLoading || classesLoading}
+              headerColumns={tableHeaders}
+              data={filteredData}
+              itemKey={({ item }) => `${item.username}`}
+              centralizeLabel={false}
+              renderItem={({ item }) => {
+                return (
+                  <>
+                    <TableDataItem>
+                      {item.firstname} {item.lastname}
+                    </TableDataItem>
+                    <TableDataItem>{item.username ?? '--'}</TableDataItem>
+                    <TableDataItem>
+                      {item.class?.className ?? '--'}
+                    </TableDataItem>
+                    <TableDataItem>
+                      {(item.class.courses ?? [])
+                        .map((c) => c.title)
+                        .join(', ') || '--'}
+                    </TableDataItem>
+                    <TableDataItem>
+                      {item.class?.createdAt
+                        ? formatDate(item.class.createdAt)
+                        : '--'}
+                    </TableDataItem>
+                  </>
+                );
+              }}
+              onActionClick={({ item }) =>
+                updateModalState({ key: 'modalContent', value: item })
+              }
+              actionModalContent={
+                <div className='flex flex-col gap-2 w-full'>
+                  <button
+                    onClick={() => {
+                      updateModalState({ key: 'type', value: 'assign' });
+                      updateModalState({ key: 'isOpen', value: true });
+                    }}
+                    className='px-2 py-1 rounded bg-emerald-600 text-white text-xs cursor-pointer'
+                  >
+                    Assign
+                  </button>
+                  <button
+                    onClick={() => {
+                      updateModalState({ key: 'type', value: 'update' });
+                      updateModalState({ key: 'isOpen', value: true });
+                    }}
+                    className='px-2 py-1 rounded bg-primary-500 text-white text-xs cursor-pointer'
+                  >
+                    Update
+                  </button>
+                  <button
+                    onClick={() => {
+                      updateModalState({ key: 'type', value: 'delete' });
+                      updateModalState({ key: 'isOpen', value: true });
+                    }}
+                    className='px-2 py-1 rounded bg-error-500 text-white text-xs cursor-pointer'
+                  >
+                    Delete
+                  </button>
+                </div>
+              }
+            />
+          ) : (
+            <AppTable
+              isLoading={isStudentsLoading || classesLoading}
+              headerColumns={tableHeaders}
+              data={filteredData}
+              itemKey={({ item }) => `${item.username}`}
+              centralizeLabel={false}
+              renderItem={({ item }) => {
+                return (
+                  <>
+                    <TableDataItem>
+                      {item.firstname} {item.lastname}
+                    </TableDataItem>
+                    <TableDataItem>{item.username ?? '--'}</TableDataItem>
+                    <TableDataItem>
+                      {item.class?.className ?? '--'}
+                    </TableDataItem>
+                    <TableDataItem>
+                      {(item.class.courses ?? [])
+                        .map((c) => c.title)
+                        .join(', ') || '--'}
+                    </TableDataItem>
+                    <TableDataItem>
+                      {item.class?.createdAt
+                        ? formatDate(item.class.createdAt)
+                        : '--'}
+                    </TableDataItem>
+                  </>
+                );
+              }}
+            />
+          )}
         </div>
       </div>
 
