@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState, useMemo } from 'react';
 import AdminResultsFilter from '@/features/results/components/AdminResultsFilter';
 import { useAdminResult } from '@/hooks/useResultCourses';
 import {
@@ -8,11 +8,12 @@ import {
   useGetClasses,
 } from '@/features/dashboard/queries/useDashboard';
 import { useAdminStudents } from '@/features/students/hooks/useStudents';
-import type { AllClassesResponse, AllCourses } from '@/types/dashboard.types';
+import type { AllCourses } from '@/types/dashboard.types';
 import AppTable, { TableDataItem } from '@/components/table';
 import Modal from '@/components/modal';
 import { useAdminSingleResult } from '@/hooks/useResultCourses';
 import { Button } from '@/components/ui';
+import { useServerPagination } from '@/hooks/useServerPagination';
 
 type Row = {
   id: string;
@@ -33,7 +34,13 @@ type Row = {
 };
 
 export default function AdminResultPage() {
-  const { data: resp, isLoading, error } = useAdminResult();
+  // Add server pagination hook
+  const { params, goToPage } = useServerPagination({
+    defaultPage: 1,
+    defaultLimit: 10,
+  });
+
+  const { data: resp, isLoading, error } = useAdminResult(params);
   // console.log(resp);
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -44,7 +51,7 @@ export default function AdminResultPage() {
   const singleResultQuery = useAdminSingleResult(selectedTestSessionId);
 
   // filters from filter component
-  const [filters, setFilters] = useState<{
+  const [filters] = useState<{
     className?: string;
     courseId?: number;
     type?: string;
@@ -220,18 +227,9 @@ export default function AdminResultPage() {
         classes={availableClasses}
         courses={availableCourses}
         tests={availableTests}
-        onFilter={(f) =>
-          setFilters({
-            className: f.className,
-            courseId: typeof f.courseId === 'number' ? f.courseId : undefined,
-            type: f.type,
-            testTitle: f.testTitle,
-            startDate: f.startDate,
-            endDate: f.endDate,
-          })
-        }
       />
       <div className='bg-white rounded shadow-sm p-4'>
+        {/* Server pagination using data.pagination from response */}
         <AppTable<Row>
           centralizeLabel={false}
           headerColumns={[
@@ -249,7 +247,14 @@ export default function AdminResultPage() {
           data={filtered}
           isLoading={isLoading}
           itemKey={({ item }) => item.id}
-          itemsPerPage={10}
+          paginationMode='server'
+          paginationMeta={{
+            currentPage: resp?.data?.pagination?.page || 1,
+            totalPages: resp?.data?.pagination?.pages || 1,
+            totalItems: resp?.data?.pagination?.total || 0,
+            itemsPerPage: resp?.data?.pagination?.limit || 10,
+          }}
+          onPageChange={goToPage}
           renderItem={({ item }) => (
             <>
               <TableDataItem className='capitalize text-center text-sm'>

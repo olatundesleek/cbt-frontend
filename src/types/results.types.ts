@@ -57,6 +57,12 @@ export interface StudentResultCoursesResponse {
   student: StudentInfo;
   courses: CourseResults[];
   overallStats: OverallStats;
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
 }
 export interface StudentResultDownloadResponse {
   success: boolean;
@@ -79,10 +85,10 @@ export interface ResultEntry {
     highestScore: number;
   };
   tests: Array<{
-  id: number;
-  title: string;
-  type: TestType;
-  session: {
+    id: number;
+    title: string;
+    type: TestType;
+    session: {
       id: number;
       score: number;
       status: string;
@@ -108,20 +114,6 @@ export interface ResultEntry {
       createdAt: string;
     };
   }>;
-  overallStats: {
-    totalCourses: number;
-    totalTests: number;
-    testsCompleted: number;
-    averageScore: number;
-    highestScore: number;
-  };
-
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    pages: number;
-  };
 }
 
 export interface getAllResultAdminResponse {
@@ -129,6 +121,20 @@ export interface getAllResultAdminResponse {
   message: string;
   data: {
     courses: ResultEntry[];
+    overallStats: {
+      totalCourses: number;
+      totalTests: number;
+      testsCompleted: number;
+      averageScore: number;
+      highestScore: number;
+    };
+
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      pages: number;
+    };
   };
 }
 

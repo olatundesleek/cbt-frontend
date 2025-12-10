@@ -183,12 +183,14 @@ export interface AllTeachers {
 export interface AllTeachersResponse {
   success: boolean;
   message: string;
-  data: AllTeachers[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    pages: number;
+  data: {
+    data: AllTeachers[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      pages: number;
+    };
   };
 }
 

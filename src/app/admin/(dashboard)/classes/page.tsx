@@ -7,6 +7,7 @@ import Input from "@/components/ui/input";
 import { HiUserGroup } from "react-icons/hi";
 import { LuBuilding2 } from "react-icons/lu";
 import AppTable, { TableDataItem } from "@/components/table";
+import { useServerPagination } from '@/hooks/useServerPagination';
 import {
   useGetClasses,
   useGetCourses,
@@ -28,7 +29,7 @@ import Modal from '@/components/modal';
 
 interface UpdateClassProps {
   singleClass: AllClassesResponse['data'][number] | null;
-  allTeachers: AllTeachersResponse['data'];
+  allTeachers: AllTeachersResponse['data']['data'];
   closeModal: () => void;
   coursesData: AllCourses[];
 }
@@ -189,6 +190,12 @@ const UpdateClass = ({
 };
 
 const AdminClasses = () => {
+  // Add server pagination hook
+  const { params, goToPage } = useServerPagination({
+    defaultPage: 1,
+    defaultLimit: 10,
+  });
+
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
@@ -236,7 +243,7 @@ const AdminClasses = () => {
     data: allClasses,
     isLoading: classesLoading,
     error: classesError,
-  } = useGetClasses();
+  } = useGetClasses(params);
 
   const {
     data: allTeachers,
@@ -259,7 +266,7 @@ const AdminClasses = () => {
     {
       icon: <HiUserGroup color='#0284c7' />,
       label: 'Total Teachers',
-      count: allTeachers?.data ? allTeachers?.data.length : 0,
+      count: allTeachers?.data ? allTeachers?.data.data.length : 0,
     },
   ];
 
@@ -370,7 +377,7 @@ const AdminClasses = () => {
                     <option value={''} disabled>
                       Select Teacher
                     </option>
-                    {allTeachers?.data?.map((teacher) => (
+                    {allTeachers?.data.data?.map((teacher) => (
                       <option key={teacher.id} value={teacher.id}>
                         {teacher.firstname + ' ' + teacher.lastname}
                       </option>
@@ -447,6 +454,14 @@ const AdminClasses = () => {
             isLoading={classesLoading}
             headerColumns={headerColumns}
             itemKey={({ itemIndex }) => `${itemIndex}`}
+            paginationMode='server'
+            paginationMeta={{
+              currentPage: allClasses?.pagination?.page || 1,
+              totalPages: allClasses?.pagination?.pages || 1,
+              totalItems: allClasses?.pagination?.total || 0,
+              itemsPerPage: allClasses?.pagination?.limit || 10,
+            }}
+            onPageChange={goToPage}
             onActionClick={({ item }) =>
               updateModalState({ key: 'modalContent', value: item })
             }
@@ -512,7 +527,7 @@ const AdminClasses = () => {
                     <option value={''} disabled>
                       Select Teacher
                     </option>
-                    {allTeachers?.data?.map((teacher) => (
+                    {allTeachers?.data?.data.map((teacher) => (
                       <option key={teacher.id} value={teacher.id}>
                         {teacher.firstname + ' ' + teacher.lastname}
                       </option>
@@ -602,7 +617,7 @@ const AdminClasses = () => {
         {modalState.type === 'update' ? (
           <UpdateClass
             singleClass={modalState.modalContent}
-            allTeachers={allTeachers?.data ?? []}
+            allTeachers={allTeachers?.data.data ?? []}
             closeModal={() => updateModalState({ key: 'isOpen', value: false })}
             coursesData={coursesData?.data ?? []}
           />

@@ -22,6 +22,7 @@ import {
   useGetCourses,
 } from '@/features/dashboard/queries/useDashboard';
 import { formatDate } from '../../../../../utils/helpers';
+import { useServerPagination } from '@/hooks/useServerPagination';
 
 const notificationTypes = [
   'GENERAL',
@@ -83,8 +84,12 @@ const notificationSchema = yup.object({
 });
 
 export default function AdminNotificationPage() {
+  const { params, goToPage } = useServerPagination({
+    defaultPage: 1,
+    defaultLimit: 10,
+  });
   const { data: notificationData, isLoading: isNotificationLoading } =
-    useNotification();
+    useNotification(params);
   const { mutate: deleteNotification, isPending: isDeletingNotification } =
     useDeleteNotification();
 
@@ -119,6 +124,14 @@ export default function AdminNotificationPage() {
   };
 
   const notifications = notificationData?.data.data || [];
+
+  const meta = {
+    currentPage: notificationData?.data.pagination.page || 1,
+    totalPages: notificationData?.data.pagination.pages || 1,
+    totalItems: notificationData?.data.pagination.total || 0,
+    itemsPerPage: notificationData?.data.pagination.limit || 10,
+  };
+
   return (
     <div className='w-full space-y-4'>
       <div className='flex w-full justify-between'>
@@ -136,7 +149,7 @@ export default function AdminNotificationPage() {
       </div>
 
       <div className='space-y-2'>
-        <AppTable
+        <AppTable<Notification>
           headerColumns={[
             'Title',
             'Recipients',
@@ -147,6 +160,9 @@ export default function AdminNotificationPage() {
           data={notifications}
           isLoading={isNotificationLoading}
           itemKey={({ itemIndex }) => `${itemIndex}`}
+          paginationMode='server'
+          paginationMeta={meta}
+          onPageChange={goToPage}
           renderItem={({ item }) => (
             <>
               <TableDataItem>{item.title}</TableDataItem>

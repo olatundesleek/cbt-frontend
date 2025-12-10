@@ -11,6 +11,7 @@ import { authService } from '@/services/authService';
 import { queryClient } from '@/providers/query-provider';
 import { errorLogger } from '@/lib/axios';
 import { useAdminStudents } from '@/features/students/hooks/useStudents';
+import { useServerPagination } from '@/hooks/useServerPagination';
 import useChangeStudentPassword from '@/features/students/hooks/useChangeStudentPassword';
 import useDeleteStudent from '@/features/students/hooks/useDeleteStudent';
 import FilterBar, { FilterState } from '@/components/tests/FilterBar';
@@ -24,9 +25,15 @@ import { AllClassesResponse } from '@/types/dashboard.types';
 import { useUserStore } from '@/store/useUserStore';
 
 export default function AdminStudentsPage() {
+  // Add server pagination hook
+  const { params, goToPage } = useServerPagination({
+    defaultPage: 1,
+    defaultLimit: 10,
+  });
+
   const role = useUserStore((s) => s.role);
   const { data: adminStudentsData, isLoading: isStudentsLoading } =
-    useAdminStudents();
+    useAdminStudents(params);
 
   const { data: allClasses, isLoading: classesLoading } = useGetClasses();
 
@@ -198,6 +205,14 @@ export default function AdminStudentsPage() {
               data={filteredData}
               itemKey={({ item }) => `${item.username}`}
               centralizeLabel={false}
+              paginationMode='server'
+              paginationMeta={{
+                currentPage: adminStudentsData?.data?.pagination?.page || 1,
+                totalPages: adminStudentsData?.data?.pagination?.pages || 1,
+                totalItems: adminStudentsData?.data?.pagination?.total || 0,
+                itemsPerPage: adminStudentsData?.data?.pagination?.limit || 10,
+              }}
+              onPageChange={goToPage}
               renderItem={({ item }) => {
                 return (
                   <>

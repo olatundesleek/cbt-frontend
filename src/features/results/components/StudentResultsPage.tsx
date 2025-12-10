@@ -3,15 +3,24 @@ import React, { useMemo, useState } from 'react';
 import ResultsFilter from './ResultsFilter';
 import ResultsTable, { TestResult } from './ResultsTable';
 import PerformanceSummary from './PerformanceSummary';
+import Pagination from '@/components/ui/Pagination';
 import { useResultCourses } from '@/hooks/useResultCourses';
+import { useServerPagination } from '@/hooks/useServerPagination';
 
 const StudentResultsPage: React.FC = () => {
+  // Add server pagination hook
+  const { params, goToPage } = useServerPagination({
+    defaultPage: 1,
+    defaultLimit: 10,
+  });
+
   const {
     courses,
     overallStats,
     student,
+    pagination,
     isLoading: loadingCourses,
-  } = useResultCourses();
+  } = useResultCourses(params);
   const [selectedCourseId, setSelectedCourseId] = useState<
     string | number | ''
   >('');
@@ -123,6 +132,18 @@ const StudentResultsPage: React.FC = () => {
                     No test results available yet.
                   </p>
                 )}
+
+                {/* Pagination */}
+                {effectiveCourses.length > 0 && pagination && (
+                  <div className='pt-4 border-t'>
+                    <Pagination
+                      page={pagination.page || 1}
+                      limit={pagination.limit || 10}
+                      totalItems={pagination.total || 0}
+                      onPageChange={goToPage}
+                    />
+                  </div>
+                )}
               </>
             )}
           </div>
@@ -149,7 +170,7 @@ const StudentResultsPage: React.FC = () => {
               averageScore={avgPercent}
               passRate={passRate}
               totalTests={total}
-              recentActivity={[]}
+              // recentActivity={[]}
             />
           );
         })()}

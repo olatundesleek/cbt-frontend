@@ -6,6 +6,7 @@ import Input from '@/components/ui/input';
 import { useAdminTest } from '@/features/tests/hooks/useTests';
 import { errorLogger } from '@/lib/axios';
 import { Test as TestType, AdminTestsResponse } from '@/types/tests.types';
+import { useServerPagination } from '@/hooks/useServerPagination';
 type AdminTestItem = AdminTestsResponse['data']['data'][number];
 import { formatDate } from '../../../../../utils/helpers';
 import FilterBar, { FilterState } from '@/components/tests/FilterBar';
@@ -693,11 +694,17 @@ function AddTestForm({
 }
 
 export default function AdminTestPage() {
+  // Add server pagination hook
+  const { params, goToPage } = useServerPagination({
+    defaultPage: 1,
+    defaultLimit: 10,
+  });
+
   const {
     data: adminTestsData,
     isLoading: isAdminTestLoading,
     error: adminTestError,
-  } = useAdminTest();
+  } = useAdminTest(params);
   const role = useUserStore((state) => state.role);
 
   const {
@@ -860,6 +867,14 @@ export default function AdminTestPage() {
           data={filteredData}
           itemKey={({ item }) => `${item.id}`}
           centralizeLabel={false}
+          paginationMode='server'
+          paginationMeta={{
+            currentPage: adminTestsData?.data?.pagination?.page || 1,
+            totalPages: adminTestsData?.data?.pagination?.pages || 1,
+            totalItems: adminTestsData?.data?.pagination?.total || 0,
+            itemsPerPage: adminTestsData?.data?.pagination?.limit || 10,
+          }}
+          onPageChange={goToPage}
           renderItem={({ item }) => {
             // setshowResult(item.showResult);
             return (

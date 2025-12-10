@@ -16,11 +16,13 @@ import {
   CreateTestRequest,
   CreateTestResponse,
 } from '@/types/tests.types';
+import type { PaginationParams } from '@/types/pagination.types';
 
 export const testsServices = {
-  getTests: async (): Promise<TestsResponse> => {
+  getTests: async (params?: PaginationParams): Promise<TestsResponse> => {
     const response = await axios.get('/tests', {
       withCredentials: true,
+      params,
     });
     return response.data;
   },
@@ -30,8 +32,10 @@ export const testsServices = {
     return response.data;
   },
 
-  getAdminTests: async (): Promise<AdminTestsResponse> => {
-    const response = await axios.get('/tests');
+  getAdminTests: async (
+    params?: PaginationParams,
+  ): Promise<AdminTestsResponse> => {
+    const response = await axios.get('/tests', { params });
     return response.data;
   },
   createTest: async (data: CreateTestRequest): Promise<CreateTestResponse> => {

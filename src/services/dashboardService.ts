@@ -1,4 +1,5 @@
 import api from "@/lib/axios";
+import type { PaginationParams } from '@/types/pagination.types';
 import {
   AllClassesResponse,
   AllCoursesResponse,
@@ -15,23 +16,31 @@ export const dashboardServices = {
     return response.data as DashboardResponse<T>;
   },
 
-  getAllClasses: async (): Promise<AllClassesResponse> => {
-    const response = await api.get('/class');
+  getAllClasses: async (
+    params?: PaginationParams,
+  ): Promise<AllClassesResponse> => {
+    const response = await api.get('/class', { params });
     return response.data;
   },
 
-  getAllTeacher: async (): Promise<AllTeachersResponse> => {
-    const response = await api.get('/teachers');
-    return response.data.data;
-  },
-
-  getAllCourses: async (): Promise<AllCoursesResponse> => {
-    const response = await api.get('/courses');
+  getAllTeacher: async (
+    params?: PaginationParams,
+  ): Promise<AllTeachersResponse> => {
+    const response = await api.get('/teachers', { params });
     return response.data;
   },
 
-  getAllQuestionBank: async (): Promise<AllQuestionBankResponse> => {
-    const response = await api.get('/question-banks');
+  getAllCourses: async (
+    params?: PaginationParams,
+  ): Promise<AllCoursesResponse> => {
+    const response = await api.get('/courses', { params });
+    return response.data;
+  },
+
+  getAllQuestionBank: async (
+    params?: PaginationParams,
+  ): Promise<AllQuestionBankResponse> => {
+    const response = await api.get('/question-banks', { params });
     return response.data;
   },
 

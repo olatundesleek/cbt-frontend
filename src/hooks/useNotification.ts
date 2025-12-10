@@ -5,14 +5,15 @@ import type {
   Notification,
   CreateNotificationPayload,
 } from '@/types/notification.types';
+import { PaginationParams } from '@/types/pagination.types';
 import getErrorDetails from '@/utils/getErrorDetails';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 
-export function useNotification() {
+export function useNotification(params?: PaginationParams) {
   const query = useQuery<NotificationsListResponse, AppError>({
-    queryKey: ['notifications'],
-    queryFn: notificationService.getNotifications,
+    queryKey: ['notifications', params],
+    queryFn: () => notificationService.getNotifications(params),
   });
 
   return query;

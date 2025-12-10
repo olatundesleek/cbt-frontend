@@ -14,19 +14,26 @@ import toast from "react-hot-toast";
 import { errorLogger } from "@/lib/axios";
 import { queryClient } from "@/providers/query-provider";
 import { useGetTeachers } from "@/features/dashboard/queries/useDashboard";
+import { useServerPagination } from '@/hooks/useServerPagination';
 
 const schema = Yup.object({
-  firstName: Yup.string().required("First Name is required"),
-  lastName: Yup.string().required("Last Name is required"),
-  userName: Yup.string().required("Username is required"),
+  firstName: Yup.string().required('First Name is required'),
+  lastName: Yup.string().required('Last Name is required'),
+  userName: Yup.string().required('Username is required'),
   password: Yup.string()
-    .min(6, "Password must be minimum of 6 characters")
-    .required("Password is required"),
+    .min(6, 'Password must be minimum of 6 characters')
+    .required('Password is required'),
 });
 
 type FormProps = Yup.InferType<typeof schema>;
 
 export default function AdminTeachersPage() {
+  // Add server pagination hook
+  const { params, goToPage } = useServerPagination({
+    defaultPage: 1,
+    defaultLimit: 10,
+  });
+
   const [togglePassword, setTogglePassword] = useState<boolean>(false);
 
   const {
@@ -35,7 +42,7 @@ export default function AdminTeachersPage() {
     handleSubmit,
     reset: resetForm,
   } = useForm<FormProps>({
-    defaultValues: { firstName: "", lastName: "", userName: "", password: "" },
+    defaultValues: { firstName: '', lastName: '', userName: '', password: '' },
     resolver: yupResolver(schema),
   });
 
@@ -43,9 +50,7 @@ export default function AdminTeachersPage() {
     data: allTeachers,
     isLoading: teachersLoading,
     error: teachersError,
-  } = useGetTeachers();
-
-
+  } = useGetTeachers(params);
   const handleRegisterTeacher: SubmitHandler<FormProps> = async (data) => {
     const payload = {
       firstname: data.firstName,
@@ -133,12 +138,20 @@ export default function AdminTeachersPage() {
 
         <div className='col-span-1 flex flex-col gap-3 bg-background rounded-xl w-full p-3'>
           <AppTable
-            data={allTeachers?.data ?? []}
+            data={allTeachers?.data.data ?? []}
             centralizeLabel
             isLoading={teachersLoading}
             label='All Teachers'
             headerColumns={['s/n', 'Teacher Name', 'Assigned Classes']}
             itemKey={({ item }) => `${item.id}`}
+            paginationMode='server'
+            paginationMeta={{
+              currentPage: allTeachers?.data.pagination?.page || 1,
+              totalPages: allTeachers?.data.pagination?.pages || 1,
+              totalItems: allTeachers?.data.pagination?.total || 0,
+              itemsPerPage: allTeachers?.data.pagination?.limit || 10,
+            }}
+            onPageChange={goToPage}
             renderItem={({ item, itemIndex }) => (
               <>
                 <TableDataItem>{itemIndex + 1}</TableDataItem>
