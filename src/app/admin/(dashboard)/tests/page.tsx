@@ -9,9 +9,11 @@ import { Test as TestType, AdminTestsResponse } from '@/types/tests.types';
 import { useServerPagination } from '@/hooks/useServerPagination';
 type AdminTestItem = AdminTestsResponse['data']['data'][number];
 import { formatDate } from '../../../../../utils/helpers';
-import FilterBar, { FilterState } from '@/components/tests/FilterBar';
 import TestSummary from '@/components/tests/TestSummary';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import ResultsFiltersBar, {
+  type ResultFilterField,
+} from '@/features/results/components/ResultsFiltersBar';
 import type { TestType as TestTypeConst } from '@/lib/constants';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
@@ -694,8 +696,8 @@ function AddTestForm({
 }
 
 export default function AdminTestPage() {
-  // Add server pagination hook
-  const { params, goToPage } = useServerPagination({
+  // Add server pagination hook with sort/order for server
+  const { params, goToPage, setLimit, updateParams } = useServerPagination({
     defaultPage: 1,
     defaultLimit: 10,
   });
@@ -731,9 +733,54 @@ export default function AdminTestPage() {
     type: 'create',
   });
 
-  const [filter, setFilter] = useState<FilterState>({
-    query: '',
-  });
+  // Client-side filter state
+  const [clientFilters, setClientFilters] = useState<{
+    search?: string;
+    course?: string;
+    className?: string;
+    status?: string;
+    testType?: string;
+    testTitle?: string;
+    startDate?: string;
+  }>({});
+
+  const handleFilterChange = useCallback(
+    (nextParams: Record<string, string | number | undefined>) => {
+      // Extract server params (sort, order) and client filters
+      const {
+        sort,
+        order,
+        search,
+        course,
+        className,
+        status,
+        testType,
+        testTitle,
+        startDate,
+        ...rest
+      } = nextParams;
+
+      // Update client filters
+      setClientFilters({
+        search: search as string | undefined,
+        course: course as string | undefined,
+        className: className as string | undefined,
+        status: status as string | undefined,
+        testType: testType as string | undefined,
+        testTitle: testTitle as string | undefined,
+        startDate: startDate as string | undefined,
+      });
+
+      // Update server params (sort, order, page, limit)
+      updateParams({
+        page: 1,
+        sort: sort as string | undefined,
+        order: order as string | undefined,
+        ...rest,
+      });
+    },
+    [updateParams],
+  );
 
   const toggleMutation = useToggleResultVisibility();
 
@@ -760,39 +807,144 @@ export default function AdminTestPage() {
     return Array.from(new Set(arr));
   }, [adminTestsData]);
 
+  // Filter fields configuration
+  const filterFields = useMemo<ResultFilterField[]>(
+    () => [
+      {
+        label: 'Search',
+        type: 'search',
+        name: 'search',
+        placeholder: 'Search by test title',
+      },
+      {
+        type: 'select',
+        name: 'course',
+        label: 'Course',
+        options: courses.map((c) => ({ value: c, label: c })),
+        placeholder: 'All courses',
+      },
+      {
+        type: 'select',
+        name: 'className',
+        label: 'Class',
+        options: classes.map((c) => ({ value: c, label: c })),
+        placeholder: 'All classes',
+      },
+      {
+        type: 'select',
+        name: 'testTitle',
+        label: 'Test Title',
+        options: availableTests.map((t) => ({ value: t, label: t })),
+        placeholder: 'All tests',
+      },
+
+      {
+        type: 'select',
+        name: 'status',
+        label: 'Status',
+        options: [
+          { label: 'Active', value: 'active' },
+          { label: 'Scheduled', value: 'scheduled' },
+          { label: 'Completed', value: 'completed' },
+        ],
+        placeholder: 'All statuses',
+      },
+      {
+        type: 'select',
+        name: 'testType',
+        label: 'Test Type',
+        options: [
+          { label: 'Exam', value: 'EXAM' },
+          { label: 'Test', value: 'TEST' },
+          { label: 'Practice', value: 'PRACTICE' },
+        ],
+        placeholder: 'All types',
+      },
+      {
+        type: 'date',
+        name: 'startDate',
+        label: 'Start Date',
+      },
+      {
+        type: 'select',
+        name: 'sort',
+        label: 'Sort By',
+        options: [
+          { label: 'Title', value: 'title' },
+          { label: 'Created Date', value: 'createdAt' },
+          { label: 'Type', value: 'type' },
+        ],
+        placeholder: 'Default',
+      },
+      {
+        type: 'select',
+        name: 'order',
+        label: 'Order',
+        options: [
+          { label: 'Descending', value: 'desc' },
+          { label: 'Ascending', value: 'asc' },
+        ],
+        placeholder: 'Default',
+      },
+    ],
+    [courses, classes, availableTests],
+  );
+
+  const paginationData = useMemo(() => {
+    const total = adminTestsData?.data?.pagination?.total ?? 0;
+    const limit = params.limit ?? 10;
+    const pages = Math.ceil(total / limit) || 1;
+    return {
+      total,
+      pages,
+      limit,
+    };
+  }, [adminTestsData?.data?.pagination?.total, params.limit]);
+
   const filteredData = useMemo(() => {
     const list = adminTestsData?.data.data ?? ([] as AdminTestItem[]);
     return list.filter((item: AdminTestItem) => {
       // search
       if (
-        filter.query &&
-        !item.title.toLowerCase().includes(filter.query.toLowerCase())
+        clientFilters.search &&
+        !item.title.toLowerCase().includes(clientFilters.search.toLowerCase())
       )
         return false;
       // course
-      if (filter.course && item.course?.title !== filter.course) return false;
+      if (clientFilters.course && item.course?.title !== clientFilters.course)
+        return false;
       // class
       if (
-        filter.className &&
+        clientFilters.className &&
         !(item.course?.classes ?? []).some(
-          (c) => c.className === filter.className,
+          (c) => c.className === clientFilters.className,
         )
       )
         return false;
       // status
-      if (filter.status && item.testState !== filter.status) return false;
+      if (clientFilters.status && item.testState !== clientFilters.status)
+        return false;
+      // test type
+      if (
+        clientFilters.testType &&
+        String(item.type).toUpperCase() !==
+          String(clientFilters.testType).toUpperCase()
+      )
+        return false;
       // start date equality (yyyy-mm-dd)
-      if (filter.startDate && item.startTime) {
+      if (clientFilters.startDate && item.startTime) {
         const d = new Date(item.startTime).toISOString().slice(0, 10);
-        if (d !== filter.startDate) return false;
+        if (d !== clientFilters.startDate) return false;
       }
       // test title
-      if (filter.testTitle && item.title !== filter.testTitle) return false;
+      if (clientFilters.testTitle && item.title !== clientFilters.testTitle)
+        return false;
       return true;
     });
-  }, [adminTestsData, filter]);
+  }, [adminTestsData, clientFilters]);
 
   const tableHeaders = [
+    'S/N',
     'Test Title',
     'Class',
     'Course',
@@ -847,11 +999,21 @@ export default function AdminTestPage() {
             </div>
           </div>
 
-          <FilterBar
-            courses={courses}
-            classes={classes}
-            tests={availableTests}
-            onChange={(s) => setFilter(s)}
+          <ResultsFiltersBar
+            fields={filterFields}
+            limit={params.limit}
+            limitOptions={[5, 10, 20, 30, 40]}
+            initialValues={{
+              sort: params.sort,
+              order: params.order,
+              ...clientFilters,
+            }}
+            onChange={handleFilterChange}
+            onLimitChange={setLimit}
+            onReset={() => {
+              setClientFilters({});
+              updateParams({ page: 1, limit: params.limit });
+            }}
           />
         </div>
 
@@ -867,18 +1029,26 @@ export default function AdminTestPage() {
           data={filteredData}
           itemKey={({ item }) => `${item.id}`}
           centralizeLabel={false}
+          itemsPerPage={paginationData.limit}
           paginationMode='server'
           paginationMeta={{
-            currentPage: adminTestsData?.data?.pagination?.page || 1,
-            totalPages: adminTestsData?.data?.pagination?.pages || 1,
-            totalItems: adminTestsData?.data?.pagination?.total || 0,
-            itemsPerPage: adminTestsData?.data?.pagination?.limit || 10,
+            currentPage: params.page || 1,
+            totalPages: paginationData.pages,
+            totalItems: paginationData.total,
+            itemsPerPage: paginationData.limit,
           }}
           onPageChange={goToPage}
-          renderItem={({ item }) => {
+          renderItem={({ item, itemIndex }) => {
             // setshowResult(item.showResult);
             return (
               <>
+                <TableDataItem>
+                  <span className='font-light text-sm text-neutral-600'>
+                    {((params?.page ?? 1) - 1) * paginationData.limit +
+                      itemIndex +
+                      1}.
+                  </span>
+                </TableDataItem>
                 <TableDataItem>{item.title}</TableDataItem>
                 <TableDataItem>
                   {(item.course?.classes ?? [])

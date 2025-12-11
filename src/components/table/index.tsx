@@ -237,7 +237,9 @@ const AppTable = <T,>({
       )}
 
       {isLoading ? (
-        <SpinnerMini color='#0c4a6e' />
+        <div className='w-full flex justify-center items-center py-12'>
+          <SpinnerMini color='#0c4a6e' />
+        </div>
       ) : (
         !currentItems.length && (
           <span

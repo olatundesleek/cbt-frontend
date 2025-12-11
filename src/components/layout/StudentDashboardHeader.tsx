@@ -74,7 +74,7 @@ export default function StudentDashboardHeader() {
             </ButtonIcon>
             {notificationData?.data?.data.length &&
               notificationData.data.data.length > 0 && (
-                <span className='text-xs border border-white bg-white text-primary-500 font-black rounded-full w-4 h-4 absolute flex justify-center items-center  -top-2 -right-2'>
+                <span className='text-xs border border-white bg-primary-50 text-primary-500 font-black rounded-full w-4 h-4 absolute flex justify-center items-center  -top-2 -right-2'>
                   {notificationData?.data.data.length || 0}
                 </span>
               )}

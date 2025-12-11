@@ -60,7 +60,7 @@ const Pagination: React.FC<PaginationProps> = ({
   const baseButtonClass =
     'flex items-center justify-center min-w-8 h-8 px-2 rounded transition-colors';
   const enabledButtonClass =
-    'hover:bg-primary-100 text-neutral-700 hover:text-primary-700';
+    'hover:bg-primary-100 text-neutral-700 hover:text-primary-700  cursor-pointer';
   const activeButtonClass = 'bg-primary-600 text-white hover:bg-primary-700';
   const disabledButtonClass = 'opacity-40 cursor-not-allowed text-neutral-400';
 
@@ -75,7 +75,7 @@ const Pagination: React.FC<PaginationProps> = ({
       {(showTotal || showPageSize) && (
         <div className='flex flex-wrap items-center justify-between gap-2 text-sm'>
           {showTotal && (
-            <div className='text-neutral-600'>
+            <div className='text-neutral-600 text-center w-full'>
               {formatPaginationInfo(startIndex, endIndex, totalItems)}
             </div>
           )}

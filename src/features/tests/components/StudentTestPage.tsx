@@ -7,15 +7,157 @@ import RegisteredCoursesSection from '@/features/tests/components/RegisteredCour
 import AvailableTestList from '@/features/tests/components/AvailableTestList';
 import useTests from '../hooks/useTests';
 import { useServerPagination } from '@/hooks/useServerPagination';
+import ResultsFiltersBar, {
+  type ResultFilterField,
+} from '@/features/results/components/ResultsFiltersBar';
+import { useCallback, useMemo, useState } from 'react';
 
 export default function StudentTestPage() {
-  // Add server pagination hook
-  const { params, goToPage } = useServerPagination({
+  // Add server pagination hook with sort/order for server
+  const { params, goToPage, setLimit, updateParams } = useServerPagination({
     defaultPage: 1,
     defaultLimit: 10,
   });
 
   const { testsData, testsDataError, isTestsDataLoading } = useTests(params);
+
+  // Client-side filter state
+  const [clientFilters, setClientFilters] = useState<{
+    search?: string;
+    courseTitle?: string;
+    type?: string;
+    testState?: string;
+  }>({});
+
+  const handleFilterChange = useCallback(
+    (nextParams: Record<string, string | number | undefined>) => {
+      // Extract server params (sort, order) and client filters
+      const { sort, order, search, courseTitle, type, testState, ...rest } =
+        nextParams;
+
+      // Update client filters
+      setClientFilters({
+        search: search as string | undefined,
+        courseTitle: courseTitle as string | undefined,
+        type: type as string | undefined,
+        testState: testState as string | undefined,
+      });
+
+      // Update server params (sort, order, page, limit)
+      updateParams({
+        page: 1,
+        sort: sort as string | undefined,
+        order: order as string | undefined,
+        ...rest,
+      });
+    },
+    [updateParams],
+  );
+
+  const tests = testsData?.data.data || [];
+
+  // Extract unique course titles for filter options
+  const courseOptions = useMemo(
+    () =>
+      Array.from(new Set(tests.map((t) => t.course.title))).map((title) => ({
+        value: title,
+        label: title,
+      })),
+    [tests],
+  );
+
+  // Filter fields configuration
+  const filterFields = useMemo<ResultFilterField[]>(
+    () => [
+      {
+        label: 'Search',
+        type: 'search',
+        name: 'search',
+        placeholder: 'Search by test title',
+      },
+      {
+        type: 'select',
+        name: 'courseTitle',
+        label: 'Course',
+        options: courseOptions,
+        placeholder: 'All courses',
+      },
+      {
+        type: 'select',
+        name: 'type',
+        label: 'Test Type',
+        options: [
+          { label: 'Exam', value: 'Exam' },
+          { label: 'Test', value: 'Test' },
+          { label: 'Practice', value: 'Practice' },
+          // { label: 'Quiz', value: 'Quiz' },
+          // { label: 'Assignment', value: 'Assignment' },
+        ],
+        placeholder: 'All types',
+      },
+      {
+        type: 'select',
+        name: 'testState',
+        label: 'Status',
+        options: [
+          { label: 'Active', value: 'active' },
+          { label: 'Scheduled', value: 'scheduled' },
+          { label: 'Completed', value: 'completed' },
+        ],
+        placeholder: 'All statuses',
+      },
+      {
+        type: 'select',
+        name: 'sort',
+        label: 'Sort By',
+        options: [
+          { label: 'Title', value: 'title' },
+          { label: 'Created Date', value: 'createdAt' },
+          { label: 'Type', value: 'type' },
+        ],
+        placeholder: 'Default',
+      },
+      {
+        type: 'select',
+        name: 'order',
+        label: 'Order',
+        options: [
+          { label: 'Descending', value: 'desc' },
+          { label: 'Ascending', value: 'asc' },
+        ],
+        placeholder: 'Default',
+      },
+    ],
+    [courseOptions],
+  );
+
+  // Client-side filtering
+  const filteredTests = useMemo(() => {
+    let filtered = tests;
+
+    if (clientFilters.search) {
+      const search = clientFilters.search.toLowerCase();
+      filtered = filtered.filter((t) => t.title.toLowerCase().includes(search));
+    }
+
+    if (clientFilters.courseTitle) {
+      filtered = filtered.filter(
+        (t) => t.course.title === clientFilters.courseTitle,
+      );
+    }
+
+    if (clientFilters.type) {
+      filtered = filtered.filter((t) => t.type === clientFilters.type);
+    }
+
+    if (clientFilters.testState) {
+      filtered = filtered.filter(
+        (t) => t.testState === clientFilters.testState,
+      );
+    }
+
+    return filtered;
+  }, [tests, clientFilters]);
 
   // Loading state
   if (isTestsDataLoading) {
@@ -66,8 +208,6 @@ export default function StudentTestPage() {
     );
   }
 
-  const tests = testsData?.data.data || [];
-
   return (
     <div className='grid grid-cols-1 md:flex gap-6'>
       <div className='space-y-8 flex-1'>
@@ -80,15 +220,40 @@ export default function StudentTestPage() {
         </div>
 
         <div className='space-y-4'>
+          {/* Filter Bar */}
+          <ResultsFiltersBar
+            fields={filterFields}
+            limit={params.limit}
+            limitOptions={[5, 10, 20, 30, 40]}
+            initialValues={{
+              sort: params.sort,
+              order: params.order,
+              ...clientFilters,
+            }}
+            onChange={handleFilterChange}
+            onLimitChange={setLimit}
+            onReset={() => {
+              setClientFilters({});
+              updateParams({ page: 1, limit: params.limit });
+            }}
+          />
+
           {/* Tests List */}
-          <AvailableTestList tests={tests} />
+          <AvailableTestList tests={filteredTests} />
+
+          {/* No results message */}
+          {tests.length > 0 && filteredTests.length === 0 && (
+            <p className='text-sm text-gray-500 px-2'>
+              No tests match the current filters.
+            </p>
+          )}
 
           {/* Pagination */}
           {tests.length > 0 && (
             <div className='pt-4 border-t'>
               <Pagination
-                page={testsData?.data?.pagination?.page || 1}
-                limit={testsData?.data?.pagination?.limit || 10}
+                page={params.page || 1}
+                limit={params.limit || 10}
                 totalItems={testsData?.data?.pagination?.total || 0}
                 onPageChange={goToPage}
               />

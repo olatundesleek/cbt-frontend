@@ -59,22 +59,12 @@ export function useServerPagination({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Parse current params from URL
+  // Parse current params from URL (includes all filter params, not just page/limit)
   const params = useMemo(() => {
     const urlParams = parsePaginationParams(searchParams);
-    return {
-      page: urlParams.page ?? defaultPage,
-      limit: urlParams.limit ?? defaultLimit,
-      //   sortBy: urlParams.sortBy ?? defaultSortBy,
-      //   sortOrder: urlParams.sortOrder ?? defaultSortOrder,
-    };
-  }, [
-    searchParams,
-    defaultPage,
-    defaultLimit,
-    // defaultSortBy,
-    // defaultSortOrder,
-  ]);
+    // Preserve all params from URL, especially filter params
+    return urlParams;
+  }, [searchParams]);
 
   // Update URL with new params
   const updateParams = useCallback(

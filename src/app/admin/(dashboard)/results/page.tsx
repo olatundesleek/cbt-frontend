@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import AdminResultsFilter from '@/features/results/components/AdminResultsFilter';
+import { useState, useMemo, useCallback } from 'react';
 import { useAdminResult } from '@/hooks/useResultCourses';
 import {
   useGetCourses,
@@ -14,6 +13,10 @@ import Modal from '@/components/modal';
 import { useAdminSingleResult } from '@/hooks/useResultCourses';
 import { Button } from '@/components/ui';
 import { useServerPagination } from '@/hooks/useServerPagination';
+import ResultsFiltersBar, {
+  type ResultFilterField,
+} from '@/features/results/components/ResultsFiltersBar';
+import DownloadResults from '@/features/results/components/DownloadResults';
 
 type Row = {
   id: string;
@@ -35,13 +38,12 @@ type Row = {
 
 export default function AdminResultPage() {
   // Add server pagination hook
-  const { params, goToPage } = useServerPagination({
+  const { params, goToPage, setLimit, updateParams } = useServerPagination({
     defaultPage: 1,
     defaultLimit: 10,
   });
 
   const { data: resp, isLoading, error } = useAdminResult(params);
-  // console.log(resp);
 
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -50,26 +52,37 @@ export default function AdminResultPage() {
   >(null);
   const singleResultQuery = useAdminSingleResult(selectedTestSessionId);
 
-  // filters from filter component
-  const [filters] = useState<{
-    className?: string;
-    courseId?: number;
-    type?: string;
-    testTitle?: string;
-    startDate?: string;
-    endDate?: string;
-  }>({});
+  const handleFilterChange = useCallback(
+    (nextParams: Record<string, string | number | undefined>) => {
+      updateParams(nextParams);
+    },
+    [updateParams],
+  );
 
   const coursesData = useMemo(() => resp?.data?.courses ?? [], [resp]);
 
+  const paginationData = useMemo(() => {
+    const total = resp?.data?.pagination?.total ?? 0;
+    const limit = params.limit ?? 10;
+    const pages = Math.ceil(total / limit) || 1;
+    return {
+      total,
+      pages,
+      limit,
+    };
+  }, [resp?.data?.pagination?.total, params.limit]);
+
   const availableTests = useMemo(() => {
-    const set = new Set<string>();
+    const map = new Map<number, string>();
     (resp?.data?.courses ?? []).forEach((entry) => {
-      (entry.tests ?? []).forEach((t: { title?: string }) => {
-        if (t?.title) set.add(String(t.title));
+      (entry.tests ?? []).forEach((t: { id?: number; title?: string }) => {
+        if (t?.id) map.set(t.id, t.title ?? `Test ${t.id}`);
       });
     });
-    return Array.from(set).sort();
+    return Array.from(map.entries()).map(([value, label]) => ({
+      value,
+      label,
+    }));
   }, [resp]);
 
   // fetch classes and courses for filter selects (from dashboard hooks)
@@ -137,67 +150,114 @@ export default function AdminResultPage() {
   }, [coursesData]);
 
   const availableClasses = useMemo(() => {
-    return (classesResp?.data ?? []).map((c) => c.className);
+    return (classesResp?.data ?? []).map((c) => ({
+      value: c.id,
+      label: c.className,
+    }));
   }, [classesResp]);
 
   const availableCourses = useMemo(() => {
     return (coursesResp?.data ?? []).map((c: AllCourses) => ({
-      id: c.id,
-      title: c.title,
+      value: c.id,
+      label: c.title,
     }));
   }, [coursesResp]);
 
-  // apply filters client-side
-  const filtered = useMemo(() => {
-    return rows.filter((r) => {
-      if (filters.className && r.className !== filters.className) return false;
-      if (
-        filters.courseId &&
-        r.courseTitle &&
-        Number(filters.courseId) !==
-          Number(
-            availableCourses.find((c) => c.title === r.courseTitle)?.id ??
-              filters.courseId,
-          )
-      ) {
-        // if user passed courseId directly, compare by id; otherwise allow
-      }
-      if (filters.courseId && availableCourses.length) {
-        const c = availableCourses.find((c) => c.id === filters.courseId);
-        if (c && r.courseTitle !== c.title) return false;
-      }
-      if (filters.type && filters.type !== '' && r.testType !== filters.type)
-        return false;
-      if (
-        filters.testTitle &&
-        filters.testTitle !== '' &&
-        !r.testTitle.toLowerCase().includes(filters.testTitle.toLowerCase())
-      )
-        return false;
-      if (filters.startDate && r.startDate < filters.startDate) return false;
-      if (filters.endDate && r.endDate > filters.endDate) return false;
-      return true;
-    });
-  }, [rows, filters, availableCourses]);
+  const filterFields = useMemo<ResultFilterField[]>(
+    () => [
+      {
+        label: 'Search',
+        type: 'search',
+        name: 'search',
+        placeholder: 'Search by student, course, or test',
+      },
+      {
+        type: 'select',
+        name: 'courseId',
+        label: 'Course',
+        options: availableCourses,
+        placeholder: 'All courses',
+      },
+      {
+        type: 'select',
+        name: 'classId',
+        label: 'Class',
+        options: availableClasses,
+        placeholder: 'All classes',
+      },
+      {
+        type: 'select',
+        name: 'testId',
+        label: 'Test',
+        options: availableTests,
+        placeholder: 'All tests',
+      },
+      {
+        type: 'select',
+        name: 'testType',
+        label: 'Test Type',
+        options: [
+          { label: 'Exam', value: 'Exam' },
+          { label: 'Test', value: 'Test' },
+          { label: 'Practice', value: 'Practice' },
+          // { label: 'Quiz', value: 'Quiz' },
+          // { label: 'Assignment', value: 'Assignment' },
+        ],
+        placeholder: 'All types',
+      },
+      {
+        type: 'date',
+        name: 'startDate',
+        label: 'Start Date',
+      },
+      {
+        type: 'date',
+        name: 'endDate',
+        label: 'End Date',
+      },
+      {
+        type: 'select',
+        name: 'sort',
+        label: 'Sort By',
+        options: [
+          { label: 'Date', value: 'date' },
+          { label: 'Score', value: 'score' },
+          { label: 'Student', value: 'student' },
+          { label: 'Course', value: 'course' },
+        ],
+        placeholder: 'Default',
+      },
+      {
+        type: 'select',
+        name: 'order',
+        label: 'Order',
+        options: [
+          { label: 'Descending', value: 'desc' },
+          { label: 'Ascending', value: 'asc' },
+        ],
+        placeholder: 'Default',
+      },
+    ],
+    [availableClasses, availableCourses, availableTests],
+  );
 
   // simple aggregated stats; totalStudents is provided by admin students hook per requirement
   const stats = useMemo(() => {
-    const scores = rows
-      .map((r) => (r.score == null ? null : r.score))
-      .filter((s): s is number => s !== null);
-    const avg = scores.length
-      ? Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 10) /
-        10
-      : 0;
+    // const scores = rows
+    //   .map((r) => (r.score == null ? null : r.score))
+    //   .filter((s): s is number => s !== null);
+    const avg = resp?.data.overallStats.averageScore ?? 0;
+    const lowest = resp?.data.overallStats.lowestScore ?? 0;
+    // console.log({ scores });
 
-    const highest = scores.length ? Math.max(...scores) : 0;
-    const lowest = scores.length ? Math.min(...scores) : 0;
+    const highest = resp?.data.overallStats.highestScore ?? 0;
+    // const lowest = scores.length ? Math.min(...scores) : 0;
     const totalStudents =
       adminStudentsResp?.data.data?.length ??
       new Set(rows.map((r) => r.studentName)).size;
 
     return { avg, highest, lowest, totalStudents };
-  }, [rows, adminStudentsResp]);
+  }, [rows, adminStudentsResp, resp]);
 
   if (error)
     return (
@@ -212,27 +272,28 @@ export default function AdminResultPage() {
   return (
     <section className='w-full space-y-6'>
       <div className='flex items-center justify-between'>
-        <div>
-          <nav className='text-sm text-neutral-500'>Dashboard / Results</nav>
+        <div className='w-full flex items-end justify-between gap-4'>
           <h1 className='text-3xl font-semibold'>Results</h1>
-        </div>
-        <div className='flex items-center gap-4'>
-          <input
-            placeholder='Search...'
-            className='border px-3 py-2 rounded w-60 text-sm'
-          />
+          <div>
+            <DownloadResults />
+          </div>
         </div>
       </div>
-      <AdminResultsFilter
-        classes={availableClasses}
-        courses={availableCourses}
-        tests={availableTests}
+      <ResultsFiltersBar
+        fields={filterFields}
+        limit={params.limit}
+        limitOptions={[5, 10, 20, 30, 40]}
+        initialValues={params}
+        onChange={handleFilterChange}
+        onLimitChange={setLimit}
+        onReset={() => updateParams({ page: 1, limit: params.limit })}
       />
       <div className='bg-white rounded shadow-sm p-4'>
         {/* Server pagination using data.pagination from response */}
         <AppTable<Row>
           centralizeLabel={false}
           headerColumns={[
+            'S/N',
             'Student Name',
             'Class',
             'Course',
@@ -244,19 +305,27 @@ export default function AdminResultPage() {
             'End Time',
             'View Details',
           ]}
-          data={filtered}
+          data={rows}
           isLoading={isLoading}
           itemKey={({ item }) => item.id}
+          itemsPerPage={paginationData.limit}
           paginationMode='server'
           paginationMeta={{
-            currentPage: resp?.data?.pagination?.page || 1,
-            totalPages: resp?.data?.pagination?.pages || 1,
-            totalItems: resp?.data?.pagination?.total || 0,
-            itemsPerPage: resp?.data?.pagination?.limit || 10,
+            currentPage: params.page || 1,
+            totalPages: paginationData.pages,
+            totalItems: paginationData.total,
+            itemsPerPage: paginationData.limit,
           }}
           onPageChange={goToPage}
-          renderItem={({ item }) => (
+          renderItem={({ item, itemIndex }) => (
             <>
+              <TableDataItem>
+                <span className='font-light text-sm text-neutral-600'>
+                  {((params?.page ?? 1) - 1) * paginationData.limit +
+                    itemIndex +
+                    1}.
+                </span>
+              </TableDataItem>
               <TableDataItem className='capitalize text-center text-sm'>
                 {item.studentName}
               </TableDataItem>
@@ -282,7 +351,7 @@ export default function AdminResultPage() {
           )}
         />
       </div>
-      ;{/* Result detail modal */}
+      {/* Result detail modal */}
       <Modal modalIsOpen={modalOpen} setModalIsOpen={setModalOpen}>
         <div className='p-6'>
           <div className='flex justify-between items-center'>
@@ -391,16 +460,21 @@ export default function AdminResultPage() {
           )}
         </div>
       </Modal>
-      ;
+
       <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
         <div className='bg-white rounded p-4 shadow-sm text-center'>
           <div className='text-sm text-neutral-500'>Average Score</div>
-          <div className='text-2xl font-bold'>{stats.avg}%</div>
+          <div className='text-2xl font-bold'>
+            {stats.avg.toLocaleString('en-US', {
+              maximumFractionDigits: 5,
+            })}
+            %
+          </div>
         </div>
 
         <div className='bg-white rounded p-4 shadow-sm text-center'>
           <div className='text-sm text-neutral-500'>Highest Score</div>
-          <div className='text-2xl font-bold'>{stats.highest}%</div>
+          <div className='text-2xl font-bold'>{stats.highest}</div>
         </div>
 
         <div className='bg-white rounded p-4 shadow-sm text-center'>

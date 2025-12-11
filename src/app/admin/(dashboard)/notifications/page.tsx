@@ -23,6 +23,9 @@ import {
 } from '@/features/dashboard/queries/useDashboard';
 import { formatDate } from '../../../../../utils/helpers';
 import { useServerPagination } from '@/hooks/useServerPagination';
+import ResultsFiltersBar, {
+  ResultFilterField,
+} from '@/features/results/components/ResultsFiltersBar';
 
 const notificationTypes = [
   'GENERAL',
@@ -84,7 +87,7 @@ const notificationSchema = yup.object({
 });
 
 export default function AdminNotificationPage() {
-  const { params, goToPage } = useServerPagination({
+  const { params, goToPage, updateParams, setLimit } = useServerPagination({
     defaultPage: 1,
     defaultLimit: 10,
   });
@@ -92,6 +95,39 @@ export default function AdminNotificationPage() {
     useNotification(params);
   const { mutate: deleteNotification, isPending: isDeletingNotification } =
     useDeleteNotification();
+
+  // Client-side sort toggle for title and recipient(type)
+  // const [clientSortEnabled, setClientSortEnabled] = useState<boolean>(false);
+
+  const filterFields: ResultFilterField[] = [
+    {
+      label: 'Search',
+      type: 'search',
+      name: 'search',
+      placeholder: 'Search by student, course, or test',
+    },
+    {
+      type: 'select',
+      name: 'sort',
+      label: 'Sort By',
+      options: [
+        { label: 'Title', value: 'title' },
+        { label: 'Date Created', value: 'createdAt' },
+        { label: 'Recipient', value: 'type' },
+      ],
+      placeholder: 'Default',
+    },
+    {
+      type: 'select',
+      name: 'order',
+      label: 'Order',
+      options: [
+        { label: 'Ascending', value: 'asc' },
+        { label: 'Descending', value: 'desc' },
+      ],
+      placeholder: 'Default',
+    },
+  ];
 
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
@@ -125,11 +161,31 @@ export default function AdminNotificationPage() {
 
   const notifications = notificationData?.data.data || [];
 
+  // Apply client-side sort when enabled and sort field is title or type
+  const sortedNotifications = (() => {
+    const sortField = (params.sort as string | undefined) ?? undefined;
+    const order = (params.order as string | undefined) ?? 'desc';
+    // if (!clientSortEnabled) return notifications;
+    if (!sortField || (sortField !== 'title' && sortField !== 'type'))
+      return notifications;
+    const data = [...notifications];
+    data.sort((a: Notification, b: Notification) => {
+      const av = String(a[sortField] ?? '').toLowerCase();
+      const bv = String(b[sortField] ?? '').toLowerCase();
+      if (av < bv) return order === 'asc' ? -1 : 1;
+      if (av > bv) return order === 'asc' ? 1 : -1;
+      return 0;
+    });
+    return data;
+  })();
+
   const meta = {
-    currentPage: notificationData?.data.pagination.page || 1,
+    currentPage:
+      (params.page as number) || notificationData?.data.pagination.page || 1,
     totalPages: notificationData?.data.pagination.pages || 1,
     totalItems: notificationData?.data.pagination.total || 0,
-    itemsPerPage: notificationData?.data.pagination.limit || 10,
+    itemsPerPage:
+      (params.limit as number) || notificationData?.data.pagination.limit || 10,
   };
 
   return (
@@ -149,6 +205,26 @@ export default function AdminNotificationPage() {
       </div>
 
       <div className='space-y-2'>
+        <div className='flex items-center justify-between'>
+          <ResultsFiltersBar
+            fields={filterFields}
+            initialValues={{
+              sort: (params.sort as string) ?? undefined,
+              order: (params.order as string) ?? undefined,
+            }}
+            limit={(params.limit as number) ?? 10}
+            onChange={(next) => updateParams(next)}
+            onLimitChange={(nextLimit) => setLimit(nextLimit)}
+          />
+          {/* <div className='ml-4 flex items-center gap-2'>
+            <label className='text-sm text-neutral-700'>Client Sort</label>
+            <input
+              type='checkbox'
+              checked={clientSortEnabled}
+              onChange={(e) => setClientSortEnabled(e.target.checked)}
+            />
+          </div> */}
+        </div>
         <AppTable<Notification>
           headerColumns={[
             'Title',
@@ -157,14 +233,23 @@ export default function AdminNotificationPage() {
             'Sent By',
             'Date Sent',
           ]}
-          data={notifications}
+          data={sortedNotifications}
           isLoading={isNotificationLoading}
           itemKey={({ itemIndex }) => `${itemIndex}`}
+          itemsPerPage={meta.itemsPerPage}
           paginationMode='server'
           paginationMeta={meta}
           onPageChange={goToPage}
-          renderItem={({ item }) => (
+          renderItem={({ item, itemIndex }) => (
             <>
+              <TableDataItem>
+                <span className='font-light text-sm text-neutral-600'>
+                  {((params?.page ?? 1) - 1) * meta.itemsPerPage +
+                    itemIndex +
+                    1}
+                  .
+                </span>
+              </TableDataItem>
               <TableDataItem>{item.title}</TableDataItem>
               <TableDataItem>{item.type}</TableDataItem>
               <TableDataItem>{item.message}</TableDataItem>

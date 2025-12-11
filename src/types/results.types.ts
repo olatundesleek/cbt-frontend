@@ -127,6 +127,7 @@ export interface getAllResultAdminResponse {
       testsCompleted: number;
       averageScore: number;
       highestScore: number;
+      lowestScore: number;
     };
 
     pagination: {

@@ -1,15 +1,15 @@
 'use client';
-import React, { useMemo, useState } from 'react';
-import ResultsFilter from './ResultsFilter';
+import React, { useCallback, useMemo } from 'react';
 import ResultsTable, { TestResult } from './ResultsTable';
 import PerformanceSummary from './PerformanceSummary';
 import Pagination from '@/components/ui/Pagination';
 import { useResultCourses } from '@/hooks/useResultCourses';
 import { useServerPagination } from '@/hooks/useServerPagination';
+import ResultsFiltersBar, { type ResultFilterField } from './ResultsFiltersBar';
 
 const StudentResultsPage: React.FC = () => {
   // Add server pagination hook
-  const { params, goToPage } = useServerPagination({
+  const { params, goToPage, setLimit, updateParams } = useServerPagination({
     defaultPage: 1,
     defaultLimit: 10,
   });
@@ -21,35 +21,69 @@ const StudentResultsPage: React.FC = () => {
     pagination,
     isLoading: loadingCourses,
   } = useResultCourses(params);
-  const [selectedCourseId, setSelectedCourseId] = useState<
-    string | number | ''
-  >('');
-  const [typeFilter, setTypeFilter] = useState<string>('');
-  const [endDateFilter, setEndDateFilter] = useState<string>('');
 
   const effectiveCourses = courses;
   const effectiveOverallStats = overallStats;
 
+  const courseOptions = useMemo(
+    () =>
+      effectiveCourses.map((c) => ({
+        value: c.course.id,
+        label: c.course.title,
+      })),
+    [effectiveCourses],
+  );
+
+  const filterFields = useMemo<ResultFilterField[]>(
+    () => [
+      {
+        label: 'Search',
+        type: 'search',
+        name: 'search',
+        placeholder: 'Search by course or test',
+      },
+      {
+        type: 'select',
+        name: 'courseId',
+        label: 'Course',
+        options: courseOptions,
+        loading: loadingCourses,
+        placeholder: 'All courses',
+      },
+      {
+        type: 'select',
+        name: 'testType',
+        label: 'Test Type',
+        options: [
+          { label: 'Exam', value: 'Exam' },
+          { label: 'Test', value: 'Test' },
+          { label: 'Practice', value: 'Practice' },
+          // { label: 'Quiz', value: 'Quiz' },
+          // { label: 'Assignment', value: 'Assignment' },
+        ],
+        placeholder: 'All types',
+      },
+      {
+        type: 'date',
+        name: 'endDate',
+        label: 'End Date',
+      },
+    ],
+    [courseOptions, loadingCourses],
+  );
+
+  const handleFilterChange = useCallback(
+    (nextParams: Record<string, string | number | undefined>) => {
+      updateParams(nextParams);
+    },
+    [updateParams],
+  );
+
   // Flatten tests across courses based on filters
   const filteredResults: TestResult[] = useMemo(() => {
-    const relevantCourses = selectedCourseId
-      ? effectiveCourses.filter((c) => c.course.id === Number(selectedCourseId))
-      : effectiveCourses;
     const tests: TestResult[] = [];
-    relevantCourses.forEach((c) => {
+    effectiveCourses.forEach((c) => {
       c.tests.forEach((t) => {
-        if (typeFilter && t.type !== typeFilter) return;
-
-        // Date filter: compare endedAt date with selected end date
-        if (endDateFilter) {
-          const testEndDate = new Date(
-            t.session.endedAt || t.session.startedAt,
-          );
-          const filterDate = new Date(endDateFilter);
-          // Only include tests that ended on or before the selected date
-          if (testEndDate > filterDate) return;
-        }
-
         const dateObj = new Date(t.session.endedAt || t.session.startedAt);
         const dateStr = `${dateObj.toLocaleString('default', {
           month: 'short',
@@ -66,16 +100,7 @@ const StudentResultsPage: React.FC = () => {
     });
     // Sort by endedAt desc using actual date objects for stability
     return tests;
-  }, [effectiveCourses, selectedCourseId, typeFilter, endDateFilter]);
-
-  // const handleFilter = () => {
-  //   // Currently filters applied immediately via state; this can trigger refetch later
-  // };
-  const handleReset = () => {
-    setSelectedCourseId('');
-    setTypeFilter('');
-    setEndDateFilter('');
-  };
+  }, [effectiveCourses]);
 
   return (
     <div className='min-h-screen bg-gray-50 py-8 px-4 md:px-12'>
@@ -99,20 +124,14 @@ const StudentResultsPage: React.FC = () => {
             Review your scores, performance, and test feedback.
           </p>
           <div className='flex flex-col gap-4'>
-            <ResultsFilter
-              // onFilter={handleFilter}
-              onReset={handleReset}
-              courses={effectiveCourses.map((c) => ({
-                id: c.course.id,
-                label: c.course.title,
-              }))}
-              loadingCourses={loadingCourses}
-              selectedCourseId={selectedCourseId}
-              onCourseChange={(id) => setSelectedCourseId(id)}
-              typeFilter={typeFilter}
-              onTypeChange={(t) => setTypeFilter(t)}
-              endDateFilter={endDateFilter}
-              onEndDateChange={(date) => setEndDateFilter(date)}
+            <ResultsFiltersBar
+              fields={filterFields}
+              limit={params.limit}
+              limitOptions={[5, 10, 20, 30, 40]}
+              initialValues={params}
+              onChange={handleFilterChange}
+              onLimitChange={setLimit}
+              onReset={() => updateParams({ page: 1, limit: params.limit })}
             />
             {loadingCourses ? (
               <div className='flex justify-center items-center py-12'>
@@ -137,8 +156,8 @@ const StudentResultsPage: React.FC = () => {
                 {effectiveCourses.length > 0 && pagination && (
                   <div className='pt-4 border-t'>
                     <Pagination
-                      page={pagination.page || 1}
-                      limit={pagination.limit || 10}
+                      page={params.page || 1}
+                      limit={params.limit || 10}
                       totalItems={pagination.total || 0}
                       onPageChange={goToPage}
                     />

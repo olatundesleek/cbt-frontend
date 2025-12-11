@@ -92,17 +92,40 @@ export function buildSearchParams(params: PaginationParams): URLSearchParams {
 export function parsePaginationParams(
   searchParams: URLSearchParams,
 ): PaginationParams {
-  const page = searchParams.get('page');
-  const limit = searchParams.get('limit');
-  const sortBy = searchParams.get('sortBy');
-  const sortOrder = searchParams.get('sortOrder');
+  const parsed: PaginationParams = {};
 
-  return {
-    page: page ? parseInt(page, 10) : 1,
-    limit: limit ? parseInt(limit, 10) : 10,
-    sortBy: sortBy || undefined,
-    sortOrder: (sortOrder as 'asc' | 'desc') || undefined,
-  };
+  searchParams.forEach((value, key) => {
+    if (value === '') return;
+
+    if (key === 'page') {
+      parsed.page = Number.isNaN(parseInt(value, 10)) ? 1 : parseInt(value, 10);
+      return;
+    }
+
+    if (key === 'limit') {
+      parsed.limit = Number.isNaN(parseInt(value, 10))
+        ? 10
+        : parseInt(value, 10);
+      return;
+    }
+
+    if (key === 'sortBy') {
+      parsed.sortBy = value;
+      return;
+    }
+
+    if (key === 'sortOrder') {
+      parsed.sortOrder = (value as 'asc' | 'desc') || undefined;
+      return;
+    }
+
+    parsed[key] = value;
+  });
+
+  if (parsed.page === undefined) parsed.page = 1;
+  if (parsed.limit === undefined) parsed.limit = 10;
+
+  return parsed;
 }
 
 /**
