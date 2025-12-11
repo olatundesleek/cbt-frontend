@@ -7,14 +7,15 @@ import type {
   AdminSingleResultResponse,
 } from '@/types/results.types';
 import type { AdminTestsResponse } from '@/types/tests.types';
+import type { PaginationParams } from '@/types/pagination.types';
 import { AppError } from '@/types/errors.types';
 import toast from 'react-hot-toast';
 import getErrorDetails from '@/utils/getErrorDetails';
 
-export function useResultCourses() {
+export function useResultCourses(params?: PaginationParams) {
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['student-result-courses'],
-    queryFn: resultsServices.getStudentResultCourses,
+    queryKey: ['student-result-courses', params],
+    queryFn: () => resultsServices.getStudentResultCourses(params),
   });
 
   return {
@@ -22,16 +23,17 @@ export function useResultCourses() {
     student: data?.student,
     courses: (data?.courses ?? []) as CourseResults[],
     overallStats: data?.overallStats,
+    pagination: data?.pagination,
     isLoading,
     error,
     refetch,
   };
 }
 
-export function useAdminResult() {
+export function useAdminResult(params?: PaginationParams) {
   const resultQuery = useQuery<getAllResultAdminResponse, AppError>({
-    queryKey: ['adminResult'],
-    queryFn: resultsServices.getAllResultAdmin,
+    queryKey: ['adminResult', params],
+    queryFn: () => resultsServices.getAllResultAdmin(params),
   });
 
   return resultQuery;

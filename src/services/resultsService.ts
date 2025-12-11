@@ -5,11 +5,15 @@ import {
   StudentResultCoursesResponse,
   // StudentResultDownloadResponse,
 } from '@/types/results.types';
+import type { PaginationParams } from '@/types/pagination.types';
 
 export const resultsServices = {
-  getStudentResultCourses: async (): Promise<StudentResultCoursesResponse> => {
+  getStudentResultCourses: async (
+    params?: PaginationParams,
+  ): Promise<StudentResultCoursesResponse> => {
     const response = await api.get('/results/student/courses', {
       withCredentials: true,
+      params,
     });
 
     return (response.data?.data ??
@@ -23,8 +27,10 @@ export const resultsServices = {
     );
   },
 
-  getAllResultAdmin: async (): Promise<getAllResultAdminResponse> => {
-    const response = await api.get('/results');
+  getAllResultAdmin: async (
+    params?: PaginationParams,
+  ): Promise<getAllResultAdminResponse> => {
+    const response = await api.get('/results', { params });
 
     return response.data;
   },

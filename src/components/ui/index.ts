@@ -11,3 +11,4 @@ export { default as Badge } from './Badge';
 export { default as Spinner } from './Spinner';
 export { default as SpinnerMini } from './SpinnerMini';
 export { default as Calender } from './Calender';
+export { default as Pagination } from './Pagination';

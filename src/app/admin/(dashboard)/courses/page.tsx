@@ -5,23 +5,24 @@ import {
   useGetCourses,
   useGetTeachers,
 } from "@/features/dashboard/queries/useDashboard";
-import AppTable, { TableDataItem } from "@/components/table";
-import Input from "@/components/ui/input";
-import Button from "@/components/ui/Button";
-import { SubmitHandler, useForm } from "react-hook-form";
-import * as Yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
-import api, { errorLogger } from "@/lib/axios";
-import { queryClient } from "@/providers/query-provider";
-import toast from "react-hot-toast";
-import { AllCourses, AllTeachersResponse } from "@/types/dashboard.types";
-import Modal from "@/components/modal";
+import { useServerPagination } from '@/hooks/useServerPagination';
+import AppTable, { TableDataItem } from '@/components/table';
+import Input from '@/components/ui/input';
+import Button from '@/components/ui/Button';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import * as Yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+import api, { errorLogger } from '@/lib/axios';
+import { queryClient } from '@/providers/query-provider';
+import toast from 'react-hot-toast';
+import { AllCourses, AllTeachersResponse } from '@/types/dashboard.types';
+import Modal from '@/components/modal';
 
 type FormProps = Yup.InferType<typeof schema>;
 
 interface UpdateCourseProps {
   course: AllCourses | null;
-  allTeachers: AllTeachersResponse['data'];
+  allTeachers: AllTeachersResponse['data']['data'];
   closeModal: () => void;
 }
 
@@ -147,6 +148,12 @@ const UpdateCourse = ({
 };
 
 const Courses = () => {
+  // Add server pagination hook
+  const { params, goToPage } = useServerPagination({
+    defaultPage: 1,
+    defaultLimit: 10,
+  });
+
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
@@ -180,7 +187,7 @@ const Courses = () => {
     data: allCourses,
     isLoading: coursesLoading,
     error: coursesError,
-  } = useGetCourses();
+  } = useGetCourses(params);
 
   //update modal state
   const updateModalState = ({
@@ -286,7 +293,7 @@ const Courses = () => {
                   <option value={''} disabled>
                     Select Teacher
                   </option>
-                  {allTeachers?.data?.map((teacher) => (
+                  {allTeachers?.data.data?.map((teacher) => (
                     <option key={teacher.id} value={teacher.id}>
                       {teacher.firstname + ' ' + teacher.lastname}
                     </option>
@@ -317,6 +324,14 @@ const Courses = () => {
             label='All Courses'
             headerColumns={['s/n', 'Course Title', 'Teacher']}
             itemKey={({ item }) => `${item.id}`}
+            paginationMode='server'
+            paginationMeta={{
+              currentPage: allCourses?.pagination?.page || 1,
+              totalPages: allCourses?.pagination?.pages || 1,
+              totalItems: allCourses?.pagination?.total || 0,
+              itemsPerPage: allCourses?.pagination?.limit || 10,
+            }}
+            onPageChange={goToPage}
             onActionClick={({ item }) =>
               updateModalState({ key: 'modalContent', value: item })
             }
@@ -363,7 +378,7 @@ const Courses = () => {
         {modalState.type === 'update' ? (
           <UpdateCourse
             course={modalState.modalContent}
-            allTeachers={allTeachers?.data ?? []}
+            allTeachers={allTeachers?.data.data ?? []}
             closeModal={() => updateModalState({ key: 'isOpen', value: false })}
           />
         ) : (

@@ -2,12 +2,13 @@ import ActivitiesSection from '@/features/dashboard/components/ActivitiesSection
 import React, { useEffect, useState } from 'react';
 import useDownloadResult from '../hook/useDownloadResult';
 import { Button, SpinnerMini } from '@/components/ui';
+import RegisteredCoursesSection from '@/features/tests/components/RegisteredCoursesSection';
 
 interface PerformanceSummaryProps {
   averageScore: number;
   passRate: number;
   totalTests: number;
-  recentActivity: string[];
+  // recentActivity: string[];
 }
 
 const PerformanceSummary: React.FC<PerformanceSummaryProps> = ({
@@ -82,7 +83,6 @@ const PerformanceSummary: React.FC<PerformanceSummaryProps> = ({
         id='format'
         value={format}
         onChange={(e) => setFormat(e.target.value as 'pdf' | 'excel')}
-        defaultValue={''}
       >
         <option value='' disabled>
           Select download format
@@ -99,8 +99,9 @@ const PerformanceSummary: React.FC<PerformanceSummaryProps> = ({
           `Download Report as ${format.toUpperCase()}`
         )}
       </Button>
-      <div>
-        <ActivitiesSection />
+      <div className='mt-4'>
+        {/* <ActivitiesSection /> */}
+        <RegisteredCoursesSection />
       </div>
     </aside>
   );

@@ -7,6 +7,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import AppTable, { TableDataItem } from "@/components/table";
 import Input from "@/components/ui/input";
 import Button from "@/components/ui/Button";
+import { useServerPagination } from '@/hooks/useServerPagination';
 import {
   useGetCourses,
   useGetQuestionBank,
@@ -160,6 +161,12 @@ const UpdateQuestionBank = ({
 };
 
 const QuestionBank = () => {
+  // Add server pagination hook
+  const { params, goToPage } = useServerPagination({
+    defaultPage: 1,
+    defaultLimit: 10,
+  });
+
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
@@ -194,7 +201,7 @@ const QuestionBank = () => {
     data: allQuestionBank,
     isLoading: questionBankLoading,
     error: questionBankError,
-  } = useGetQuestionBank();
+  } = useGetQuestionBank(params);
 
   //update modal state
   const updateModalState = ({
@@ -340,6 +347,14 @@ const QuestionBank = () => {
               'Teacher',
             ]}
             itemKey={({ item }) => `${item.id}`}
+            paginationMode='server'
+            paginationMeta={{
+              currentPage: allQuestionBank?.data?.pagination?.page || 1,
+              totalPages: allQuestionBank?.data?.pagination?.pages || 1,
+              totalItems: allQuestionBank?.data?.pagination?.total || 0,
+              itemsPerPage: allQuestionBank?.data?.pagination?.limit || 10,
+            }}
+            onPageChange={goToPage}
             onActionClick={({ item }) =>
               updateModalState({ key: 'modalContent', value: item })
             }

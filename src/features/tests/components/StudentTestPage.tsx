@@ -1,13 +1,21 @@
 'use client';
 
 import Calender from '@/components/ui/Calender';
+import Pagination from '@/components/ui/Pagination';
 import ActivitiesSection from '@/features/dashboard/components/ActivitiesSection';
 import RegisteredCoursesSection from '@/features/tests/components/RegisteredCoursesSection';
 import AvailableTestList from '@/features/tests/components/AvailableTestList';
 import useTests from '../hooks/useTests';
+import { useServerPagination } from '@/hooks/useServerPagination';
 
 export default function StudentTestPage() {
-  const { testsData, testsDataError, isTestsDataLoading } = useTests();
+  // Add server pagination hook
+  const { params, goToPage } = useServerPagination({
+    defaultPage: 1,
+    defaultLimit: 10,
+  });
+
+  const { testsData, testsDataError, isTestsDataLoading } = useTests(params);
 
   // Loading state
   if (isTestsDataLoading) {
@@ -74,6 +82,18 @@ export default function StudentTestPage() {
         <div className='space-y-4'>
           {/* Tests List */}
           <AvailableTestList tests={tests} />
+
+          {/* Pagination */}
+          {tests.length > 0 && (
+            <div className='pt-4 border-t'>
+              <Pagination
+                page={testsData?.data?.pagination?.page || 1}
+                limit={testsData?.data?.pagination?.limit || 10}
+                totalItems={testsData?.data?.pagination?.total || 0}
+                onPageChange={goToPage}
+              />
+            </div>
+          )}
         </div>
       </div>
 

@@ -4,10 +4,13 @@ import type {
   Notification,
   CreateNotificationPayload,
 } from '@/types/notification.types';
+import { PaginationParams } from '@/types/pagination.types';
 
 export const notificationService = {
-  getNotifications: async (): Promise<NotificationsListResponse> => {
-    const response = await api.get('/notification');
+  getNotifications: async (
+    params?: PaginationParams,
+  ): Promise<NotificationsListResponse> => {
+    const response = await api.get('/notification', { params });
     return response.data as NotificationsListResponse;
   },
 
