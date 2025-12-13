@@ -943,17 +943,17 @@ export default function AdminTestPage() {
     });
   }, [adminTestsData, clientFilters]);
 
-  const tableHeaders = [
-    'S/N',
-    'Test Title',
-    'Class',
-    'Course',
-    'Test Type',
-    'Created By',
-    'Result Status',
-    'Status',
-    'Start Date',
-  ];
+  const tableHeaders = useMemo(() => {
+    const headers = ['S/N', 'Test Title', 'Class', 'Course', 'Test Type'];
+
+    if (role === 'admin') {
+      headers.push('Created By');
+    }
+
+    headers.push('Result Status', 'Status', 'Start Date');
+
+    return headers;
+  }, [role]);
 
   const getStatusVariant = (status: TestType['testState']) => {
     if (status === 'completed') return 'primary';
@@ -1046,7 +1046,8 @@ export default function AdminTestPage() {
                   <span className='font-light text-sm text-neutral-600'>
                     {((params?.page ?? 1) - 1) * paginationData.limit +
                       itemIndex +
-                      1}.
+                      1}
+                    .
                   </span>
                 </TableDataItem>
                 <TableDataItem>{item.title}</TableDataItem>
@@ -1057,9 +1058,12 @@ export default function AdminTestPage() {
                 </TableDataItem>
                 <TableDataItem>{item.course?.title}</TableDataItem>
                 <TableDataItem>{item.type}</TableDataItem>
-                <TableDataItem>
-                  {item.createdBy.firstname} {item.createdBy.lastname || 'N/A'}
-                </TableDataItem>
+                {role === 'admin' && (
+                  <TableDataItem>
+                    {item.createdBy.firstname}{' '}
+                    {item.createdBy.lastname || 'N/A'}
+                  </TableDataItem>
+                )}
                 <TableDataItem>
                   <div className='flex items-center justify-center'>
                     <label className='relative inline-flex items-center cursor-pointer'>

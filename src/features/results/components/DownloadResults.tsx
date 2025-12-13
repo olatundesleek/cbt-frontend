@@ -1,14 +1,26 @@
-import useDownloadResult from '../hook/useDownloadResult';
+import useDownloadResult, {
+  useAdminDownloadResult,
+} from '../hook/useDownloadResult';
 import { Button, SpinnerMini } from '@/components/ui';
 import { useState } from 'react';
+import { useUserStore } from '@/store/useUserStore';
 
 export default function DownloadResults() {
-  const { mutate: downloadResult, isPending: isDownloadingResults } =
+  const role = useUserStore((state) => state.role);
+  const { mutate: downloadStudentResult, isPending: isDownloadingStudent } =
     useDownloadResult();
+  const { mutate: downloadAdminResult, isPending: isDownloadingAdmin } =
+    useAdminDownloadResult();
   const [format, setFormat] = useState<'pdf' | 'excel'>('pdf');
 
+  const isDownloadingResults = isDownloadingStudent || isDownloadingAdmin;
+
   const handleDownloadResult = function () {
-    downloadResult(format);
+    if (role === 'admin' || role === 'teacher') {
+      downloadAdminResult(format);
+    } else {
+      downloadStudentResult(format);
+    }
   };
 
   return (

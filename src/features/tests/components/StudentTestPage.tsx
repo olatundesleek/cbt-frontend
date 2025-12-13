@@ -54,7 +54,10 @@ export default function StudentTestPage() {
     [updateParams],
   );
 
-  const tests = testsData?.data.data || [];
+  const tests = useMemo(
+    () => testsData?.data.data || [],
+    [testsData?.data.data],
+  );
 
   // Extract unique course titles for filter options
   const courseOptions = useMemo(
@@ -147,7 +150,9 @@ export default function StudentTestPage() {
     }
 
     if (clientFilters.type) {
-      filtered = filtered.filter((t) => t.type === clientFilters.type);
+      filtered = filtered.filter(
+        (t) => t.type.toLowerCase() === clientFilters.type?.toLowerCase(),
+      );
     }
 
     if (clientFilters.testState) {
@@ -275,12 +280,6 @@ export default function StudentTestPage() {
         <div>
           {/* Calender */}
           <Calender />
-        </div>
-
-        <div>
-          {/* Activities */}
-          <h1 className='text-2xl'>Activities</h1>
-          <ActivitiesSection />
         </div>
       </div>
     </div>

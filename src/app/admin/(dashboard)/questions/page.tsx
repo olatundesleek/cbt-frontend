@@ -162,11 +162,12 @@ const UpdateQuestionBank = ({
 
 const QuestionBank = () => {
   // Add server pagination hook
-  const { params, goToPage } = useServerPagination({
+  const { params, goToPage, updateParams, setLimit } = useServerPagination({
     defaultPage: 1,
     defaultLimit: 10,
   });
 
+  const [searchValue, setSearchValue] = useState<string>('');
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
@@ -202,6 +203,16 @@ const QuestionBank = () => {
     isLoading: questionBankLoading,
     error: questionBankError,
   } = useGetQuestionBank(params);
+
+  // Client-side search filtering
+  const filteredQuestionBanks =
+    allQuestionBank?.data.data?.filter((bank) =>
+      searchValue
+        ? bank.questionBankName
+            .toLowerCase()
+            .includes(searchValue.toLowerCase())
+        : true,
+    ) ?? [];
 
   //update modal state
   const updateModalState = ({
@@ -335,12 +346,60 @@ const QuestionBank = () => {
         </div>
 
         <div className='col-span-1 flex flex-col gap-3 bg-background rounded-xl w-full p-3'>
+          <span className='font-medium'>All Question Banks</span>
+
+          {/* Search and Filter Section */}
+          <div className='flex items-center gap-3 w-full flex-wrap'>
+            <Input
+              name='search'
+              placeholder='Search question banks by name...'
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+            />
+            <select
+              value={params.sort || ''}
+              onChange={(e) =>
+                updateParams({ sort: e.target.value || undefined })
+              }
+              className='rounded-md border border-neutral-300 px-3 py-2 bg-background text-foreground'
+              aria-label='Sort by field'
+            >
+              <option value=''>Sort By</option>
+              <option value='questionBankName'>Name</option>
+              <option value='createdAt'>Date Created</option>
+            </select>
+            <select
+              value={params.order || 'asc'}
+              onChange={(e) =>
+                updateParams({ order: e.target.value as 'asc' | 'desc' })
+              }
+              className='rounded-md border border-neutral-300 px-3 py-2 bg-background text-foreground'
+              aria-label='Sort order'
+            >
+              <option value=''>Order</option>
+              <option value='asc'>Ascending</option>
+              <option value='desc'>Descending</option>
+            </select>
+            <select
+              value={params.limit || 10}
+              onChange={(e) => setLimit(Number(e.target.value))}
+              className='rounded-md border border-neutral-300 px-3 py-2 bg-background text-foreground'
+              aria-label='Items per page'
+            >
+              <option value={5}>5 per page</option>
+              <option value={10}>10 per page</option>
+              <option value={20}>20 per page</option>
+              <option value={50}>50 per page</option>
+            </select>
+          </div>
+
           <AppTable
-            data={allQuestionBank?.data.data ?? []}
+            data={filteredQuestionBanks}
             label='All Question Banks'
             isLoading={questionBankLoading}
             onRowPress={({ item }) => push(`/admin/questions/${item.id}`)}
             headerColumns={[
+              'S/N',
               'Question Name',
               'Course',
               'Total Question',
@@ -358,8 +417,17 @@ const QuestionBank = () => {
             onActionClick={({ item }) =>
               updateModalState({ key: 'modalContent', value: item })
             }
-            renderItem={({ item }) => (
+            renderItem={({ item, itemIndex }) => (
               <>
+                <TableDataItem>
+                  <span className='font-light text-sm text-neutral-600'>
+                    {((params?.page ?? 1) - 1) *
+                      (allQuestionBank?.data?.pagination?.limit || 10) +
+                      itemIndex +
+                      1}
+                    .
+                  </span>
+                </TableDataItem>
                 <TableDataItem>{item.questionBankName}</TableDataItem>
                 <TableDataItem>{item.course.title}</TableDataItem>
                 <TableDataItem>{item.questions.length}</TableDataItem>

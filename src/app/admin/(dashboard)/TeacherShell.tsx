@@ -8,7 +8,6 @@ import type {
   AdminDashboardData,
   TeacherDashboardData,
 } from '@/types/dashboard.types';
-import { errorLogger } from '@/lib/axios';
 import { useUserStore } from '@/store/useUserStore';
 import { SpinnerMini } from '@/components/ui';
 import { AiFillHome } from 'react-icons/ai';
@@ -67,8 +66,14 @@ export default function TeacherShell({
   const {
     data: dashboardData,
     isLoading: isDashboardDataLoading,
+    isFetching: isDashboardDataFetching,
     error: dashboardDataError,
   } = useDashboard<TeacherDashboardData>();
+
+  const isInitialLoading =
+    isDashboardDataLoading || (isDashboardDataFetching && !dashboardData);
+  const showDashboardError =
+    dashboardDataError && !isDashboardDataFetching && !dashboardData;
 
   useEffect(() => {
     if (!dashboardData) return;
@@ -93,10 +98,6 @@ export default function TeacherShell({
     if (role) setRole(role);
   }, [role, setRole]);
 
-  if (dashboardDataError) {
-    errorLogger(dashboardDataError);
-  }
-
   return (
     <main className='relative flex flex-row items-stretch min-h-screen bg-primary-50 max-w-400 w-full mx-auto'>
       {/* side bar */}
@@ -106,13 +107,20 @@ export default function TeacherShell({
         adminRoutes={teacherRoutes}
       />
 
-      {isDashboardDataLoading ? (
+      {isInitialLoading ? (
         <div className='w-full p-4'>
           <SpinnerMini color='#0c4a6e' />
         </div>
       ) : (
         <section className='relative flex-1 flex flex-col gap-4 w-full'>
           <AdminTopBar setIsOpen={setIsOpen} role={role} />
+
+          {showDashboardError && (
+            <div className='mx-4 rounded-md border border-error-200 bg-error-50 text-error-700 p-3 text-sm'>
+              {dashboardDataError?.message ||
+                'Failed to load dashboard data. Please try again.'}
+            </div>
+          )}
 
           <div className='flex-1 w-full p-4'>{children}</div>
 

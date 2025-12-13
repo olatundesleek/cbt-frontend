@@ -23,14 +23,6 @@ const AdminTopBar = ({ setIsOpen, role }: AdminTopBarProps) => {
       </span>
 
       <div className='flex flex-row items-center gap-2'>
-        <input
-          id='search'
-          type='text'
-          autoFocus
-          placeholder='Search'
-          className='block w-full rounded-md border border-neutral-300 p-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 bg-background text-foreground caret-foreground'
-        />
-
         <div className='hidden sm:block'>
           <ProfilePic role={role} />
         </div>

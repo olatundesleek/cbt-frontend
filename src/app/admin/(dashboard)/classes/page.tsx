@@ -1,12 +1,18 @@
 "use client";
 
-import React, { useState, ReactNode, useEffect } from "react";
-import { GoPlus } from "react-icons/go";
-import Button from "@/components/ui/Button";
-import Input from "@/components/ui/input";
-import { HiUserGroup } from "react-icons/hi";
-import { LuBuilding2 } from "react-icons/lu";
-import AppTable, { TableDataItem } from "@/components/table";
+import React, {
+  useState,
+  ReactNode,
+  useEffect,
+  useCallback,
+  useMemo,
+} from 'react';
+import { GoPlus } from 'react-icons/go';
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/input';
+import { HiUserGroup } from 'react-icons/hi';
+import { LuBuilding2 } from 'react-icons/lu';
+import AppTable, { TableDataItem } from '@/components/table';
 import { useServerPagination } from '@/hooks/useServerPagination';
 import {
   useGetClasses,
@@ -26,6 +32,11 @@ import {
   AllTeachersResponse,
 } from '@/types/dashboard.types';
 import Modal from '@/components/modal';
+import { useAdminStudents } from '@/features/students/hooks/useStudents';
+import { FaUsers } from 'react-icons/fa';
+import ResultsFiltersBar, {
+  type ResultFilterField,
+} from '@/features/results/components/ResultsFiltersBar';
 
 interface UpdateClassProps {
   singleClass: AllClassesResponse['data'][number] | null;
@@ -35,6 +46,7 @@ interface UpdateClassProps {
 }
 
 const headerColumns = [
+  'S/N',
   'Class Name',
   "Teacher's Name",
   'Total Courses',
@@ -191,11 +203,45 @@ const UpdateClass = ({
 
 const AdminClasses = () => {
   // Add server pagination hook
-  const { params, goToPage } = useServerPagination({
+  const { params, goToPage, setLimit, updateParams } = useServerPagination({
     defaultPage: 1,
     defaultLimit: 10,
   });
 
+  const handleFilterChange = useCallback(
+    (nextParams: Record<string, string | number | undefined>) => {
+      updateParams(nextParams);
+    },
+    [updateParams],
+  );
+
+  const filterFields = useMemo<ResultFilterField[]>(
+    () => [
+      {
+        type: 'select',
+        name: 'sort',
+        label: 'Sort By',
+        options: [
+          { label: 'Class Name', value: 'className' },
+          { label: 'Date Created', value: 'createdAt' },
+        ],
+        placeholder: 'Default',
+      },
+      {
+        type: 'select',
+        name: 'order',
+        label: 'Order',
+        options: [
+          { label: 'Descending', value: 'desc' },
+          { label: 'Ascending', value: 'asc' },
+        ],
+        placeholder: 'Default',
+      },
+    ],
+    [],
+  );
+
+  const [searchValue, setSearchValue] = useState<string>('');
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
@@ -245,6 +291,14 @@ const AdminClasses = () => {
     error: classesError,
   } = useGetClasses(params);
 
+  // Client-side search filtering
+  const filteredClasses =
+    allClasses?.data?.filter((classItem) =>
+      searchValue
+        ? classItem.className.toLowerCase().includes(searchValue.toLowerCase())
+        : true,
+    ) ?? [];
+
   const {
     data: allTeachers,
     isLoading: teachersLoading,
@@ -257,16 +311,23 @@ const AdminClasses = () => {
     error: coursesError,
   } = useGetCourses();
 
+  const { data: students } = useAdminStudents();
+
   const quickStats: { icon: ReactNode; label: string; count: number }[] = [
     {
-      icon: <LuBuilding2 color='#0284c7' />,
+      icon: <LuBuilding2 className='text-primary-600' />,
       label: 'Total Classes',
       count: allClasses?.data ? allClasses.data?.length : 0,
     },
     {
-      icon: <HiUserGroup color='#0284c7' />,
+      icon: <HiUserGroup className='text-primary-600' />,
       label: 'Total Teachers',
       count: allTeachers?.data ? allTeachers?.data.data.length : 0,
+    },
+    {
+      icon: <FaUsers className='text-primary-600' />,
+      label: 'Total Students',
+      count: students?.data ? students.data.data.length : 0,
     },
   ];
 
@@ -448,13 +509,34 @@ const AdminClasses = () => {
             </form>
           </div>
 
+          {/* Search Input */}
+          <div className='flex items-center gap-2 w-full'>
+            <Input
+              name='search'
+              placeholder='Search classes by name...'
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+            />
+          </div>
+
+          <ResultsFiltersBar
+            fields={filterFields}
+            limit={(params.limit as number) ?? 10}
+            limitOptions={[5, 10, 20, 30, 40]}
+            initialValues={params}
+            onChange={handleFilterChange}
+            onLimitChange={setLimit}
+            onReset={() => updateParams({ page: 1, limit: params.limit })}
+          />
+
           <AppTable
-            data={allClasses?.data ?? []}
+            data={filteredClasses}
             label='All Classes'
             isLoading={classesLoading}
             headerColumns={headerColumns}
             itemKey={({ itemIndex }) => `${itemIndex}`}
             paginationMode='server'
+            itemsPerPage={allClasses?.pagination?.limit || 10}
             paginationMeta={{
               currentPage: allClasses?.pagination?.page || 1,
               totalPages: allClasses?.pagination?.pages || 1,
@@ -465,8 +547,17 @@ const AdminClasses = () => {
             onActionClick={({ item }) =>
               updateModalState({ key: 'modalContent', value: item })
             }
-            renderItem={({ item }) => (
+            renderItem={({ item, itemIndex }) => (
               <>
+                <TableDataItem>
+                  <span className='font-light text-sm text-neutral-600'>
+                    {((params?.page ?? 1) - 1) *
+                      (allClasses?.pagination?.limit || 10) +
+                      itemIndex +
+                      1}
+                    .
+                  </span>
+                </TableDataItem>
                 <TableDataItem>{item.className}</TableDataItem>
                 <TableDataItem>
                   {item?.teacher?.firstname + ' ' + item?.teacher?.lastname}

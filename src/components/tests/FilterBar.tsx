@@ -17,6 +17,8 @@ type Props = {
   initial?: Partial<FilterState>;
   onChange?: (state: FilterState) => void;
   tests?: string[];
+  showStatusFilter?: boolean;
+  showTestTitleFilter?: boolean;
 };
 
 export default function FilterBar({
@@ -26,6 +28,8 @@ export default function FilterBar({
   initial,
   onChange,
   tests = [],
+  showStatusFilter = true,
+  showTestTitleFilter = true,
 }: Props) {
   const [state, setState] = useState<FilterState>({
     query: initial?.query ?? '',
@@ -100,41 +104,45 @@ export default function FilterBar({
             ))}
           </select>
 
-          <select
-            aria-label='status-select'
-            className='w-full md:w-auto min-w-[120px] border border-slate-200 rounded-md px-3 py-2'
-            value={state.status}
-            onChange={(e) =>
-              setState((s) => ({ ...s, status: e.target.value }))
-            }
-          >
-            <option value='' disabled>
-              Status
-            </option>
-            {statuses.map((s) => (
-              <option key={s} value={s}>
-                {s}
+          {showStatusFilter && (
+            <select
+              aria-label='status-select'
+              className='w-full md:w-auto min-w-[120px] border border-slate-200 rounded-md px-3 py-2'
+              value={state.status}
+              onChange={(e) =>
+                setState((s) => ({ ...s, status: e.target.value }))
+              }
+            >
+              <option value='' disabled>
+                Status
               </option>
-            ))}
-          </select>
+              {statuses.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          )}
 
-          <select
-            aria-label='test-title-select'
-            className='w-full md:w-auto min-w-40 border border-slate-200 rounded-md px-3 py-2'
-            value={state.testTitle}
-            onChange={(e) =>
-              setState((s) => ({ ...s, testTitle: e.target.value }))
-            }
-          >
-            <option value='' disabled>
-              Test Title
-            </option>
-            {tests.map((t) => (
-              <option key={t} value={t}>
-                {t}
+          {showTestTitleFilter && (
+            <select
+              aria-label='test-title-select'
+              className='w-full md:w-auto min-w-40 border border-slate-200 rounded-md px-3 py-2'
+              value={state.testTitle}
+              onChange={(e) =>
+                setState((s) => ({ ...s, testTitle: e.target.value }))
+              }
+            >
+              <option value='' disabled>
+                Test Title
               </option>
-            ))}
-          </select>
+              {tests.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
+          )}
 
           <input
             type='date'

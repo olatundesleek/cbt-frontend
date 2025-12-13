@@ -1,5 +1,8 @@
 import axios from '@/lib/axios';
-import { SystemSettingsResponse, SystemSettings } from '@/types/settings.types';
+import {
+  SystemSettingsResponse,
+  SystemSettingsUpdatePayload,
+} from '@/types/settings.types';
 
 export const settingsService = {
   getSystemSettings: async (): Promise<SystemSettingsResponse> => {
@@ -7,13 +10,13 @@ export const settingsService = {
     return response.data;
   },
   updateSystemSettings: async (
-    payload: Partial<SystemSettings>,
+    payload: SystemSettingsUpdatePayload,
   ): Promise<SystemSettingsResponse> => {
     const response = await axios.patch('/system-settings', payload);
     return response.data;
   },
   updateSystemSettingsWithFiles: async (
-    payload: Partial<SystemSettings>,
+    payload: SystemSettingsUpdatePayload,
     logoFile?: File | null,
     faviconFile?: File | null,
     loginBannerFile?: File | null,
@@ -34,13 +37,21 @@ export const settingsService = {
     if (logoFile) {
       form.append('logo', logoFile);
     } else if (Object.prototype.hasOwnProperty.call(payload, 'logoUrl')) {
-      form.append('logo', payload.logoUrl ?? '');
+      if (payload.logoUrl === null) {
+        form.append('logo', 'null');
+      } else {
+        form.append('logo', payload.logoUrl ?? '');
+      }
     }
 
     if (faviconFile) {
       form.append('favicon', faviconFile);
     } else if (Object.prototype.hasOwnProperty.call(payload, 'faviconUrl')) {
-      form.append('favicon', payload.faviconUrl ?? '');
+      if (payload.faviconUrl === null) {
+        form.append('favicon', 'null');
+      } else {
+        form.append('favicon', payload.faviconUrl ?? '');
+      }
     }
 
     if (loginBannerFile) {
@@ -48,7 +59,11 @@ export const settingsService = {
     } else if (
       Object.prototype.hasOwnProperty.call(payload, 'loginBannerUrl')
     ) {
-      form.append('loginBanner', payload.loginBannerUrl ?? '');
+      if (payload.loginBannerUrl === null) {
+        form.append('loginBanner', 'null');
+      } else {
+        form.append('loginBanner', payload.loginBannerUrl ?? '');
+      }
     }
 
     const response = await axios.patch('/system-settings', form, {

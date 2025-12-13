@@ -91,8 +91,13 @@ export default function AdminNotificationPage() {
     defaultPage: 1,
     defaultLimit: 10,
   });
+
+  // Extract search from params and exclude it from backend request
+  const { search, ...backendParams } = params;
+  const searchQuery = (search as string) || '';
+
   const { data: notificationData, isLoading: isNotificationLoading } =
-    useNotification(params);
+    useNotification(backendParams);
   const { mutate: deleteNotification, isPending: isDeletingNotification } =
     useDeleteNotification();
 
@@ -161,14 +166,30 @@ export default function AdminNotificationPage() {
 
   const notifications = notificationData?.data.data || [];
 
+  // Apply client-side search filtering
+  const searchedNotifications = (() => {
+    if (!searchQuery.trim()) return notifications;
+
+    const query = searchQuery.toLowerCase().trim();
+    return notifications.filter((notification) => {
+      const title = notification.title?.toLowerCase() || '';
+      const message = notification.message?.toLowerCase() || '';
+      const type = notification.type?.toLowerCase() || '';
+
+      return (
+        title.includes(query) || message.includes(query) || type.includes(query)
+      );
+    });
+  })();
+
   // Apply client-side sort when enabled and sort field is title or type
   const sortedNotifications = (() => {
     const sortField = (params.sort as string | undefined) ?? undefined;
     const order = (params.order as string | undefined) ?? 'desc';
     // if (!clientSortEnabled) return notifications;
     if (!sortField || (sortField !== 'title' && sortField !== 'type'))
-      return notifications;
-    const data = [...notifications];
+      return searchedNotifications;
+    const data = [...searchedNotifications];
     data.sort((a: Notification, b: Notification) => {
       const av = String(a[sortField] ?? '').toLowerCase();
       const bv = String(b[sortField] ?? '').toLowerCase();
@@ -209,6 +230,7 @@ export default function AdminNotificationPage() {
           <ResultsFiltersBar
             fields={filterFields}
             initialValues={{
+              search: searchQuery,
               sort: (params.sort as string) ?? undefined,
               order: (params.order as string) ?? undefined,
             }}
@@ -227,6 +249,7 @@ export default function AdminNotificationPage() {
         </div>
         <AppTable<Notification>
           headerColumns={[
+            'S/N',
             'Title',
             'Recipients',
             'Message',

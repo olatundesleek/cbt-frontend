@@ -8,7 +8,7 @@ export default function NotificationsSection() {
   const {
     data: notificationData,
     isLoading: isNotificationLoading,
-    error: notificationError,
+    // error: notificationError,
   } = useNotification();
 
   const hasNotifications =
@@ -22,13 +22,13 @@ export default function NotificationsSection() {
     );
   }
 
-  if (notificationError) {
-    return (
-      <section className='space-y-4 p-2 bg-gray-50 rounded-xl shadow-sm border border-gray-100 justify-center flex h-[10vh] items-center'>
-        <h1 className='text-red-600'>Error loading notifications</h1>
-      </section>
-    );
-  }
+  // if (notificationError) {
+  //   return (
+  //     <section className='space-y-4 p-2 bg-gray-50 rounded-xl shadow-sm border border-gray-100 justify-center flex h-[10vh] items-center'>
+  //       <h1 className='text-red-600'>Error loading notifications</h1>
+  //     </section>
+  //   );
+  // }
 
   return (
     <section className='space-y-4 p-2 bg-gray-50 rounded-xl shadow-sm border border-gray-100 h-full max-h-[45vh] overflow-y-auto'>

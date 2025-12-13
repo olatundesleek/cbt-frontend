@@ -65,12 +65,16 @@ export const useTestAttemptStore = create<TestAttemptStore>((set, get) => ({
     }),
   // When session is set we try to load persisted state for that session id.
   setSession: (s) => {
+    const prevSessionId = get().session?.id;
     set({ session: s });
     if (typeof window === 'undefined') return;
 
     if (!s) {
-      // Clear last pointer when session ended
+      // Clear last pointer and any persisted data for previous session when session ended
       try {
+        if (prevSessionId) {
+          sessionStorage.removeItem(`${STORAGE_PREFIX}${prevSessionId}`);
+        }
         sessionStorage.removeItem(LAST_KEY);
       } catch {
         /* ignore */
@@ -134,8 +138,20 @@ export const useTestAttemptStore = create<TestAttemptStore>((set, get) => ({
   // Reset the store to initial empty state. Useful after a test finishes so a
   // new attempt starts fresh instead of reusing previous state.
   reset: () =>
-    set({
-      ...initialState,
+    set((state) => {
+      if (typeof window !== 'undefined') {
+        try {
+          const currentSessionId = state.session?.id;
+          if (currentSessionId) {
+            sessionStorage.removeItem(`${STORAGE_PREFIX}${currentSessionId}`);
+          }
+          sessionStorage.removeItem(LAST_KEY);
+        } catch {
+          // ignore storage errors
+        }
+      }
+
+      return { ...initialState };
     }),
 }));
 

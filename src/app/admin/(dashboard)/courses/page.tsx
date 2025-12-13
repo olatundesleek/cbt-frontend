@@ -149,11 +149,12 @@ const UpdateCourse = ({
 
 const Courses = () => {
   // Add server pagination hook
-  const { params, goToPage } = useServerPagination({
+  const { params, goToPage, updateParams, setLimit } = useServerPagination({
     defaultPage: 1,
     defaultLimit: 10,
   });
 
+  const [searchValue, setSearchValue] = useState<string>('');
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
@@ -188,6 +189,14 @@ const Courses = () => {
     isLoading: coursesLoading,
     error: coursesError,
   } = useGetCourses(params);
+
+  // Client-side search filtering
+  const filteredCourses =
+    allCourses?.data?.filter((course) =>
+      searchValue
+        ? course.title.toLowerCase().includes(searchValue.toLowerCase())
+        : true,
+    ) ?? [];
 
   //update modal state
   const updateModalState = ({
@@ -247,6 +256,47 @@ const Courses = () => {
     <section className='flex flex-col gap-4 w-full'>
       <h1 className='text-2xl font-semibold'>Create Courses</h1>
 
+      {/* Search and Filter Section */}
+      <div className='flex items-center gap-3 w-full bg-background rounded-xl p-3'>
+        <Input
+          name='search'
+          placeholder='Search courses by title...'
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+        />
+        <select
+          value={params.sort || ''}
+          onChange={(e) => updateParams({ sort: e.target.value || undefined })}
+          className='rounded-md border border-neutral-300 px-3 py-2 bg-background text-foreground'
+          aria-label='Sort by field'
+        >
+          <option value=''>Sort By</option>
+          <option value='title'>Title</option>
+          <option value='createdAt'>Date Created</option>
+        </select>
+        <select
+          value={params.order || 'asc'}
+          onChange={(e) =>
+            updateParams({ order: e.target.value as 'asc' | 'desc' })
+          }
+          className='rounded-md border border-neutral-300 px-3 py-2 bg-background text-foreground'
+          aria-label='Sort order'
+        >
+          <option value='asc'>Ascending</option>
+          <option value='desc'>Descending</option>
+        </select>
+        <select
+          value={params.limit || 10}
+          onChange={(e) => setLimit(Number(e.target.value))}
+          className='rounded-md border border-neutral-300 px-3 py-2 bg-background text-foreground'
+          aria-label='Items per page'
+        >
+          <option value={5}>5 per page</option>
+          <option value={10}>10 per page</option>
+          <option value={20}>20 per page</option>
+          <option value={50}>50 per page</option>
+        </select>
+      </div>
       <div className='grid grid-cols-1 lg:grid-cols-2 w-full gap-4'>
         <div className='col-span-1 flex flex-col gap-1 bg-background rounded-xl w-full p-3'>
           <span className='font-medium'>Create Course</span>
@@ -318,7 +368,7 @@ const Courses = () => {
 
         <div className='col-span-1 flex flex-col gap-3 bg-background rounded-xl w-full p-3'>
           <AppTable
-            data={allCourses?.data ?? []}
+            data={filteredCourses}
             centralizeLabel
             isLoading={coursesLoading}
             label='All Courses'

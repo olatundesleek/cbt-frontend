@@ -14,11 +14,17 @@ export default function StudentDashboardPage() {
     data: dashboardData,
     error: dashboardDataError,
     isLoading: isDashboardDataLoading,
+    isFetching: isDashboardDataFetching,
   } = useDashboard();
   const settings = useSystemSettingsStore((state) => state.settings);
 
+  const isInitialLoading =
+    isDashboardDataLoading || (isDashboardDataFetching && !dashboardData);
+  const showDashboardError =
+    dashboardDataError && !isDashboardDataFetching && !dashboardData;
+
   // Loading state
-  if (isDashboardDataLoading) {
+  if (isInitialLoading) {
     return (
       <div className='flex items-center justify-center min-h-[60vh]'>
         <div className='text-center space-y-3'>
@@ -30,7 +36,7 @@ export default function StudentDashboardPage() {
   }
 
   // Error state
-  if (dashboardDataError) {
+  if (showDashboardError) {
     return (
       <div className='flex items-center justify-center min-h-[60vh]'>
         <div className='text-center space-y-3 max-w-md'>

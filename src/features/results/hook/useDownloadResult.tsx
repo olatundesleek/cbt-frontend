@@ -7,3 +7,10 @@ export default function useDownloadResult() {
     mutationFn: resultsServices.downloadStudentResultCourses,
   });
 }
+
+export function useAdminDownloadResult() {
+  return useMutation({
+    mutationKey: ['admin-result-download'],
+    mutationFn: resultsServices.downloadAdminResults,
+  });
+}

@@ -113,7 +113,11 @@ export default function AdminSettingsPage() {
       return undefined;
     };
 
-    const payload: Partial<SystemSettings> = {
+    const payload: Partial<SystemSettings> & {
+      logoUrl?: string | null;
+      faviconUrl?: string | null;
+      loginBannerUrl?: string | null;
+    } = {
       appName: data.appName,
       institutionName: data.institutionName,
       shortName: data.shortName,
@@ -134,9 +138,9 @@ export default function AdminSettingsPage() {
     const wantsDeleteLoginBanner =
       !!origLoginBannerUrl && !loginBannerPreview && !loginBannerFile;
 
-    if (wantsDeleteLogo) payload.logoUrl = '';
-    if (wantsDeleteFavicon) payload.faviconUrl = '';
-    if (wantsDeleteLoginBanner) payload.loginBannerUrl = '';
+    if (wantsDeleteLogo) payload.logoUrl = null;
+    if (wantsDeleteFavicon) payload.faviconUrl = null;
+    if (wantsDeleteLoginBanner) payload.loginBannerUrl = null;
 
     // If files are present or user requested deletion, send multipart PATCH to /system-settings
     if (

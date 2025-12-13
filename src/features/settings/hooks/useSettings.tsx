@@ -1,6 +1,9 @@
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { settingsService } from '@/services/settingsService';
-import { SystemSettingsResponse, SystemSettings } from '@/types/settings.types';
+import {
+  SystemSettingsResponse,
+  SystemSettingsUpdatePayload,
+} from '@/types/settings.types';
 import toast from 'react-hot-toast';
 import { queryClient } from '@/providers/query-provider';
 import { AppError } from '@/types/errors.types';
@@ -14,19 +17,21 @@ export function useSystemSettings() {
 }
 
 export function useUpdateSystemSettings() {
-  return useMutation<SystemSettingsResponse, AppError, Partial<SystemSettings>>(
-    {
-      mutationFn: (data: Partial<SystemSettings>) =>
-        settingsService.updateSystemSettings(data),
-      onSuccess: (res) => {
-        toast.success(res.message || 'Settings updated');
-        queryClient.invalidateQueries({ queryKey: ['systemSettings'] });
-      },
-      onError: (err) => {
-        toast.error(getErrorDetails(err) || 'Failed to update settings');
-      },
+  return useMutation<
+    SystemSettingsResponse,
+    AppError,
+    SystemSettingsUpdatePayload
+  >({
+    mutationFn: (data: SystemSettingsUpdatePayload) =>
+      settingsService.updateSystemSettings(data),
+    onSuccess: (res) => {
+      toast.success(res.message || 'Settings updated');
+      queryClient.invalidateQueries({ queryKey: ['systemSettings'] });
     },
-  );
+    onError: (err) => {
+      toast.error(getErrorDetails(err) || 'Failed to update settings');
+    },
+  });
 }
 
 export function useUpdateSystemSettingsWithFiles() {
@@ -34,7 +39,7 @@ export function useUpdateSystemSettingsWithFiles() {
     SystemSettingsResponse,
     AppError,
     {
-      payload: Partial<SystemSettings>;
+      payload: SystemSettingsUpdatePayload;
       logoFile?: File;
       faviconFile?: File;
       loginBannerFile?: File;

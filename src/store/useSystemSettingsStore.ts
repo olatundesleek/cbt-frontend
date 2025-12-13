@@ -5,9 +5,9 @@ interface SystemSettings {
   appName: string;
   institutionName: string;
   shortName: string;
-  logoUrl: string;
-  faviconUrl: string;
-  loginBannerUrl: string;
+  logoUrl: string | null;
+  faviconUrl: string | null;
+  loginBannerUrl: string | null;
   primaryColor: string;
   supportEmail: string;
   systemStatus: 'ACTIVE' | 'MAINTENANCE' | 'INACTIVE';

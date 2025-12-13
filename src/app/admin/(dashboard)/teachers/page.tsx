@@ -29,12 +29,13 @@ type FormProps = Yup.InferType<typeof schema>;
 
 export default function AdminTeachersPage() {
   // Add server pagination hook
-  const { params, goToPage } = useServerPagination({
+  const { params, goToPage, updateParams, setLimit } = useServerPagination({
     defaultPage: 1,
     defaultLimit: 10,
   });
 
   const [togglePassword, setTogglePassword] = useState<boolean>(false);
+  const [searchValue, setSearchValue] = useState<string>('');
 
   const {
     register,
@@ -51,6 +52,17 @@ export default function AdminTeachersPage() {
     isLoading: teachersLoading,
     error: teachersError,
   } = useGetTeachers(params);
+
+  // Client-side search filtering
+  const filteredTeachers =
+    allTeachers?.data.data?.filter((teacher) =>
+      searchValue
+        ? `${teacher.firstname} ${teacher.lastname}`
+            .toLowerCase()
+            .includes(searchValue.toLowerCase())
+        : true,
+    ) ?? [];
+
   const handleRegisterTeacher: SubmitHandler<FormProps> = async (data) => {
     const payload = {
       firstname: data.firstName,
@@ -137,12 +149,59 @@ export default function AdminTeachersPage() {
         </div>
 
         <div className='col-span-1 flex flex-col gap-3 bg-background rounded-xl w-full p-3'>
+          <span className='font-medium'>All Teachers</span>
+
+          {/* Search and Filter Section */}
+          <div className='flex items-center gap-3 w-full flex-wrap'>
+            <Input
+              name='search'
+              placeholder='Search teachers by name...'
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+            />
+            <select
+              value={params.sort || ''}
+              onChange={(e) =>
+                updateParams({ sort: e.target.value || undefined })
+              }
+              className='rounded-md border border-neutral-300 px-3 py-2 bg-background text-foreground'
+              aria-label='Sort by field'
+            >
+              <option value=''>Sort By</option>
+              <option value='firstname'>First Name</option>
+              <option value='lastname'>Last Name</option>
+              <option value='createdAt'>Date Created</option>
+            </select>
+            <select
+              value={params.order || 'asc'}
+              onChange={(e) =>
+                updateParams({ order: e.target.value as 'asc' | 'desc' })
+              }
+              className='rounded-md border border-neutral-300 px-3 py-2 bg-background text-foreground'
+              aria-label='Sort order'
+            >
+              <option value='asc'>Ascending</option>
+              <option value='desc'>Descending</option>
+            </select>
+            <select
+              value={params.limit || 10}
+              onChange={(e) => setLimit(Number(e.target.value))}
+              className='rounded-md border border-neutral-300 px-3 py-2 bg-background text-foreground'
+              aria-label='Items per page'
+            >
+              <option value={5}>5 per page</option>
+              <option value={10}>10 per page</option>
+              <option value={20}>20 per page</option>
+              <option value={50}>50 per page</option>
+            </select>
+          </div>
+
           <AppTable
-            data={allTeachers?.data.data ?? []}
+            data={filteredTeachers}
             centralizeLabel
             isLoading={teachersLoading}
             label='All Teachers'
-            headerColumns={['s/n', 'Teacher Name', 'Assigned Classes']}
+            headerColumns={['S/N', 'Teacher Name', 'Class(es)', 'Course(s)']}
             itemKey={({ item }) => `${item.id}`}
             paginationMode='server'
             paginationMeta={{
@@ -154,11 +213,28 @@ export default function AdminTeachersPage() {
             onPageChange={goToPage}
             renderItem={({ item, itemIndex }) => (
               <>
-                <TableDataItem>{itemIndex + 1}</TableDataItem>
+                <TableDataItem>
+                  <span className='font-light text-sm text-neutral-600'>
+                    {((params?.page ?? 1) - 1) *
+                      (allTeachers?.data?.pagination?.limit || 10) +
+                      itemIndex +
+                      1}
+                    .
+                  </span>
+                </TableDataItem>
                 <TableDataItem>
                   {item.firstname + ' ' + item.lastname}
                 </TableDataItem>
-                <TableDataItem>{item.teacherOf.length}</TableDataItem>
+                <TableDataItem>
+                  {item.teacherOf.length > 0
+                    ? item.teacherOf.map((c) => c.className).join(', ')
+                    : '--'}
+                </TableDataItem>
+                <TableDataItem>
+                  {item.courses?.length > 0
+                    ? item.courses.map((c) => c.title).join(', ')
+                    : '--'}
+                </TableDataItem>
               </>
             )}
           />

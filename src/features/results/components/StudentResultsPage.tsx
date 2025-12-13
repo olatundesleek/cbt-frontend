@@ -55,9 +55,9 @@ const StudentResultsPage: React.FC = () => {
         name: 'testType',
         label: 'Test Type',
         options: [
-          { label: 'Exam', value: 'Exam' },
-          { label: 'Test', value: 'Test' },
-          { label: 'Practice', value: 'Practice' },
+          { label: 'Exam', value: 'EXAM' },
+          { label: 'Test', value: 'TEST' },
+          // { label: 'Practice', value: 'Practice' },
           // { label: 'Quiz', value: 'Quiz' },
           // { label: 'Assignment', value: 'Assignment' },
         ],

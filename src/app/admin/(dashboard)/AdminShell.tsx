@@ -97,8 +97,14 @@ export default function AdminShell({
   const {
     data: dashboardData,
     isLoading: isDashboardDataLoading,
+    isFetching: isDashboardDataFetching,
     error: dashboardDataError,
   } = useDashboard<AdminDashboardData>();
+
+  const isInitialLoading =
+    isDashboardDataLoading || (isDashboardDataFetching && !dashboardData);
+  const showDashboardError =
+    dashboardDataError && !isDashboardDataFetching && !dashboardData;
 
   useEffect(() => {
     if (!dashboardData) return;
@@ -126,10 +132,6 @@ export default function AdminShell({
     if (role) setRole(role);
   }, [role, setRole]);
 
-  if (dashboardDataError) {
-    errorLogger(dashboardDataError);
-  }
-
   return (
     <main className='relative flex flex-row items-stretch min-h-screen bg-primary-50 max-w-400 w-full mx-auto'>
       {/* side bar */}
@@ -139,13 +141,20 @@ export default function AdminShell({
         adminRoutes={adminRoutes}
       />
 
-      {isDashboardDataLoading ? (
+      {isInitialLoading ? (
         <div className='w-full p-4'>
           <SpinnerMini color='#0c4a6e' />
         </div>
       ) : (
         <section className='relative flex-1 flex flex-col gap-4 w-full'>
           <AdminTopBar setIsOpen={setIsOpen} role={role} />
+
+          {showDashboardError && (
+            <div className='mx-4 rounded-md border border-error-200 bg-error-50 text-error-700 p-3 text-sm'>
+              {dashboardDataError?.message ||
+                'Failed to load dashboard data. Please try again.'}
+            </div>
+          )}
 
           <div className='flex-1 w-full p-4'>{children}</div>
 

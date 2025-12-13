@@ -82,7 +82,14 @@ export default function AdminStudentsPage() {
     });
   }, [students, filter]);
 
-  const tableHeaders = ['Name', 'Username', 'Class', 'Courses', 'Created At'];
+  const tableHeaders = [
+    'S/N',
+    'Name',
+    'Username',
+    'Class',
+    'Courses',
+    'Created At',
+  ];
 
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
@@ -130,6 +137,8 @@ export default function AdminStudentsPage() {
           courses={courses}
           classes={classes}
           onChange={(s) => setFilter(s)}
+          showStatusFilter={false}
+          showTestTitleFilter={false}
         />
 
         <div>
@@ -140,9 +149,18 @@ export default function AdminStudentsPage() {
               data={filteredData}
               itemKey={({ item }) => `${item.username}`}
               centralizeLabel={false}
-              renderItem={({ item }) => {
+              renderItem={({ item, itemIndex }) => {
                 return (
                   <>
+                    <TableDataItem>
+                      <span className='font-light text-sm text-neutral-600'>
+                        {((params?.page ?? 1) - 1) *
+                          (adminStudentsData?.data?.pagination?.limit || 10) +
+                          itemIndex +
+                          1}
+                        .
+                      </span>
+                    </TableDataItem>
                     <TableDataItem>
                       {item.firstname} {item.lastname}
                     </TableDataItem>
@@ -213,9 +231,18 @@ export default function AdminStudentsPage() {
                 itemsPerPage: adminStudentsData?.data?.pagination?.limit || 10,
               }}
               onPageChange={goToPage}
-              renderItem={({ item }) => {
+              renderItem={({ item, itemIndex }) => {
                 return (
                   <>
+                    <TableDataItem>
+                      <span className='font-light text-sm text-neutral-600'>
+                        {((params?.page ?? 1) - 1) *
+                          (adminStudentsData?.data?.pagination?.limit || 10) +
+                          itemIndex +
+                          1}
+                        .
+                      </span>
+                    </TableDataItem>
                     <TableDataItem>
                       {item.firstname} {item.lastname}
                     </TableDataItem>

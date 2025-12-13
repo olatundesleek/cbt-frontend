@@ -298,6 +298,7 @@ export default function AdminResultPage() {
             'Class',
             'Course',
             'Test Type',
+            'Test Title',
             'Score',
             // 'Total',
             // 'Percentage',
@@ -323,7 +324,8 @@ export default function AdminResultPage() {
                 <span className='font-light text-sm text-neutral-600'>
                   {((params?.page ?? 1) - 1) * paginationData.limit +
                     itemIndex +
-                    1}.
+                    1}
+                  .
                 </span>
               </TableDataItem>
               <TableDataItem className='capitalize text-center text-sm'>
@@ -332,6 +334,7 @@ export default function AdminResultPage() {
               <TableDataItem>{item.className}</TableDataItem>
               <TableDataItem>{item.courseTitle}</TableDataItem>
               <TableDataItem>{item.testType}</TableDataItem>
+              <TableDataItem>{item.testTitle || '-'}</TableDataItem>
               <TableDataItem>{item.score ?? '-'}</TableDataItem>
               {/* <TableDataItem>{item.total ?? '-'}</TableDataItem> */}
               {/* <TableDataItem>{item.percentage}</TableDataItem> */}
@@ -388,12 +391,12 @@ export default function AdminResultPage() {
                         Test ID
                       </div>
                       <div className='font-medium'>{t?.id}</div>
-                      <div className='text-sm text-neutral-500 mt-2'>
+                      {/* <div className='text-sm text-neutral-500 mt-2'>
                         Can view answers
                       </div>
                       <div className='font-medium capitalize'>
                         {String(payload.canViewAnswers)}
-                      </div>
+                      </div> */}
                     </div>
 
                     <div className='bg-gray-50 p-4 rounded'>

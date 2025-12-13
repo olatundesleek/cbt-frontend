@@ -123,7 +123,11 @@ export default function StudentProfilePage({
         />
       </Card>
 
-      <div className={`${role === 'admin' && 'flex gap-6'} space-y-6`}>
+      <div
+        className={`${
+          role === 'admin' && 'flex gap-6 flex-col md:flex-row'
+        } space-y-6`}
+      >
         {/* Two Column Layout for Forms */}
         <div
           className={
