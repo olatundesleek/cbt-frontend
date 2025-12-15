@@ -109,7 +109,7 @@ export default function AdminNotificationPage() {
       label: 'Search',
       type: 'search',
       name: 'search',
-      placeholder: 'Search by student, course, or test',
+      placeholder: 'Search by title, recipient or message',
     },
     {
       type: 'select',

@@ -17,6 +17,7 @@ import {
   CreateTestResponse,
 } from '@/types/tests.types';
 import type { PaginationParams } from '@/types/pagination.types';
+import api from '@/lib/axios';
 
 export const testsServices = {
   getTests: async (params?: PaginationParams): Promise<TestsResponse> => {
@@ -51,6 +52,10 @@ export const testsServices = {
   },
   deleteTest: async (testId: number | string) => {
     const response = await axios.delete(`/tests/${testId}`);
+    return response.data;
+  },
+  endAllTestSessions: async () => {
+    const response = await api.post('/sessions/end-all-sessions');
     return response.data;
   },
 };

@@ -34,8 +34,11 @@ interface ResultsFiltersBarProps {
   initialValues?: Record<string, string | number | undefined>;
   limit?: number;
   limitOptions?: number[];
+  sort?: string;
+  sortOptions?: Array<{ label: string; value: string }>;
   onChange?: (params: Record<string, string | number | undefined>) => void;
   onLimitChange?: (limit: number) => void;
+  onSortChange?: (sort: string) => void;
   onReset?: () => void;
 }
 
@@ -70,8 +73,11 @@ const ResultsFiltersBar: React.FC<ResultsFiltersBarProps> = ({
   initialValues = {},
   limit,
   limitOptions = DEFAULT_LIMIT_OPTIONS,
+  sort,
+  sortOptions,
   onChange,
   onLimitChange,
+  onSortChange,
   onReset,
 }) => {
   const normalizedInitial = useMemo(
@@ -232,6 +238,26 @@ const ResultsFiltersBar: React.FC<ResultsFiltersBarProps> = ({
           })}
 
           <div className='flex items-center gap-2 ml-auto'>
+            {sortOptions && sortOptions.length > 0 && (
+              <>
+                <label htmlFor='sort' className='text-sm text-neutral-600'>
+                  Sort
+                </label>
+                <select
+                  id='sort'
+                  value={sort ?? sortOptions[0]?.value ?? ''}
+                  onChange={(e) => onSortChange?.(e.target.value)}
+                  className='border border-neutral-300 rounded px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500'
+                >
+                  {sortOptions.map((opt) => (
+                    <option key={`sort-${opt.value}`} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </>
+            )}
+
             <label htmlFor='limit' className='text-sm text-neutral-600'>
               Limit
             </label>

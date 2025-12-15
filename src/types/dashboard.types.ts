@@ -123,6 +123,7 @@ export interface AdminDashboardData {
   classCount: number;
   courseCount: number;
   adminCount: number;
+  activeSessionCount: number;
 }
 
 export interface TeacherDashboardData {

@@ -6,12 +6,15 @@ import Pagination from '@/components/ui/Pagination';
 import { useResultCourses } from '@/hooks/useResultCourses';
 import { useServerPagination } from '@/hooks/useServerPagination';
 import ResultsFiltersBar, { type ResultFilterField } from './ResultsFiltersBar';
+import { useGetCourses } from '@/features/dashboard/queries/useDashboard';
 
 const StudentResultsPage: React.FC = () => {
   // Add server pagination hook
   const { params, goToPage, setLimit, updateParams } = useServerPagination({
     defaultPage: 1,
     defaultLimit: 10,
+    defaultSortBy: undefined,
+    defaultSortOrder: undefined,
   });
 
   const {
@@ -22,16 +25,22 @@ const StudentResultsPage: React.FC = () => {
     isLoading: loadingCourses,
   } = useResultCourses(params);
 
+  const { data: allCoursesData } = useGetCourses();
+
   const effectiveCourses = courses;
+  const allCourses = useMemo(
+    () => allCoursesData?.data || [],
+    [allCoursesData],
+  );
   const effectiveOverallStats = overallStats;
 
   const courseOptions = useMemo(
     () =>
-      effectiveCourses.map((c) => ({
-        value: c.course.id,
-        label: c.course.title,
+      allCourses.map((c) => ({
+        value: c.id,
+        label: c.title,
       })),
-    [effectiveCourses],
+    [allCourses],
   );
 
   const filterFields = useMemo<ResultFilterField[]>(
@@ -72,6 +81,18 @@ const StudentResultsPage: React.FC = () => {
     [courseOptions, loadingCourses],
   );
 
+  const sortOptions = useMemo(
+    () => [
+      // { label: 'Date (Ended)', value: 'endedAt' },
+      // { label: 'Date (Started)', value: 'startedAt' },
+
+      { label: 'Sort', value: '' },
+      { label: 'Score', value: 'score' },
+      { label: 'Course', value: 'course' },
+    ],
+    [],
+  );
+
   const handleFilterChange = useCallback(
     (nextParams: Record<string, string | number | undefined>) => {
       updateParams(nextParams);
@@ -104,7 +125,7 @@ const StudentResultsPage: React.FC = () => {
 
   return (
     <div className='min-h-screen bg-gray-50 py-8 px-4 md:px-12'>
-      <div className='max-w-6xl mx-auto flex gap-4'>
+      <div className='max-w-6xl mx-auto flex flex-col lg:flex-row gap-4'>
         <div className='flex-1'>
           <div className='flex items-center justify-between mb-2'>
             <h1 className='text-3xl font-bold'>Test Results</h1>
@@ -128,10 +149,19 @@ const StudentResultsPage: React.FC = () => {
               fields={filterFields}
               limit={params.limit}
               limitOptions={[5, 10, 20, 30, 40]}
+              sort={params.sort ? String(params.sort) : undefined}
+              sortOptions={sortOptions}
               initialValues={params}
               onChange={handleFilterChange}
               onLimitChange={setLimit}
-              onReset={() => updateParams({ page: 1, limit: params.limit })}
+              onSortChange={(sort) => updateParams({ sort })}
+              onReset={() =>
+                updateParams({
+                  page: 1,
+                  limit: params.limit,
+                  sort: undefined,
+                })
+              }
             />
             {loadingCourses ? (
               <div className='flex justify-center items-center py-12'>
@@ -189,6 +219,8 @@ const StudentResultsPage: React.FC = () => {
               averageScore={avgPercent}
               passRate={passRate}
               totalTests={total}
+              downloadParams={params}
+
               // recentActivity={[]}
             />
           );

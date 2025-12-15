@@ -25,8 +25,27 @@ export const resultsServices = {
   //     `${process.env.NEXT_PUBLIC_API_URL}/results/student/courses/download?format=${format}`);
   // },
 
-  downloadStudentResultCourses: async (format: 'pdf' | 'excel') => {
-    const url = `${process.env.NEXT_PUBLIC_API_URL}/results/student/courses/download?format=${format}`;
+  downloadStudentResultCourses: async (
+    format: 'pdf' | 'excel',
+    params?: PaginationParams,
+  ) => {
+    const query = new URLSearchParams();
+    query.append('format', format);
+    Object.entries(params ?? {})
+      .filter(
+        ([key, value]) =>
+          key !== 'limit' &&
+          key !== 'page' &&
+          key !== 'search' &&
+          value !== undefined,
+      )
+      .forEach(([key, value]) => {
+        query.append(key, String(value));
+      });
+
+    const url = `${
+      process.env.NEXT_PUBLIC_API_URL
+    }/results/student/courses/download?${query.toString()}`;
 
     const response = await fetch(url, {
       method: 'GET',
@@ -42,15 +61,31 @@ export const resultsServices = {
 
     const link = document.createElement('a');
     link.href = downloadUrl;
-    //link.download = `student-results.${format}`;
+    link.download = `results`;
     document.body.appendChild(link);
     link.click();
     link.remove();
     window.URL.revokeObjectURL(downloadUrl);
   },
 
-  downloadAdminResults: async (format: 'pdf' | 'excel') => {
-    const url = `${process.env.NEXT_PUBLIC_API_URL}/results/download?format=${format}`;
+  downloadAdminResults: async (
+    format: 'pdf' | 'excel',
+    params?: PaginationParams,
+  ) => {
+    const query = new URLSearchParams();
+    query.append('format', format);
+    Object.entries(params ?? {})
+      .filter(
+        ([key, value]) =>
+          key !== 'limit' && key !== 'page' && value !== undefined,
+      )
+      .forEach(([key, value]) => {
+        query.append(key, String(value));
+      });
+
+    const url = `${
+      process.env.NEXT_PUBLIC_API_URL
+    }/results/download?${query.toString()}`;
 
     const response = await fetch(url, {
       method: 'GET',
@@ -66,7 +101,7 @@ export const resultsServices = {
 
     const link = document.createElement('a');
     link.href = downloadUrl;
-    //link.download = `results.${format}`;
+    link.download = `student-results`;
     document.body.appendChild(link);
     link.click();
     link.remove();

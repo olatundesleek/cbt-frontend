@@ -26,7 +26,7 @@ import { useUserStore } from '@/store/useUserStore';
 
 export default function AdminStudentsPage() {
   // Add server pagination hook
-  const { params, goToPage } = useServerPagination({
+  const { params, goToPage, updateParams, setLimit } = useServerPagination({
     defaultPage: 1,
     defaultLimit: 10,
   });
@@ -38,6 +38,11 @@ export default function AdminStudentsPage() {
   const { data: allClasses, isLoading: classesLoading } = useGetClasses();
 
   const [filter, setFilter] = useState<FilterState>({ query: '' });
+
+  const handleOuterReset = () => {
+    setLimit(10);
+    updateParams({ sort: undefined, order: undefined, page: 1, limit: 10 });
+  };
 
   const students = useMemo<Student[]>(
     () => adminStudentsData?.data.data ?? [],
@@ -82,14 +87,13 @@ export default function AdminStudentsPage() {
     });
   }, [students, filter]);
 
-  const tableHeaders = [
-    'S/N',
-    'Name',
-    'Username',
-    'Class',
-    'Courses',
-    'Created At',
-  ];
+  const tableHeaders = useMemo(
+    () =>
+      role === 'admin'
+        ? ['S/N', 'Name', 'Username', 'Class', 'Courses', 'Created At']
+        : ['S/N', 'Name', 'Username', 'Class', 'Courses'],
+    [role],
+  );
 
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
@@ -137,9 +141,54 @@ export default function AdminStudentsPage() {
           courses={courses}
           classes={classes}
           onChange={(s) => setFilter(s)}
+          onReset={handleOuterReset}
           showStatusFilter={false}
           showTestTitleFilter={false}
-        />
+        >
+          {/* Search and Filter Section */}
+          <>
+            <select
+              value={params.sort || ''}
+              onChange={(e) =>
+                updateParams({ sort: e.target.value || undefined })
+              }
+              className='rounded-md border border-neutral-300 px-3 py-2 bg-background text-foreground'
+              aria-label='Sort by field'
+            >
+              <option value='' disabled>
+                Sort By
+              </option>
+              <option value='firstname'>First Name</option>
+              <option value='lastname'>Last Name</option>
+              <option value='createdAt'>Date Created</option>
+            </select>
+            <select
+              value={params.order || ''}
+              onChange={(e) =>
+                updateParams({ order: e.target.value as 'asc' | 'desc' })
+              }
+              className='rounded-md border border-neutral-300 px-3 py-2 bg-background text-foreground'
+              aria-label='Sort order'
+            >
+              <option value='' disabled className='bg-neutral-500'>
+                Order
+              </option>
+              <option value='asc'>Ascending</option>
+              <option value='desc'>Descending</option>
+            </select>
+            <select
+              value={params.limit || 10}
+              onChange={(e) => setLimit(Number(e.target.value))}
+              className='rounded-md border border-neutral-300 px-3 py-2 bg-background text-foreground'
+              aria-label='Items per page'
+            >
+              <option value={5}>5 per page</option>
+              <option value={10}>10 per page</option>
+              <option value={20}>20 per page</option>
+              <option value={50}>50 per page</option>
+            </select>
+          </>
+        </FilterBar>
 
         <div>
           {role === 'admin' ? (
@@ -149,6 +198,15 @@ export default function AdminStudentsPage() {
               data={filteredData}
               itemKey={({ item }) => `${item.username}`}
               centralizeLabel={false}
+              paginationMode='server'
+              paginationMeta={{
+                currentPage: adminStudentsData?.data?.pagination?.page || 1,
+                totalPages: adminStudentsData?.data?.pagination?.pages || 1,
+                totalItems: adminStudentsData?.data?.pagination?.total || 0,
+                itemsPerPage: adminStudentsData?.data?.pagination?.limit || 10,
+              }}
+              itemsPerPage={adminStudentsData?.data?.pagination?.limit || 10}
+              onPageChange={goToPage}
               renderItem={({ item, itemIndex }) => {
                 return (
                   <>
@@ -202,7 +260,7 @@ export default function AdminStudentsPage() {
                     }}
                     className='px-2 py-1 rounded bg-primary-500 text-white text-xs cursor-pointer'
                   >
-                    Update
+                    Update Password
                   </button>
                   <button
                     onClick={() => {
@@ -230,6 +288,7 @@ export default function AdminStudentsPage() {
                 totalItems: adminStudentsData?.data?.pagination?.total || 0,
                 itemsPerPage: adminStudentsData?.data?.pagination?.limit || 10,
               }}
+              itemsPerPage={adminStudentsData?.data?.pagination?.limit || 10}
               onPageChange={goToPage}
               renderItem={({ item, itemIndex }) => {
                 return (
@@ -254,11 +313,6 @@ export default function AdminStudentsPage() {
                       {(item.class.courses ?? [])
                         .map((c) => c.title)
                         .join(', ') || '--'}
-                    </TableDataItem>
-                    <TableDataItem>
-                      {item.class?.createdAt
-                        ? formatDate(item.class.createdAt)
-                        : '--'}
                     </TableDataItem>
                   </>
                 );

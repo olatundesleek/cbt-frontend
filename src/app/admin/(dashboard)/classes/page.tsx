@@ -591,7 +591,7 @@ const AdminClasses = () => {
           />
         </div>
 
-        <div className='col-span-1 flex flex-col gap-5 bg-background rounded-xl w-full p-3'>
+        <div className='col-span-1 flex flex-col gap-5 bg-background rounded-xl w-full p-3 h-fit'>
           <div className='flex flex-col gap-3 w-full'>
             <div className='py-2 border-b border-b-neutral-500'>
               <span className='text-base font-bold'>
