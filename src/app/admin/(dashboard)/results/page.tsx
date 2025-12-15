@@ -17,6 +17,7 @@ import ResultsFiltersBar, {
   type ResultFilterField,
 } from '@/features/results/components/ResultsFiltersBar';
 import DownloadResults from '@/features/results/components/DownloadResults';
+import { useAdminTest } from '@/features/tests/hooks/useTests';
 
 type Row = {
   id: string;
@@ -72,22 +73,10 @@ export default function AdminResultPage() {
     };
   }, [resp?.data?.pagination?.total, params.limit]);
 
-  const availableTests = useMemo(() => {
-    const map = new Map<number, string>();
-    (resp?.data?.courses ?? []).forEach((entry) => {
-      (entry.tests ?? []).forEach((t: { id?: number; title?: string }) => {
-        if (t?.id) map.set(t.id, t.title ?? `Test ${t.id}`);
-      });
-    });
-    return Array.from(map.entries()).map(([value, label]) => ({
-      value,
-      label,
-    }));
-  }, [resp]);
-
   // fetch classes and courses for filter selects (from dashboard hooks)
   const { data: classesResp } = useGetClasses();
   const { data: coursesResp } = useGetCourses();
+  const { data: testResp } = useAdminTest();
 
   // fetch total students from admin students hook
   const { data: adminStudentsResp } = useAdminStudents();
@@ -149,6 +138,13 @@ export default function AdminResultPage() {
     return out;
   }, [coursesData]);
 
+  const availableTests = useMemo(() => {
+    return (testResp?.data.data ?? []).map((t) => ({
+      value: t.id,
+      label: t.title,
+    }));
+  }, [testResp]);
+
   const availableClasses = useMemo(() => {
     return (classesResp?.data ?? []).map((c) => ({
       value: c.id,
@@ -163,6 +159,13 @@ export default function AdminResultPage() {
     }));
   }, [coursesResp]);
 
+  const availableStudents = useMemo(() => {
+    return (adminStudentsResp?.data.data ?? []).map((s) => ({
+      value: s.id,
+      label: `${s.firstname} ${s.lastname} (${s.class.className})`,
+    }));
+  }, [adminStudentsResp]);
+
   const filterFields = useMemo<ResultFilterField[]>(
     () => [
       {
@@ -170,6 +173,13 @@ export default function AdminResultPage() {
         type: 'search',
         name: 'search',
         placeholder: 'Search by student, course, or test',
+      },
+      {
+        type: 'select',
+        name: 'studentId',
+        label: 'Student',
+        options: availableStudents,
+        placeholder: 'All students',
       },
       {
         type: 'select',
@@ -238,7 +248,7 @@ export default function AdminResultPage() {
         placeholder: 'Default',
       },
     ],
-    [availableClasses, availableCourses, availableTests],
+    [availableClasses, availableCourses, availableTests, availableStudents],
   );
 
   // simple aggregated stats; totalStudents is provided by admin students hook per requirement
@@ -275,7 +285,7 @@ export default function AdminResultPage() {
         <div className='w-full flex items-end justify-between gap-4'>
           <h1 className='text-3xl font-semibold'>Results</h1>
           <div>
-            <DownloadResults />
+            <DownloadResults params={params} />
           </div>
         </div>
       </div>
@@ -423,7 +433,15 @@ export default function AdminResultPage() {
                       <div className='text-sm text-neutral-500 mt-2'>
                         Status
                       </div>
-                      <div className='font-medium'>{s?.status}</div>
+                      <div
+                        className={`font-medium capitalize px-3 py-1 rounded w-fit ${
+                          s?.status?.toUpperCase() === 'PASSED'
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-red-100 text-red-700'
+                        }`}
+                      >
+                        {s?.status}
+                      </div>
                     </div>
 
                     <div className='bg-gray-50 p-4 rounded'>

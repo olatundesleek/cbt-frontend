@@ -4,8 +4,13 @@ import useDownloadResult, {
 import { Button, SpinnerMini } from '@/components/ui';
 import { useState } from 'react';
 import { useUserStore } from '@/store/useUserStore';
+import type { PaginationParams } from '@/types/pagination.types';
 
-export default function DownloadResults() {
+type Props = {
+  params?: PaginationParams;
+};
+
+export default function DownloadResults({ params }: Props) {
   const role = useUserStore((state) => state.role);
   const { mutate: downloadStudentResult, isPending: isDownloadingStudent } =
     useDownloadResult();
@@ -17,9 +22,9 @@ export default function DownloadResults() {
 
   const handleDownloadResult = function () {
     if (role === 'admin' || role === 'teacher') {
-      downloadAdminResult(format);
+      downloadAdminResult({ format, params });
     } else {
-      downloadStudentResult(format);
+      downloadStudentResult({ format, params });
     }
   };
 

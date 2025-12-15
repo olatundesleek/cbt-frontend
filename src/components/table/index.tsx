@@ -15,6 +15,35 @@ interface RenderItemProps<T> {
   itemIndex: number;
 }
 
+const getSafeModalPosition = (rect: DOMRect) => {
+  const MODAL_HEIGHT = 160; // safe estimate
+  const MODAL_WIDTH = 200;
+  const OFFSET = 4;
+
+  const viewportHeight = window.innerHeight;
+  const viewportWidth = window.innerWidth;
+
+  // ⬇️ Default: open below the button (viewport-based)
+  let top = rect.bottom + OFFSET;
+  let left = rect.left;
+
+  // 🔼 If it overflows bottom, flip above
+  if (top + MODAL_HEIGHT > viewportHeight) {
+    top = rect.top - MODAL_HEIGHT - -100;
+  }
+
+  // ⬅️ Clamp horizontally
+  if (left + MODAL_WIDTH > viewportWidth) {
+    left = viewportWidth - MODAL_WIDTH - -50;
+  }
+
+  // ⛔ Prevent negative positioning
+  if (top < 8) top = 8;
+  if (left < 8) left = 8;
+
+  return { top, left };
+};
+
 /**
  * Pagination mode configuration
  * - 'client': Data is paginated on the client side (default behavior)
@@ -144,10 +173,11 @@ const AppTable = <T,>({
     event.stopPropagation();
 
     const rect = event?.currentTarget?.getBoundingClientRect();
-    setModalPosition({
-      top: rect.top + window.scrollY + rect.height + 4,
-      left: rect.left + window.scrollX,
-    });
+    setModalPosition(getSafeModalPosition(rect));
+    // setModalPosition({
+    //   top: rect.top + window.scrollY + rect.height + 4,
+    //   left: rect.left + window.scrollX,
+    // });
 
     setShowModal(true);
 
@@ -264,6 +294,7 @@ const AppTable = <T,>({
               style={{
                 top: modalPosition.top,
                 left: modalPosition.left,
+                transformOrigin: 'top right',
               }}
               onClick={(e) => {
                 e.stopPropagation();

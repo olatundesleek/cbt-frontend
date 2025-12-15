@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { ReactNode, useEffect, useMemo, useState } from 'react';
 
 export type FilterState = {
   query: string;
@@ -16,9 +16,11 @@ type Props = {
   statuses?: string[];
   initial?: Partial<FilterState>;
   onChange?: (state: FilterState) => void;
+  onReset?: () => void;
   tests?: string[];
   showStatusFilter?: boolean;
   showTestTitleFilter?: boolean;
+  children?: ReactNode;
 };
 
 export default function FilterBar({
@@ -27,22 +29,34 @@ export default function FilterBar({
   statuses = ['active', 'scheduled', 'completed'],
   initial,
   onChange,
+  onReset,
   tests = [],
   showStatusFilter = true,
   showTestTitleFilter = true,
+  children,
 }: Props) {
-  const [state, setState] = useState<FilterState>({
-    query: initial?.query ?? '',
-    course: initial?.course ?? '',
-    className: initial?.className ?? '',
-    status: initial?.status ?? '',
-    testTitle: initial?.testTitle ?? '',
-    startDate: initial?.startDate ?? '',
-  });
+  const initialState = useMemo<FilterState>(
+    () => ({
+      query: initial?.query ?? '',
+      course: initial?.course ?? '',
+      className: initial?.className ?? '',
+      status: initial?.status ?? '',
+      testTitle: initial?.testTitle ?? '',
+      startDate: initial?.startDate ?? '',
+    }),
+    [initial],
+  );
+
+  const [state, setState] = useState<FilterState>(initialState);
 
   useEffect(() => {
     onChange?.(state);
   }, [state, onChange]);
+
+  const handleReset = () => {
+    setState(initialState);
+    onReset?.();
+  };
 
   const courseOptions = useMemo(() => [''].concat(courses), [courses]);
   const classOptions = useMemo(() => [''].concat(classes), [classes]);
@@ -60,15 +74,7 @@ export default function FilterBar({
 
           <button
             className='w-full md:w-auto bg-slate-100 border border-slate-200 px-4 py-2 rounded-md hidden md:block cursor-pointer'
-            onClick={() =>
-              setState({
-                query: '',
-                course: '',
-                className: '',
-                status: '',
-                startDate: '',
-              })
-            }
+            onClick={handleReset}
           >
             Reset
           </button>
@@ -156,18 +162,11 @@ export default function FilterBar({
 
           <button
             className='w-full md:w-auto bg-slate-100 border border-slate-200 px-4 py-2 rounded-md md:hidden'
-            onClick={() =>
-              setState({
-                query: '',
-                course: '',
-                className: '',
-                status: '',
-                startDate: '',
-              })
-            }
+            onClick={handleReset}
           >
             Reset
           </button>
+          {children && <>{children}</>}
         </div>
       </div>
     </div>

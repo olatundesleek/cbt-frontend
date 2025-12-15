@@ -1,6 +1,7 @@
 "use client";
 
 import useDashboard from '@/features/dashboard/queries/useDashboard';
+import useEndAllTestSessions from '@/features/tests/hooks/useEndAllTestSessions';
 import type {
   AdminDashboardData,
   TeacherDashboardData,
@@ -8,7 +9,7 @@ import type {
 } from '@/types/dashboard.types';
 import type { ReactNode } from 'react';
 import { useUserStore } from '@/store/useUserStore';
-import { SpinnerMini } from '@/components/ui';
+import { Button, SpinnerMini } from '@/components/ui';
 import DashboardStatCard from '@/components/ui/DashboardStatCard';
 import { GiGraduateCap, GiTeacher } from 'react-icons/gi';
 import { BiUser, BiNotepad } from 'react-icons/bi';
@@ -16,6 +17,7 @@ import { FiTarget } from 'react-icons/fi';
 import { formatDigits } from '../../../../../utils/helpers';
 import { PieChartComponent } from '@/components/charts/piechart';
 import NotificationsSection from '@/components/feedback/NotificationSection';
+import { VscVmActive } from 'react-icons/vsc';
 
 export default function AdminDashboardPage() {
   const {
@@ -25,6 +27,18 @@ export default function AdminDashboardPage() {
   } = useDashboard<AdminDashboardData | TeacherDashboardData | DashboardData>();
 
   const role = useUserStore((s) => s.role) ?? 'admin';
+
+  const endAllSessionsMutation = useEndAllTestSessions();
+
+  const handleEndAllSessions = () => {
+    if (
+      confirm(
+        'Are you sure you want to end all active test sessions? This action cannot be undone.',
+      )
+    ) {
+      endAllSessionsMutation.mutate();
+    }
+  };
 
   // Error state
   // if (dashboardError || !dashboardData) {
@@ -75,6 +89,10 @@ export default function AdminDashboardPage() {
   const totalCourses = data?.courseCount ?? 0;
   const adminCount =
     'adminCount' in (data ?? {}) ? (data as AdminDashboardData).adminCount : 0;
+  const activeSessionCount =
+    'activeSessionCount' in (data ?? {})
+      ? (data as AdminDashboardData).activeSessionCount
+      : 0;
 
   const adminCards: {
     label: string;
@@ -119,6 +137,12 @@ export default function AdminDashboardPage() {
       icon: <FiTarget size={18} />,
       variant: 'test',
     },
+    {
+      label: 'Active Session',
+      value: formatDigits(activeSessionCount),
+      icon: <VscVmActive size={18} />,
+      variant: 'test',
+    },
   ];
 
   const teacherCards: typeof adminCards = [
@@ -155,56 +179,79 @@ export default function AdminDashboardPage() {
       {isDashboardDataLoading ? (
         <SpinnerMini color='#0c4a6e' />
       ) : (
-        <section className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full'>
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 w-full gap-2 lg:col-span-2'>
-            {dashboardCards.map((card) => (
-              <DashboardStatCard
-                key={card.label}
-                label={card.label}
-                value={card.value}
-                icon={card.icon}
-                variant={card.variant}
-                className='self-start h-fit'
-              />
-            ))}
-          </div>
-
-          <div className='grid grid-cols-1 w-full gap-3'>
-            {role === 'teacher' && (
-              <div className='col-span-1 flex flex-col gap-2 bg-background rounded-xl w-full p-3'>
-                <h1 className='text-2xl'>Notifications</h1>
-
-                <NotificationsSection />
+        <div className='w-full space-y-4'>
+          {role === 'admin' && (
+            <div className='flex justify-end'>
+              <div>
+                <Button
+                  onClick={handleEndAllSessions}
+                  disabled={
+                    endAllSessionsMutation.isPending || activeSessionCount === 0
+                  }
+                >
+                  {endAllSessionsMutation.isPending ? (
+                    <>
+                      <SpinnerMini />
+                      Ending Sessions...
+                    </>
+                  ) : (
+                    <>End All Test Sessions ({activeSessionCount})</>
+                  )}
+                </Button>
               </div>
-            )}
-            {role === 'admin' && (
-              <div className='col-span-1 flex flex-col gap-3 bg-background rounded-xl w-full p-3'>
-                <span className='text-xl text-foreground font-semibold'>
-                  System Summary
-                </span>
-
-                <PieChartComponent
-                  pieChartData={[
-                    { name: 'student', value: totalStudents },
-                    { name: 'teacher', value: totalTeachers },
-                    { name: 'class', value: totalClasses },
-                    { name: 'course', value: totalCourses },
-                    { name: 'test', value: totalTests },
-                    { name: 'admin', value: adminCount },
-                  ]}
-                  pieChartColors={[
-                    { color: '#FFBB28', type: 'student' },
-                    { color: '#00C49F', type: 'teacher' },
-                    { color: '#0088FE', type: 'class' },
-                    { color: '#FF8042', type: 'course' },
-                    { color: '#8884D8', type: 'test' },
-                    { color: '#09ff1d', type: 'admin' },
-                  ]}
+            </div>
+          )}
+          <section className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full'>
+            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 w-full gap-2 lg:col-span-2'>
+              {dashboardCards.map((card) => (
+                <DashboardStatCard
+                  key={card.label}
+                  label={card.label}
+                  value={card.value}
+                  icon={card.icon}
+                  variant={card.variant}
+                  className='self-start h-fit'
                 />
-              </div>
-            )}
-          </div>
-        </section>
+              ))}
+            </div>
+
+            <div className='grid grid-cols-1 w-full gap-3'>
+              {role === 'teacher' && (
+                <div className='col-span-1 flex flex-col gap-2 bg-background rounded-xl w-full p-3'>
+                  <h1 className='text-2xl'>Notifications</h1>
+
+                  <NotificationsSection />
+                </div>
+              )}
+              {role === 'admin' && (
+                <div className='col-span-1 flex flex-col gap-3 bg-background rounded-xl w-full p-3'>
+                  <span className='text-xl text-foreground font-semibold'>
+                    System Summary
+                  </span>
+
+                  <PieChartComponent
+                    pieChartData={[
+                      { name: 'student', value: totalStudents },
+                      { name: 'teacher', value: totalTeachers },
+                      { name: 'class', value: totalClasses },
+                      { name: 'course', value: totalCourses },
+                      { name: 'test', value: totalTests },
+                      { name: 'admin', value: adminCount },
+                    ]}
+                    pieChartColors={[
+                      { color: '#FFBB28', type: 'student' },
+                      { color: '#00C49F', type: 'teacher' },
+                      { color: '#0088FE', type: 'class' },
+                      { color: '#FF8042', type: 'course' },
+                      { color: '#8884D8', type: 'test' },
+                      { color: '#09ff1d', type: 'admin' },
+                    ]}
+                  />
+                </div>
+              )}
+            </div>
+          </section>
+        </div>
       )}
     </>
   );
