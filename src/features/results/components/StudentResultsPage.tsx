@@ -43,12 +43,12 @@ const StudentResultsPage: React.FC = () => {
 
   const filterFields = useMemo<ResultFilterField[]>(
     () => [
-      {
-        label: 'Search',
-        type: 'search',
-        name: 'search',
-        placeholder: 'Search by course or test',
-      },
+      // {
+      //   label: 'Search',
+      //   type: 'search',
+      //   name: 'search',
+      //   placeholder: 'Search by course or test',
+      // },
       {
         type: 'select',
         name: 'courseId',
@@ -68,12 +68,14 @@ const StudentResultsPage: React.FC = () => {
           // { label: 'Quiz', value: 'Quiz' },
           // { label: 'Assignment', value: 'Assignment' },
         ],
+        loading: loadingCourses,
         placeholder: 'All types',
       },
       {
         type: 'date',
         name: 'endDate',
         label: 'End Date',
+        loading: loadingCourses,
       },
       {
         type: 'select',
@@ -84,6 +86,7 @@ const StudentResultsPage: React.FC = () => {
           { label: 'Course', value: 'course' },
           { label: 'Date', value: 'date' },
         ],
+        loading: loadingCourses,
         placeholder: 'Sort By',
       },
       {
@@ -94,24 +97,13 @@ const StudentResultsPage: React.FC = () => {
           { label: 'Desc', value: 'desc' },
           { label: 'Asc', value: 'asc' },
         ],
+        loading: loadingCourses,
         placeholder: 'Order By',
       },
     ],
     [courseOptions, loadingCourses],
   );
 
-  // const sortOptions = useMemo(
-  //   () => [
-  //     // { label: 'Date (Ended)', value: 'endedAt' },
-  //     // { label: 'Date (Started)', value: 'startedAt' },
-
-  //     { label: 'Sort', value: '' },
-  //     { label: 'Score', value: 'score' },
-  //     { label: 'Course', value: 'course' },
-  //     { label: 'Date', value: 'date' },
-  //   ],
-  //   [],
-  // );
 
   const handleFilterChange = useCallback(
     (nextParams: Record<string, string | number | undefined>) => {

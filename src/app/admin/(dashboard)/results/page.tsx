@@ -44,7 +44,11 @@ export default function AdminResultPage() {
     defaultLimit: 10,
   });
 
-  const { data: resp, isLoading, error } = useAdminResult(params);
+  const {
+    data: resp,
+    isLoading: isResultLoading,
+    error,
+  } = useAdminResult(params);
 
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -172,13 +176,15 @@ export default function AdminResultPage() {
         label: 'Search',
         type: 'search',
         name: 'search',
-        placeholder: 'Search by student, course, or test',
+        loading: isResultLoading,
+        placeholder: 'Search by student',
       },
       {
         type: 'select',
         name: 'studentId',
         label: 'Student',
         options: availableStudents,
+        loading: isResultLoading,
         placeholder: 'All students',
       },
       {
@@ -186,6 +192,7 @@ export default function AdminResultPage() {
         name: 'courseId',
         label: 'Course',
         options: availableCourses,
+        loading: isResultLoading,
         placeholder: 'All courses',
       },
       {
@@ -193,6 +200,7 @@ export default function AdminResultPage() {
         name: 'classId',
         label: 'Class',
         options: availableClasses,
+        loading: isResultLoading,
         placeholder: 'All classes',
       },
       {
@@ -200,6 +208,7 @@ export default function AdminResultPage() {
         name: 'testId',
         label: 'Test',
         options: availableTests,
+        loading: isResultLoading,
         placeholder: 'All tests',
       },
       {
@@ -210,20 +219,21 @@ export default function AdminResultPage() {
           { label: 'Exam', value: 'Exam' },
           { label: 'Test', value: 'Test' },
           { label: 'Practice', value: 'Practice' },
-          // { label: 'Quiz', value: 'Quiz' },
-          // { label: 'Assignment', value: 'Assignment' },
         ],
+        loading: isResultLoading,
         placeholder: 'All types',
       },
       {
         type: 'date',
         name: 'startDate',
         label: 'Start Date',
+        loading: isResultLoading,
       },
       {
         type: 'date',
         name: 'endDate',
         label: 'End Date',
+        loading: isResultLoading,
       },
       {
         type: 'select',
@@ -235,6 +245,7 @@ export default function AdminResultPage() {
           { label: 'Student', value: 'student' },
           { label: 'Course', value: 'course' },
         ],
+        loading: isResultLoading,
         placeholder: 'Default',
       },
       {
@@ -245,10 +256,17 @@ export default function AdminResultPage() {
           { label: 'Descending', value: 'desc' },
           { label: 'Ascending', value: 'asc' },
         ],
+        loading: isResultLoading,
         placeholder: 'Default',
       },
     ],
-    [availableClasses, availableCourses, availableTests, availableStudents],
+    [
+      availableClasses,
+      availableCourses,
+      availableTests,
+      availableStudents,
+      isResultLoading,
+    ],
   );
 
   // simple aggregated stats; totalStudents is provided by admin students hook per requirement
@@ -316,7 +334,7 @@ export default function AdminResultPage() {
             'View Details',
           ]}
           data={rows}
-          isLoading={isLoading}
+          isLoading={isResultLoading}
           itemKey={({ item }) => item.id}
           itemsPerPage={paginationData.limit}
           paginationMode='server'
