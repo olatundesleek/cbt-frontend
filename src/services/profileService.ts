@@ -59,7 +59,6 @@ export const profileService = {
           response.data.message || 'Personal information updated successfully',
       };
     } catch (error) {
-      console.error('Error updating personal info:', error);
       throw new Error('Failed to update personal information');
     }
   },
@@ -80,7 +79,6 @@ export const profileService = {
         message: response.data.message || 'Password changed successfully',
       };
     } catch (error) {
-      console.error('Error changing password:', error);
       throw new Error('Failed to change password');
     }
   },
@@ -107,7 +105,6 @@ export const profileService = {
         imageUrl: response.data.imageUrl,
       };
     } catch (error) {
-      console.error('Error updating profile image:', error);
       throw new Error('Failed to update profile image');
     }
   },

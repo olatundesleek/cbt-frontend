@@ -19,14 +19,12 @@ export default function AdminLoginPage() {
     formState: { errors },
   } = useForm<LoginFormData>();
 
-  const onSubmit = async (data: LoginFormData) => {
+  // const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async () => {
     try {
       setIsLoading(true);
-      // TODO: Implement actual login logic
-      // console.log('Login data:', data);
       toast.success('Login successful!');
     } catch (error) {
-      console.error(error);
       toast.error('Login failed. Please try again.');
     } finally {
       setIsLoading(false);

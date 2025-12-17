@@ -21,7 +21,7 @@ export function useResultCourses(params?: PaginationParams) {
   return {
     data: data as StudentResultCoursesResponse | undefined,
     student: data?.student,
-    courses: (data?.courses ?? []) as CourseResults[],
+    // courses: (data?.courses ?? []) as CourseResults[],
     overallStats: data?.overallStats,
     pagination: data?.pagination,
     isLoading,

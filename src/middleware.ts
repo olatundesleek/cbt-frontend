@@ -9,7 +9,7 @@ const publicPaths = ["/" /* "/admin/login", */];
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   // Check for auth token
-  const authToken = request.cookies.get("token");
+  const authToken = request.cookies.get('token');
 
   //check user roles
   const role = request.cookies.get('role')?.value;
@@ -21,20 +21,20 @@ export async function middleware(request: NextRequest) {
 
   if (!authToken) {
     // Redirect to appropriate login page based on path
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(new URL('/', request.url));
   }
 
   // try {
   // Verify role for admin routes
-  if (pathname.startsWith("/admin")) {
-    if (role !== "admin" && role !== "teacher") {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
+  if (pathname.startsWith('/admin')) {
+    if (role !== 'admin' && role !== 'teacher') {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
     }
   }
 
   // Student trying to access dashboard while logged in
-  if (pathname === "/" && authToken && role === "student") {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+  if (pathname === '/' && authToken && role === 'student') {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
   // Admin/Teacher trying to access login while logged in
@@ -55,19 +55,6 @@ export async function middleware(request: NextRequest) {
   }
 
   return NextResponse.next();
-  // } catch (error) {
-  //   // Token verification failed
-  //   console.error(error);
-  //   request.cookies.delete('auth-token');
-  //   request.cookies.delete('user-role');
-
-  //   if (pathname.startsWith('/admin')) {
-  //     return NextResponse.redirect(new URL('/admin/login', request.url));
-  //   }
-  //   return NextResponse.redirect(new URL('/', request.url));
-  // }
-
-  // return NextResponse.next();
 }
 
 // Configure paths that trigger middleware

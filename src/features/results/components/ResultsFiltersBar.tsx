@@ -178,7 +178,7 @@ const ResultsFiltersBar: React.FC<ResultsFiltersBarProps> = ({
             if (field.type === 'select') {
               const value = filters[field.name] ?? '';
               return (
-                <div key={field.name} className='min-w-[160px]'>
+                <div key={field.name} className='min-w-40'>
                   <label
                     htmlFor={field.name}
                     className='block text-sm text-neutral-600 mb-1'
@@ -214,7 +214,7 @@ const ResultsFiltersBar: React.FC<ResultsFiltersBarProps> = ({
             if (field.type === 'date') {
               const value = (filters[field.name] as string) ?? '';
               return (
-                <div key={field.name} className='min-w-[160px]'>
+                <div key={field.name} className='min-w-40'>
                   <label className='block text-sm text-neutral-600 mb-1'>
                     {field.label}
                   </label>

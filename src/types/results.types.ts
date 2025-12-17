@@ -47,15 +47,32 @@ export interface CourseResults {
 }
 
 export interface OverallStats {
-  totalCourses: number;
   totalTests: number;
   testsCompleted: number;
-  averageScore: number;
+  averageScore: number | string;
 }
 
 export interface StudentResultCoursesResponse {
   student: StudentInfo;
-  courses: CourseResults[];
+  /**
+   * New backend shape: a flat list of results
+   * Each entry contains course, test and a specific session summary
+   */
+  results: Array<{
+    course: CourseInfo;
+    test: {
+      id: number;
+      title: string;
+      type: TestType;
+    };
+    session: {
+      id: number;
+      score: number;
+      status: TestSessionStatus;
+      startedAt: string;
+      endedAt: string;
+    };
+  }>;
   overallStats: OverallStats;
   pagination: {
     page: number;

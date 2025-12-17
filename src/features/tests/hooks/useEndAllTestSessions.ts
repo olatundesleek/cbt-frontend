@@ -1,12 +1,14 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { testsServices } from '@/services/testsService';
 import toast from 'react-hot-toast';
 import getErrorDetails from '@/utils/getErrorDetails';
 
 export default function useEndAllTestSessions() {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: testsServices.endAllTestSessions,
     onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       toast.success(data?.message || 'All test sessions ended successfully');
     },
     onError: (error) => {

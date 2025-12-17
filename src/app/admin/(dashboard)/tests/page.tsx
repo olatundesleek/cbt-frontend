@@ -491,9 +491,7 @@ function AddTestForm({
     try {
       await createTestMutation.mutateAsync(payload);
       reset();
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) {}
   };
 
   return (

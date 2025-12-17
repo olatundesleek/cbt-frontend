@@ -71,16 +71,38 @@ export interface Student {
 }
 
 export interface OverallStats {
-  totalCourses: number;
+  totalCourses?: number;
   totalTests: number;
   testsCompleted: number;
-  averageScore: number;
+  averageScore: number | string;
+}
+
+export interface RecentResult {
+  course: CourseInfo;
+  test: {
+    id: number;
+    title: string;
+    type: TestType;
+  };
+  session: {
+    id: number;
+    score: number;
+    status: string;
+    startedAt: string;
+    endedAt: string;
+  };
 }
 
 export interface RecentResults {
   student: Student;
-  courses: CourseWithTests[];
+  results: RecentResult[];
   overallStats: OverallStats;
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
 }
 
 export interface TotalScore {

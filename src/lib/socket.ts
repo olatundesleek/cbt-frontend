@@ -21,15 +21,15 @@ export const initializeSocket = (): Socket => {
   });
 
   socket.on('connect', () => {
-    console.log('✅ Socket.IO connected:', socket?.id);
+    console.log('✅ Socket.IO connected:');
   });
 
   socket.on('disconnect', (reason) => {
-    console.log('❌ Socket.IO disconnected:', reason);
+    console.log('❌ Socket.IO disconnected:');
   });
 
   socket.on('connect_error', (error) => {
-    console.error('❌ Socket.IO connection error:', error);
+    console.error('❌ Socket.IO connection error:');
   });
 
 

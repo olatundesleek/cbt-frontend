@@ -47,7 +47,6 @@ export default function StudentProfilePage({
 
   // Handler for edit profile button (optional)
   const handleEditProfile = () => {
-    console.log('Edit profile clicked');
     // Could open a modal or navigate to edit page
   };
 

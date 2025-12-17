@@ -35,8 +35,6 @@ export async function proxySetCookie({
       status: response.status,
     };
   } catch (error) {
-    console.error('proxySetCookie error:', error);
-
     if (axios.isAxiosError(error)) {
       const message =
         error.response?.data?.message || 'Error setting authentication cookie';
@@ -64,7 +62,6 @@ async function proxyLogout() {
     });
     return response.data;
   } catch (error) {
-    console.error('proxyLogout error:', error);
     throw new Error('Failed to clear authentication cookies');
   }
 }
@@ -112,7 +109,6 @@ export const authService = {
 
       return res.data;
     } catch (error) {
-      console.error('Logout error:', error);
 
       if (error instanceof Error) {
         return { success: false, message: error.message };

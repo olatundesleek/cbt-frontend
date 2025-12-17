@@ -17,7 +17,6 @@ export async function POST(req: NextRequest) {
 
     const isProd = process.env.NODE_ENV === 'production';
 
-
     response.cookies.set('token', token, {
       httpOnly: true,
       secure: isProd,
@@ -34,7 +33,6 @@ export async function POST(req: NextRequest) {
 
     return response;
   } catch (error) {
-    console.error('Error setting auth cookie:', error);
     return NextResponse.json(
       { success: false, message: 'Failed to set auth cookie' },
       { status: 500 },
@@ -43,6 +41,5 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET() {
-  console.log('GET /api/auth/set-auth-cookie reached');
   return NextResponse.json({ message: 'ok' });
 }

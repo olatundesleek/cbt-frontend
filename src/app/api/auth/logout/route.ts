@@ -20,7 +20,6 @@ export async function POST() {
 
     return res;
   } catch (error) {
-    console.error('Internal server error during logout:', error);
     return NextResponse.json(
       { success: false, message: 'Error while logging out' },
       { status: 500 },

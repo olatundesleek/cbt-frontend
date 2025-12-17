@@ -24,7 +24,6 @@ export async function GET(): Promise<
   //       id = payload.id;
   //     }
   //   } catch (error) {
-  //     console.error('Error:', error);
   //     isLoggedIn = false;
   //     id = '';
   //   }

@@ -77,24 +77,22 @@ export default function StudentDashboardPage() {
   const studentName = data?.studentName;
   const activeTests = data?.activeTests || [];
   const hasActiveTests = activeTests.length > 0;
-  const recentResultsCourses = data?.recentResults?.courses || [];
+  const recentResultsData = data?.recentResults?.results || [];
   const studentClass = data?.className || 'N/A';
 
   // Transform recent results for table
-  const recentResults = recentResultsCourses.flatMap((courseData) =>
-    courseData.tests.map((test) => ({
-      course: courseData.course.title,
-      title: test.title || 'N/A',
-      type: test.type || 'N/A',
-      score: test.session.score,
-      date: new Date(test.session.endedAt).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      }),
-      status: test.session.status || 'null',
-    })),
-  );
+  const recentResults = recentResultsData.map((result) => ({
+    course: result.course.title,
+    title: result.test.title || 'N/A',
+    type: result.test.type || 'N/A',
+    score: result.session.score,
+    date: new Date(result.session.endedAt).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }),
+    status: result.session.status || 'null',
+  }));
 
   return (
     <div className='grid grid-cols-1 md:flex gap-6'>
