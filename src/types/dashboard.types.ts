@@ -201,6 +201,10 @@ export interface AllTeachers {
   lastname: string;
   courses: Courses[];
   teacherOf: { id: number; className: string }[];
+  createdAt: Date;
+  email: string;
+  username: string;
+  phoneNumber: string;
 }
 
 export interface AllTeachersResponse {

@@ -1,24 +1,26 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
-import * as Yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
-import AppTable, { TableDataItem } from "@/components/table";
-import Input from "@/components/ui/input";
-import Button from "@/components/ui/Button";
+import { useState, useEffect, useMemo } from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import * as Yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+import AppTable, { TableDataItem } from '@/components/table';
+import Input from '@/components/ui/input';
+import Button from '@/components/ui/Button';
 import { useServerPagination } from '@/hooks/useServerPagination';
 import {
   useGetCourses,
   useGetQuestionBank,
-} from "@/features/dashboard/queries/useDashboard";
-import api, { errorLogger } from "@/lib/axios";
-import toast from "react-hot-toast";
-import { queryClient } from "@/providers/query-provider";
-import { AllCourses, AllQuestionBank } from "@/types/dashboard.types";
-import Modal from "@/components/modal";
-import { GoPlus } from "react-icons/go";
-import { useRouter } from "next/navigation";
+} from '@/features/dashboard/queries/useDashboard';
+import api, { errorLogger } from '@/lib/axios';
+import toast from 'react-hot-toast';
+import { queryClient } from '@/providers/query-provider';
+import { AllCourses, AllQuestionBank } from '@/types/dashboard.types';
+import Modal from '@/components/modal';
+import { GoPlus } from 'react-icons/go';
+import { useRouter } from 'next/navigation';
+import { useUserStore } from '@/store/useUserStore';
+import { formatDate } from '../../../../../utils/helpers';
 
 type FormProps = Yup.InferType<typeof schema>;
 
@@ -29,9 +31,9 @@ interface UpdateQuestionBankProps {
 }
 
 const schema = Yup.object({
-  questionBankName: Yup.string().required("Name is required"),
-  description: Yup.string().required("Description is required"),
-  course: Yup.string().required("Course is required"),
+  questionBankName: Yup.string().required('Name is required'),
+  description: Yup.string().required('Description is required'),
+  course: Yup.string().required('Course is required'),
 });
 
 const UpdateQuestionBank = ({
@@ -48,9 +50,9 @@ const UpdateQuestionBank = ({
   } = useForm<FormProps>({
     resolver: yupResolver(schema),
     defaultValues: {
-      questionBankName: "",
-      course: "",
-      description: "",
+      questionBankName: '',
+      course: '',
+      description: '',
     },
   });
 
@@ -66,12 +68,12 @@ const UpdateQuestionBank = ({
     try {
       const response = await api.patch(
         `/question-banks/${singleBank?.id}`,
-        payload
+        payload,
       );
-      await queryClient.invalidateQueries({ queryKey: ["questionBanks"] });
+      await queryClient.invalidateQueries({ queryKey: ['questionBanks'] });
       resetForm();
       closeModal();
-      toast.success(response.data.message || "Updated Successfully");
+      toast.success(response.data.message || 'Updated Successfully');
     } catch (error) {
       errorLogger(error);
     }
@@ -80,31 +82,31 @@ const UpdateQuestionBank = ({
   useEffect(() => {
     if (!singleBank) return;
 
-    setValue("course", `${singleBank.courseId}`);
-    setValue("description", singleBank.description);
-    setValue("questionBankName", singleBank.questionBankName);
+    setValue('course', `${singleBank.courseId}`);
+    setValue('description', singleBank.description);
+    setValue('questionBankName', singleBank.questionBankName);
   }, [singleBank, setValue]);
 
   if (!singleBank) return null;
 
   return (
-    <div className="flex flex-col gap-1 w-full">
-      <span className="text-base font-bold">Update Question Bank</span>
+    <div className='flex flex-col gap-1 w-full'>
+      <span className='text-base font-bold'>Update Question Bank</span>
 
       <form
         onSubmit={handleSubmit(handleUpdateQuestionBank)}
-        className="flex flex-col items-stretch gap-2 w-full"
+        className='flex flex-col items-stretch gap-2 w-full'
       >
-        <div className="flex flex-col gap-1 w-full">
-          <label htmlFor="course">
-            <span className="text-sm text-neutral-600">Select Course</span>
+        <div className='flex flex-col gap-1 w-full'>
+          <label htmlFor='course'>
+            <span className='text-sm text-neutral-600'>Select Course</span>
 
             <select
-              id="course"
-              {...register("course")}
-              className="block w-full rounded-md border border-neutral-300 p-1 h-10 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 bg-background text-foreground caret-foreground"
+              id='course'
+              {...register('course')}
+              className='block w-full rounded-md border border-neutral-300 p-1 h-10 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 bg-background text-foreground caret-foreground'
             >
-              <option value={""} disabled>
+              <option value={''} disabled>
                 Select Course
               </option>
               {courses?.map((course) => (
@@ -116,41 +118,41 @@ const UpdateQuestionBank = ({
           </label>
 
           {errors?.course?.message && (
-            <small className="text-error-500">{errors?.course?.message}</small>
+            <small className='text-error-500'>{errors?.course?.message}</small>
           )}
         </div>
 
         <Input
-          label="Question Bank Name"
-          name="questionBankName"
-          placeholder="Math 403 Questions"
+          label='Question Bank Name'
+          name='questionBankName'
+          placeholder='Math 403 Questions'
           hookFormRegister={register}
           errorText={errors.questionBankName && errors.questionBankName.message}
         />
 
-        <div className="flex flex-col gap-1 w-full">
-          <label htmlFor="description" className="text-sm text-neutral-600">
+        <div className='flex flex-col gap-1 w-full'>
+          <label htmlFor='description' className='text-sm text-neutral-600'>
             Question Description
           </label>
           <textarea
-            id="description"
-            placeholder="Basic Mathematics For SS2 students"
-            {...register("description")}
-            className="rounded-md border border-neutral-300 p-1 bg-background text-foreground caret-foreground shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            id='description'
+            placeholder='Basic Mathematics For SS2 students'
+            {...register('description')}
+            className='rounded-md border border-neutral-300 p-1 bg-background text-foreground caret-foreground shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500'
           ></textarea>
           {errors?.description?.message && (
-            <small className="text-error-500">
+            <small className='text-error-500'>
               {errors?.description?.message}
             </small>
           )}
         </div>
 
-        <div className="w-fit">
-          <Button type="submit" disabled={isSubmitting}>
-            <div className="flex flex-row items-center gap-2 w-full">
+        <div className='w-fit'>
+          <Button type='submit' disabled={isSubmitting}>
+            <div className='flex flex-row items-center gap-2 w-full'>
               <GoPlus />
               <span>
-                {isSubmitting ? "Updating..." : "Update Question Bank"}
+                {isSubmitting ? 'Updating...' : 'Update Question Bank'}
               </span>
             </div>
           </Button>
@@ -161,6 +163,7 @@ const UpdateQuestionBank = ({
 };
 
 const QuestionBank = () => {
+  const userRole = useUserStore((s) => s.role);
   // Add server pagination hook
   const { params, goToPage, updateParams, setLimit } = useServerPagination({
     defaultPage: 1,
@@ -213,6 +216,21 @@ const QuestionBank = () => {
             .includes(searchValue.toLowerCase())
         : true,
     ) ?? [];
+
+  const tableColumns = useMemo(
+    () =>
+      userRole === 'admin'
+        ? [
+            'S/N',
+            'Question Name',
+            'Course',
+            'Total Questions',
+            'Created By',
+            'Created on',
+          ]
+        : ['S/N', 'Question Name', 'Course', 'Total Questions', 'Created on'],
+    [userRole],
+  );
 
   //update modal state
   const updateModalState = ({
@@ -274,8 +292,8 @@ const QuestionBank = () => {
     <section className='flex flex-col gap-4 w-full'>
       <h1 className='text-2xl font-semibold'>Question Bank</h1>
 
-      <div className='grid grid-cols-1 lg:grid-cols-2 w-full gap-4'>
-        <div className='col-span-1 flex flex-col gap-1 bg-background rounded-xl w-full p-3'>
+      <div className='grid grid-cols-1 lg:grid-cols-3 w-full gap-4'>
+        <div className='col-span-1 flex flex-col gap-1 bg-background rounded-xl w-full p-3 h-fit'>
           <span className='font-medium'>Create Question Bank</span>
 
           <form
@@ -345,7 +363,7 @@ const QuestionBank = () => {
           </form>
         </div>
 
-        <div className='col-span-1 flex flex-col gap-3 bg-background rounded-xl w-full p-3'>
+        <div className='col-span-2 flex flex-col gap-3 bg-background rounded-xl w-full p-3'>
           <span className='font-medium'>All Question Banks</span>
 
           {/* Search and Filter Section */}
@@ -398,13 +416,7 @@ const QuestionBank = () => {
             label='All Question Banks'
             isLoading={questionBankLoading}
             onRowPress={({ item }) => push(`/admin/questions/${item.id}`)}
-            headerColumns={[
-              'S/N',
-              'Question Name',
-              'Course',
-              'Total Question',
-              'Teacher',
-            ]}
+            headerColumns={tableColumns}
             itemKey={({ item }) => `${item.id}`}
             paginationMode='server'
             paginationMeta={{
@@ -431,8 +443,13 @@ const QuestionBank = () => {
                 <TableDataItem>{item.questionBankName}</TableDataItem>
                 <TableDataItem>{item.course.title}</TableDataItem>
                 <TableDataItem>{item.questions.length}</TableDataItem>
+                {userRole === 'admin' && (
+                  <TableDataItem>
+                    {item.teacher.firstname + ' ' + item.teacher.lastname}
+                  </TableDataItem>
+                )}
                 <TableDataItem>
-                  {item.teacher.firstname + ' ' + item.teacher.lastname}
+                  {formatDate(item.createdAt.toString())}
                 </TableDataItem>
               </>
             )}
@@ -445,7 +462,7 @@ const QuestionBank = () => {
                   }}
                   className='px-2 py-1 rounded bg-primary-500 text-white text-xs cursor-pointer'
                 >
-                  Update
+                  Update Bank
                 </button>
                 <button
                   onClick={() => {
@@ -454,7 +471,7 @@ const QuestionBank = () => {
                   }}
                   className='px-2 py-1 rounded bg-error-500 text-white text-xs cursor-pointer'
                 >
-                  Delete
+                  Delete Bank
                 </button>
               </div>
             }

@@ -1,6 +1,6 @@
 'use client';
 import AppTable, { TableDataItem } from '@/components/table';
-import { Button } from '@/components/ui';
+import { Badge, Button } from '@/components/ui';
 import Input from '@/components/ui/input';
 import Modal from '@/components/modal';
 import { useForm } from 'react-hook-form';
@@ -90,15 +90,23 @@ export default function AdminStudentsPage() {
   const tableHeaders = useMemo(
     () =>
       role === 'admin'
-        ? ['S/N', 'Name', 'Username', 'Class', 'Courses', 'Created At']
-        : ['S/N', 'Name', 'Username', 'Class', 'Courses'],
+        ? [
+            'S/N',
+            'Name',
+            'Username/ID',
+            'Email',
+            'Phone',
+            'Class',
+            'Created on',
+          ]
+        : ['S/N', 'Name', 'Username/ID', 'Class'],
     [role],
   );
 
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
     modalContent: Student | null;
-    type: 'create' | 'update' | 'delete' | 'assign';
+    type: 'create' | 'update' | 'delete' | 'assign' | 'view';
   }>({ isOpen: false, modalContent: null, type: 'create' });
 
   const deleteMutation = useDeleteStudent();
@@ -112,7 +120,7 @@ export default function AdminStudentsPage() {
     value:
       | boolean
       | Student
-      | ('create' | 'update' | 'delete' | 'assign')
+      | ('create' | 'update' | 'delete' | 'assign' | 'view')
       | null;
   }) => {
     setModalState((prev) => ({ ...prev, [key]: value }));
@@ -222,19 +230,17 @@ export default function AdminStudentsPage() {
                     <TableDataItem>
                       {item.firstname} {item.lastname}
                     </TableDataItem>
-                    <TableDataItem>{item.username ?? '--'}</TableDataItem>
+                    <TableDataItem>{item.username ?? 'N/A'}</TableDataItem>
+                    <TableDataItem>{item.email ?? 'N/A'}</TableDataItem>
+                    <TableDataItem>{item.phoneNumber ?? 'N/A'}</TableDataItem>
                     <TableDataItem>
-                      {item.class?.className ?? '--'}
+                      {item.class?.className ?? 'N/A'}
                     </TableDataItem>
+
                     <TableDataItem>
-                      {(item.class.courses ?? [])
-                        .map((c) => c.title)
-                        .join(', ') || '--'}
-                    </TableDataItem>
-                    <TableDataItem>
-                      {item.class?.createdAt
-                        ? formatDate(item.class.createdAt)
-                        : '--'}
+                      {item.createdAt
+                        ? formatDate(item.createdAt.toString())
+                        : 'N/A'}
                     </TableDataItem>
                   </>
                 );
@@ -246,12 +252,21 @@ export default function AdminStudentsPage() {
                 <div className='flex flex-col gap-2 w-full'>
                   <button
                     onClick={() => {
+                      updateModalState({ key: 'type', value: 'view' });
+                      updateModalState({ key: 'isOpen', value: true });
+                    }}
+                    className='px-2 py-1 rounded bg-primary-500 text-white text-xs cursor-pointer'
+                  >
+                    View Registered Courses
+                  </button>
+                  <button
+                    onClick={() => {
                       updateModalState({ key: 'type', value: 'assign' });
                       updateModalState({ key: 'isOpen', value: true });
                     }}
                     className='px-2 py-1 rounded bg-emerald-600 text-white text-xs cursor-pointer'
                   >
-                    Assign
+                    Assign To Class
                   </button>
                   <button
                     onClick={() => {
@@ -269,7 +284,7 @@ export default function AdminStudentsPage() {
                     }}
                     className='px-2 py-1 rounded bg-error-500 text-white text-xs cursor-pointer'
                   >
-                    Delete
+                    Delete Student
                   </button>
                 </div>
               }
@@ -309,11 +324,6 @@ export default function AdminStudentsPage() {
                     <TableDataItem>
                       {item.class?.className ?? '--'}
                     </TableDataItem>
-                    <TableDataItem>
-                      {(item.class.courses ?? [])
-                        .map((c) => c.title)
-                        .join(', ') || '--'}
-                    </TableDataItem>
                   </>
                 );
               }}
@@ -332,7 +342,18 @@ export default function AdminStudentsPage() {
           updateModalState({ key: 'isOpen', value: v as boolean })
         }
       >
-        {modalState.type === 'create' ? (
+        {modalState.type === 'view' ? (
+          <div className='grid grid-cols-4 gap-4'>
+            {modalState.modalContent?.class.courses.map((c) => (
+              <Badge key={c.id}>
+                <span className='block text-center'>
+                  <span className='block font-black'>{c.title}</span>
+                  <span className='block text-xs'>{c.description}</span>
+                </span>
+              </Badge>
+            ))}
+          </div>
+        ) : modalState.type === 'create' ? (
           <AddStudentForm
             classes={allClasses?.data || []}
             onClose={() => {

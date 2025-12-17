@@ -82,7 +82,7 @@ export default function RegisteredCoursesSection() {
                     {course.description || 'No description available'}
                   </p>
                   <p className='text-xs text-gray-400 mt-1'>
-                    Instructor: {course.teacher.firstname}{' '}
+                    Teacher: {course.teacher.firstname}{' '}
                     {course.teacher.lastname}
                   </p>
                 </div>

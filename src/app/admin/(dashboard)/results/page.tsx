@@ -321,7 +321,7 @@ export default function AdminResultPage() {
           centralizeLabel={false}
           headerColumns={[
             'S/N',
-            'Student Name',
+            'Name',
             'Class',
             'Course',
             'Test Type',
@@ -472,19 +472,12 @@ export default function AdminResultPage() {
                       <div className='font-medium'>{st?.id}</div> */}
                       <div className='text-sm text-neutral-500 mt-2'>Class</div>
                       <div className='font-medium'>{st?.class?.className}</div>
+
                       <div className='text-sm text-neutral-500 mt-2'>
-                        Class created at
+                        Test Created By
                       </div>
                       <div className='font-medium'>
-                        {st?.class?.createdAt
-                          ? new Date(st.class.createdAt).toLocaleString()
-                          : '-'}
-                      </div>
-                      <div className='text-sm text-neutral-500 mt-2'>
-                        Class teacher id
-                      </div>
-                      <div className='font-medium'>
-                        {st?.class?.teacherId ?? '-'}
+                        {t?.createdBy.name ?? '-'}
                       </div>
                     </div>
                   </div>

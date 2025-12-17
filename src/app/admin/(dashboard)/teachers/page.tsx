@@ -19,6 +19,7 @@ import { useServerPagination } from '@/hooks/useServerPagination';
 import useChangeTeacherPassword from '@/features/teachers/hooks/useChangeTeacherPassword';
 import useDeleteTeacher from '@/features/teachers/hooks/useDeleteTeacher';
 import type { AllTeachers } from '@/types/dashboard.types';
+import { formatDate } from '../../../../../utils/helpers';
 
 const schema = Yup.object({
   firstName: Yup.string().required('First Name is required'),
@@ -122,8 +123,8 @@ export default function AdminTeachersPage() {
     <section className='flex flex-col gap-4 w-full'>
       <h1 className='text-2xl font-semibold'>Manage Teachers</h1>
 
-      <div className='grid grid-cols-1 lg:grid-cols-2 w-full gap-4'>
-        <div className='col-span-1 flex flex-col gap-1 bg-background rounded-xl w-full p-3'>
+      <div className='grid grid-cols-1 lg:grid-cols-3 w-full gap-4'>
+        <div className='col-span-1 flex flex-col gap-1 bg-background rounded-xl w-full p-3 h-fit'>
           <span className='font-medium'>Create Teacher</span>
 
           <form
@@ -180,7 +181,7 @@ export default function AdminTeachersPage() {
           </form>
         </div>
 
-        <div className='col-span-1 flex flex-col gap-3 bg-background rounded-xl w-full p-3'>
+        <div className='col-span-2 flex flex-col gap-3 bg-background rounded-xl w-full p-3'>
           <span className='font-medium'>All Teachers</span>
 
           {/* Search and Filter Section */}
@@ -233,7 +234,16 @@ export default function AdminTeachersPage() {
             centralizeLabel
             isLoading={teachersLoading}
             label='All Teachers'
-            headerColumns={['S/N', 'Teacher Name', 'Class(es)', 'Course(s)']}
+            headerColumns={[
+              'S/N',
+              `Name`,
+              'Username/ID',
+              'Email',
+              'Phone',
+              'Class(es)',
+              'Course(s)',
+              'Created on',
+            ]}
             itemKey={({ item }) => `${item.id}`}
             paginationMode='server'
             paginationMeta={{
@@ -255,8 +265,13 @@ export default function AdminTeachersPage() {
                   </span>
                 </TableDataItem>
                 <TableDataItem>
-                  {item.firstname + ' ' + item.lastname}
+                  {item.firstname + ' ' + item.lastname || 'N/A'}
                 </TableDataItem>
+                <TableDataItem>{item.username}</TableDataItem>
+                <TableDataItem>
+                  <span>{item.email || 'N/A'}</span>
+                </TableDataItem>
+                <TableDataItem>{item.phoneNumber || 'N/A'}</TableDataItem>
                 <TableDataItem>
                   {item.teacherOf.length > 0
                     ? item.teacherOf.map((c) => c.className).join(', ')
@@ -266,6 +281,9 @@ export default function AdminTeachersPage() {
                   {item.courses?.length > 0
                     ? item.courses.map((c) => c.title).join(', ')
                     : '--'}
+                </TableDataItem>
+                <TableDataItem>
+                  {formatDate(item.createdAt.toString()) || 'N/A'}
                 </TableDataItem>
               </>
             )}
@@ -290,7 +308,7 @@ export default function AdminTeachersPage() {
                   }}
                   className='px-2 py-1 rounded bg-error-500 text-white text-xs cursor-pointer'
                 >
-                  Delete
+                  Delete Teacher
                 </button>
               </div>
             }

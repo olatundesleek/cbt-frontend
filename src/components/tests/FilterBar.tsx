@@ -67,7 +67,7 @@ export default function FilterBar({
         <div className='flex w-full gap-4'>
           <input
             className='w-full md:flex-1 min-w-0 border border-slate-200 rounded-md px-3 py-2'
-            placeholder='Search...'
+            placeholder='Search by Name or Username'
             value={state.query}
             onChange={(e) => setState((s) => ({ ...s, query: e.target.value }))}
           />

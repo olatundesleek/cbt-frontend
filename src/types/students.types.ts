@@ -17,7 +17,10 @@ export interface Student {
   firstname: string;
   lastname: string;
   username: string;
+  email: string;
+  phoneNumber: string;
   class: StudentClass;
+  createdAt: Date;
 }
 
 export interface AdminStudentsResponse {

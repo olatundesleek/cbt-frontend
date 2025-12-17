@@ -9,12 +9,29 @@ import type {
   UpdatePasswordResponse,
 } from '@/types/profile.types';
 import type { AppError } from '@/types/errors.types';
+import getErrorDetails from '@/utils/getErrorDetails';
 
 export function useUpdateProfile() {
   const queryClient = useQueryClient();
 
-  return useMutation<UpdateProfileResponse, AppError, UpdateProfileRequest>({
+  return useMutation<
+    UpdateProfileResponse,
+    AppError,
+    UpdateProfileRequest,
+    { previousProfile: StudentProfile | undefined }
+  >({
     mutationFn: profileService.updateProfile,
+    onMutate: async () => {
+      // Cancel outgoing refetches to avoid overwriting our optimistic update
+      await queryClient.cancelQueries({ queryKey: ['profile'] });
+
+      const previousProfile = queryClient.getQueryData<StudentProfile>([
+        'profile',
+      ]);
+
+      // Return context with the previous value for rollback
+      return { previousProfile };
+    },
     onSuccess: (res) => {
       toast.success(res.message || 'Profile updated');
       if (res.success && res.data) {
@@ -25,8 +42,15 @@ export function useUpdateProfile() {
         queryClient.invalidateQueries({ queryKey: ['profile'] });
       }
     },
-    onError: (err) => {
-      toast.error(err.message);
+    onError: (err, _variables, context) => {
+      // Rollback to previous data on error
+      if (context?.previousProfile) {
+        queryClient.setQueryData<StudentProfile>(
+          ['profile'],
+          context.previousProfile,
+        );
+      }
+      toast.error(getErrorDetails(err));
     },
   });
 }

@@ -948,7 +948,7 @@ export default function AdminTestPage() {
       headers.push('Created By');
     }
 
-    headers.push('Result Status', 'Status', 'Start Date');
+    headers.push('Result Status', 'Status', 'Start Date', 'Created on');
 
     return headers;
   }, [role]);
@@ -1103,6 +1103,11 @@ export default function AdminTestPage() {
                 </TableDataItem>
                 <TableDataItem>
                   {item.startTime ? formatDate(item?.startTime) : '--'}
+                </TableDataItem>
+                <TableDataItem>
+                  {item.createdAt
+                    ? formatDate(item.createdAt.toString())
+                    : '--'}
                 </TableDataItem>
               </>
             );

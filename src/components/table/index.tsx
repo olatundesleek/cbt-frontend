@@ -1,4 +1,10 @@
-import { ReactNode, TdHTMLAttributes, useState, useMemo } from 'react';
+import {
+  ReactNode,
+  TdHTMLAttributes,
+  useState,
+  useMemo,
+  useEffect,
+} from 'react';
 import { createPortal } from 'react-dom';
 import SpinnerMini from '../ui/SpinnerMini';
 import { IoMdMore } from 'react-icons/io';
@@ -183,6 +189,20 @@ const AppTable = <T,>({
 
     onActionClick?.({ item, itemIndex, event });
   };
+
+  // Close modal on scroll
+  useEffect(() => {
+    if (!showModal) return;
+
+    const handleScroll = () => {
+      setShowModal(false);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [showModal]);
 
   if (!data) return null;
 

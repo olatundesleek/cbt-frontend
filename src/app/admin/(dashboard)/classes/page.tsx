@@ -37,6 +37,7 @@ import { FaUsers } from 'react-icons/fa';
 import ResultsFiltersBar, {
   type ResultFilterField,
 } from '@/features/results/components/ResultsFiltersBar';
+import { Badge } from '@/components/ui';
 
 interface UpdateClassProps {
   singleClass: AllClassesResponse['data'][number] | null;
@@ -47,8 +48,8 @@ interface UpdateClassProps {
 
 const headerColumns = [
   'S/N',
-  'Class Name',
-  "Teacher's Name",
+  'Class',
+  'Teacher',
   'Total Courses',
   'Created On',
 ];
@@ -246,7 +247,7 @@ const AdminClasses = () => {
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
     modalContent: AllClassesResponse['data'][number] | null;
-    type: 'update' | 'delete';
+    type: 'update' | 'delete' | 'view';
   }>({
     isOpen: false,
     modalContent: null,
@@ -340,7 +341,7 @@ const AdminClasses = () => {
     value:
       | boolean
       | AllClassesResponse['data'][number]
-      | ('update' | 'delete')
+      | ('update' | 'delete' | 'view')
       | null;
   }) => {
     setModalState((prev) => ({
@@ -570,12 +571,21 @@ const AdminClasses = () => {
               <div className='flex flex-col gap-2 w-full'>
                 <button
                   onClick={() => {
+                    updateModalState({ key: 'type', value: 'view' });
+                    updateModalState({ key: 'isOpen', value: true });
+                  }}
+                  className='px-2 py-1 rounded bg-primary-500 text-white text-xs cursor-pointer'
+                >
+                  View Courses
+                </button>
+                <button
+                  onClick={() => {
                     updateModalState({ key: 'type', value: 'update' });
                     updateModalState({ key: 'isOpen', value: true });
                   }}
                   className='px-2 py-1 rounded bg-primary-500 text-white text-xs cursor-pointer'
                 >
-                  Update
+                  Update Class
                 </button>
                 <button
                   onClick={() => {
@@ -584,7 +594,7 @@ const AdminClasses = () => {
                   }}
                   className='px-2 py-1 rounded bg-error-500 text-white text-xs cursor-pointer'
                 >
-                  Delete
+                  Delete Class
                 </button>
               </div>
             }
@@ -705,7 +715,18 @@ const AdminClasses = () => {
           updateModalState({ key: 'isOpen', value: value as boolean })
         }
       >
-        {modalState.type === 'update' ? (
+        {modalState.type === 'view' ? (
+          <div className='grid grid-cols-4 gap-4'>
+            {modalState.modalContent?.courses.map((c) => (
+              <Badge key={c.id}>
+                <span className='block text-center'>
+                  <span className='block font-black'>{c.title}</span>
+                  <span className='block text-xs'>{c.description}</span>
+                </span>
+              </Badge>
+            ))}
+          </div>
+        ) : modalState.type === 'update' ? (
           <UpdateClass
             singleClass={modalState.modalContent}
             allTeachers={allTeachers?.data.data ?? []}

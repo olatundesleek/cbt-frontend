@@ -22,9 +22,15 @@ export interface CourseStats {
 }
 
 import type { TestType as TestTypeConst } from '@/lib/constants';
+import { Course } from './dashboard.types';
 
 export type TestType = TestTypeConst;
-export type TestSessionStatus = 'PASSED' | 'FAILED' | 'IN_PROGRESS' | 'PENDING' | string;
+export type TestSessionStatus =
+  | 'PASSED'
+  | 'FAILED'
+  | 'IN_PROGRESS'
+  | 'PENDING'
+  | string;
 
 export interface TestSessionSummary {
   score: number | null;
@@ -182,6 +188,11 @@ export interface SingleResultTest {
   title: string;
   type: TestType;
   showResult?: boolean;
+  createdBy: {
+    name: string;
+    id: number;
+  };
+  passMark: number;
 }
 
 export interface AdminSingleResultResponse {
@@ -191,7 +202,6 @@ export interface AdminSingleResultResponse {
     session: TestSessionDetail;
     student: SingleResultStudent;
     test: SingleResultTest;
-  answers?: Array<Record<string, unknown>>;
-    canViewAnswers?: boolean;
+    course: Course;
   };
 }
