@@ -58,8 +58,8 @@ export default function EndedTestPage() {
           <div className='bg-white rounded-3xl shadow-2xl p-8 md:p-12 space-y-6 border border-gray-100'>
             {/* Header */}
             <div className='text-center space-y-3'>
-              <h1 className='text-4xl md:text-5xl font-bold text-gray-900'>
-                Test Completed!
+              <h1 className='text-4xl md:text-5xl font-bold text-gray-900 capitalize'>
+                {test?.type.toLowerCase()} Completed!
               </h1>
               <p className='text-lg text-gray-600'>
                 Great job! You&apos;ve successfully submitted{' '}
@@ -132,8 +132,8 @@ export default function EndedTestPage() {
               <p className='text-sm text-blue-800 text-center'>
                 {testType === 'exam' || testType === 'test' ? (
                   <>
-                    📝 Your exam results will be available soon. Check back
-                    later for detailed feedback.
+                    📝 Your {testType} results will be available soon. Check
+                    back later for detailed feedback.
                   </>
                 ) : (
                   <>
@@ -169,8 +169,8 @@ export default function EndedTestPage() {
         <div className='bg-white rounded-3xl shadow-2xl p-8 md:p-12 space-y-6 border border-gray-100'>
           {/* Header */}
           <div className='text-center space-y-3'>
-            <h1 className='text-4xl md:text-5xl font-bold text-gray-900'>
-              Exam Completed!
+            <h1 className='text-4xl md:text-5xl font-bold text-gray-900 capitalize'>
+              {selectedTest.type.toLowerCase()} Completed!
             </h1>
             <p className='text-lg text-gray-600'>
               Great job! You&apos;ve successfully submitted{' '}
@@ -211,8 +211,8 @@ export default function EndedTestPage() {
           {/* Info Message */}
           <div className='bg-blue-50 border border-blue-100 rounded-xl p-4 mt-6'>
             <p className='text-sm text-blue-800 text-center'>
-              📝 Your exam results will be available soon. Check back later for
-              detailed feedback.
+              📝 Your {selectedTest.type.toLowerCase()} results will be
+              available soon. Check back later for detailed feedback.
             </p>
           </div>
         </div>

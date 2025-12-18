@@ -1,7 +1,9 @@
+import { TestType } from '@/lib/constants';
 import { create } from 'zustand';
 
 interface Test {
   id: number;
+  type: TestType;
   title: string;
   duration: string;
   totalQuestions: number;
@@ -11,8 +13,6 @@ interface Test {
   sessionId: number | null;
   progress?: 'not-started' | 'in-progress' | 'completed' | null;
 }
-
-
 
 interface TestStore {
   selectedTest: Test | null;

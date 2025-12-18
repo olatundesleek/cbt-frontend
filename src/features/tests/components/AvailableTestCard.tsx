@@ -16,7 +16,7 @@ interface AvailableTestCardProps {
   attemptsAllowed: number;
   progress?: 'not-started' | 'in-progress' | null;
   sessionId: number | null;
-  testType?: TestType;
+  testType: TestType;
 }
 export default function AvailableTestCard({
   id,
@@ -58,6 +58,7 @@ export default function AvailableTestCard({
       attemptsAllowed,
       sessionId,
       progress,
+      type: testType,
     });
     push(`/tests/${id}/summary`);
   };

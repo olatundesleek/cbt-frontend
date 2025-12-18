@@ -1124,7 +1124,7 @@ export default function AdminTestPage() {
                 }}
                 className='px-2 py-1 rounded bg-primary-500 text-white text-xs cursor-pointer'
               >
-                Update
+                Update Test
               </button>
               <button
                 onClick={() => {
@@ -1133,7 +1133,7 @@ export default function AdminTestPage() {
                 }}
                 className='px-2 py-1 rounded bg-error-500 text-white text-xs cursor-pointer'
               >
-                Delete
+                Delete Test
               </button>
             </div>
           }

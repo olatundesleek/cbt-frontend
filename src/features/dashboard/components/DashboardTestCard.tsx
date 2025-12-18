@@ -17,7 +17,7 @@ interface TestCardProps {
   description?: string;
   attemptsAllowed: number;
   sessionId: number | null;
-  testType?: TestType;
+  testType: TestType;
 }
 
 export default function DashboardTestCard({
@@ -47,6 +47,7 @@ export default function DashboardTestCard({
       attemptsAllowed,
       sessionId: sessionId,
       progress: progressStatus,
+      type: testType,
     });
     push(`/tests/${id}/summary`);
   };
