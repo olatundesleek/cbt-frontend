@@ -79,7 +79,7 @@ export default function StudentDashboardPage() {
   const activeTests = data?.activeTests || [];
   const hasActiveTests = activeTests.length > 0;
   const recentResultsData = data?.recentResults?.results || [];
-  const studentClass = data?.className || 'N/A';
+  const studentClass = data?.className || 'Unassigned';
 
   // Transform recent results for table
   const recentResults = recentResultsData.map((result) => ({
@@ -109,12 +109,12 @@ export default function StudentDashboardPage() {
           <div className='flex gap-2'>
             <span>Class:</span>
             <span className='inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 border border-blue-200'>
-              {studentClass || 'N/A'}
+              {studentClass || 'Unassigned'}
             </span>
           </div>
         </div>
 
-        <div className='space-y-4 mt-10 lg:mt-0'>
+        <div className='space-y-4 mt-12 lg:mt-0'>
           <h1 className='text-2xl'>Active Tests</h1>
           {hasActiveTests ? (
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4'>

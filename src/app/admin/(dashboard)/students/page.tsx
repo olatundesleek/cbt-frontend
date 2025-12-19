@@ -17,7 +17,7 @@ import useDeleteStudent from '@/features/students/hooks/useDeleteStudent';
 import FilterBar, { FilterState } from '@/components/tests/FilterBar';
 import { formatDate } from '../../../../../utils/helpers';
 import StudentSummary from '@/components/tests/StudentSummary';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { Student } from '@/types/students.types';
 import useAssignClass from '@/features/students/hooks/useAssignClass';
 import { useGetClasses } from '@/features/dashboard/queries/useDashboard';
@@ -127,6 +127,54 @@ export default function AdminStudentsPage() {
   }) => {
     setModalState((prev) => ({ ...prev, [key]: value }));
   };
+
+  const actionModalContent = useMemo(() => {
+    const hasRegisteredCourses =
+      (modalState.modalContent?.class?.courses?.length ?? 0) > 0;
+
+    return (
+      <div className='flex flex-col gap-2 w-full'>
+        {hasRegisteredCourses && (
+          <button
+            onClick={() => {
+              updateModalState({ key: 'type', value: 'view' });
+              updateModalState({ key: 'isOpen', value: true });
+            }}
+            className='px-2 py-1 rounded bg-primary-500 text-white text-xs cursor-pointer'
+          >
+            View Registered Courses
+          </button>
+        )}
+        <button
+          onClick={() => {
+            updateModalState({ key: 'type', value: 'assign' });
+            updateModalState({ key: 'isOpen', value: true });
+          }}
+          className='px-2 py-1 rounded bg-emerald-600 text-white text-xs cursor-pointer'
+        >
+          Assign To Class
+        </button>
+        <button
+          onClick={() => {
+            updateModalState({ key: 'type', value: 'update' });
+            updateModalState({ key: 'isOpen', value: true });
+          }}
+          className='px-2 py-1 rounded bg-primary-500 text-white text-xs cursor-pointer'
+        >
+          Update Password
+        </button>
+        <button
+          onClick={() => {
+            updateModalState({ key: 'type', value: 'delete' });
+            updateModalState({ key: 'isOpen', value: true });
+          }}
+          className='px-2 py-1 rounded bg-error-500 text-white text-xs cursor-pointer'
+        >
+          Delete Student
+        </button>
+      </div>
+    );
+  }, [modalState.modalContent, updateModalState]);
 
   return (
     <section className='flex flex-col lg:flex-row gap-6 w-full'>
@@ -251,44 +299,45 @@ export default function AdminStudentsPage() {
                 updateModalState({ key: 'modalContent', value: item })
               }
               actionModalContent={
-                <div className='flex flex-col gap-2 w-full'>
-                  <button
-                    onClick={() => {
-                      updateModalState({ key: 'type', value: 'view' });
-                      updateModalState({ key: 'isOpen', value: true });
-                    }}
-                    className='px-2 py-1 rounded bg-primary-500 text-white text-xs cursor-pointer'
-                  >
-                    View Registered Courses
-                  </button>
-                  <button
-                    onClick={() => {
-                      updateModalState({ key: 'type', value: 'assign' });
-                      updateModalState({ key: 'isOpen', value: true });
-                    }}
-                    className='px-2 py-1 rounded bg-emerald-600 text-white text-xs cursor-pointer'
-                  >
-                    Assign To Class
-                  </button>
-                  <button
-                    onClick={() => {
-                      updateModalState({ key: 'type', value: 'update' });
-                      updateModalState({ key: 'isOpen', value: true });
-                    }}
-                    className='px-2 py-1 rounded bg-primary-500 text-white text-xs cursor-pointer'
-                  >
-                    Update Password
-                  </button>
-                  <button
-                    onClick={() => {
-                      updateModalState({ key: 'type', value: 'delete' });
-                      updateModalState({ key: 'isOpen', value: true });
-                    }}
-                    className='px-2 py-1 rounded bg-error-500 text-white text-xs cursor-pointer'
-                  >
-                    Delete Student
-                  </button>
-                </div>
+                actionModalContent
+                // <div className='flex flex-col gap-2 w-full'>
+                //   <button
+                //     onClick={() => {
+                //       updateModalState({ key: 'type', value: 'view' });
+                //       updateModalState({ key: 'isOpen', value: true });
+                //     }}
+                //     className='px-2 py-1 rounded bg-primary-500 text-white text-xs cursor-pointer'
+                //   >
+                //     View Registered Courses
+                //   </button>
+                //   <button
+                //     onClick={() => {
+                //       updateModalState({ key: 'type', value: 'assign' });
+                //       updateModalState({ key: 'isOpen', value: true });
+                //     }}
+                //     className='px-2 py-1 rounded bg-emerald-600 text-white text-xs cursor-pointer'
+                //   >
+                //     Assign To Class
+                //   </button>
+                //   <button
+                //     onClick={() => {
+                //       updateModalState({ key: 'type', value: 'update' });
+                //       updateModalState({ key: 'isOpen', value: true });
+                //     }}
+                //     className='px-2 py-1 rounded bg-primary-500 text-white text-xs cursor-pointer'
+                //   >
+                //     Update Password
+                //   </button>
+                //   <button
+                //     onClick={() => {
+                //       updateModalState({ key: 'type', value: 'delete' });
+                //       updateModalState({ key: 'isOpen', value: true });
+                //     }}
+                //     className='px-2 py-1 rounded bg-error-500 text-white text-xs cursor-pointer'
+                //   >
+                //     Delete Student
+                //   </button>
+                // </div>
               }
             />
           ) : (
@@ -380,6 +429,7 @@ export default function AdminStudentsPage() {
           <AssignToClassForm
             classes={allClasses?.data || []}
             initialData={modalState.modalContent}
+            studentId={modalState.modalContent?.id}
             onClose={() => {
               updateModalState({ key: 'isOpen', value: false });
               updateModalState({ key: 'modalContent', value: null });
@@ -436,10 +486,12 @@ export default function AdminStudentsPage() {
 function AssignToClassForm({
   classes,
   initialData,
+  studentId,
   onClose,
 }: {
   classes: AllClassesResponse['data'];
   initialData: Student | null;
+  studentId?: string | number;
   onClose?: () => void;
 }) {
   const assignMutation = useAssignClass();
@@ -449,18 +501,30 @@ function AssignToClassForm({
   const {
     register,
     handleSubmit,
+    reset,
     formState: { isSubmitting },
   } = useForm<FormValues>({
     defaultValues: {
-      classId: initialData?.class.id.toString() || undefined,
+      classId: initialData?.class?.id
+        ? initialData.class.id.toString()
+        : undefined,
     },
   });
 
+  // Keep default radio selection in sync with currently selected student
+  useEffect(() => {
+    reset({
+      classId: initialData?.class?.id
+        ? initialData.class.id.toString()
+        : undefined,
+    });
+  }, [initialData?.class?.id, reset]);
+
   const onSubmit = async (data: FormValues) => {
-    if (!initialData) return;
+    if (!studentId) return;
     try {
       await assignMutation.mutateAsync({
-        studentId: initialData.id,
+        studentId,
         payload: {
           classId: Number(data.classId),
         },

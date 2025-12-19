@@ -116,7 +116,7 @@ export default function StudentProfilePage({
       <Card>
         <ProfileHeader
           fullName={`${profileData.firstname} ${profileData.lastname}`}
-          level={profileData.class?.className || 'Not Assigned'}
+          level={profileData.class?.className || 'Unassigned'}
           onEditProfile={handleEditProfile}
           role={role}
         />
