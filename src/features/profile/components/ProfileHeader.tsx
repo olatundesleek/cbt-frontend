@@ -31,7 +31,7 @@ export default function ProfileHeader({
             {fullName}
           </h2>
           {role === 'student' && (
-            <p className='text-neutral-600 mt-1'>Student - {level}</p>
+            <p className='text-neutral-600 mt-1'>Class :- {level}</p>
           )}
         </div>
       </div>

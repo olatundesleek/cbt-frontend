@@ -3,6 +3,7 @@
 import NotificationCard from '@/components/feedback/NotificationCard';
 import { SpinnerMini } from '../ui';
 import { useNotification } from '@/hooks/useNotification';
+import useDashboard from '@/features/dashboard/queries/useDashboard';
 
 export default function NotificationsSection() {
   const {
@@ -10,9 +11,18 @@ export default function NotificationsSection() {
     isLoading: isNotificationLoading,
     // error: notificationError,
   } = useNotification();
+  const {
+    data: dashboardData,
+    isLoading: isDashboardDataLoading,
+    error: dashboardError,
+  } = useDashboard();
 
   const hasNotifications =
-    notificationData && notificationData.data.data.length > 0;
+    notificationData &&
+    notificationData?.data?.data?.length > 0 &&
+    !isDashboardDataLoading &&
+    !dashboardError &&
+    dashboardData;
 
   if (isNotificationLoading) {
     return (
@@ -34,7 +44,7 @@ export default function NotificationsSection() {
     <section className='space-y-4 p-2 bg-gray-50 rounded-xl shadow-sm border border-gray-100 h-full max-h-[45vh] overflow-y-auto'>
       {hasNotifications ? (
         <div className='space-y-3'>
-          {notificationData.data.data.map((note) => (
+          {notificationData?.data?.data?.map((note) => (
             <NotificationCard
               key={note.id}
               message={note.message}

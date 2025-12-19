@@ -11,6 +11,7 @@ import ResultsFiltersBar, {
   type ResultFilterField,
 } from '@/features/results/components/ResultsFiltersBar';
 import { useCallback, useMemo, useState } from 'react';
+import getErrorDetails from '@/utils/getErrorDetails';
 
 export default function StudentTestPage() {
   // Add server pagination hook with sort/order for server
@@ -200,7 +201,7 @@ export default function StudentTestPage() {
             Failed to load tests
           </h3>
           <p className='text-neutral-600'>
-            {testsDataError.message || 'Something went wrong'}
+            {getErrorDetails(testsDataError) || 'Something went wrong'}
           </p>
           <button
             onClick={() => window.location.reload()}

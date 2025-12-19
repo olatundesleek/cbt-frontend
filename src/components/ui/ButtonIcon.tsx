@@ -1,6 +1,6 @@
 interface ButtonIconProps {
   children: React.ReactNode;
-  onClick: () => void;
+  onClick?: () => void;
   ariaLabel?: string;
   disabled?: boolean;
 }

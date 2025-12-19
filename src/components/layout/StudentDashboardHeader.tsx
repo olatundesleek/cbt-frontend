@@ -8,13 +8,13 @@ import { IoIosNotifications } from 'react-icons/io';
 import { HiMenuAlt3, HiX } from 'react-icons/hi';
 import ButtonIcon from '../ui/ButtonIcon';
 import toast from 'react-hot-toast';
-import { ThemeToggle } from './ThemeToggle';
 import { useState } from 'react';
 import { HiArrowRightOnRectangle } from 'react-icons/hi2';
 import useLogout from '@/hooks/useLogout';
 import { SpinnerMini } from '../ui';
 import { useUserStore } from '@/store/useUserStore';
 import { useNotification } from '@/hooks/useNotification';
+import useDashboard from '@/features/dashboard/queries/useDashboard';
 
 const navigationLinks = [
   { name: 'Dashboard', href: '/dashboard' },
@@ -26,6 +26,11 @@ const navigationLinks = [
 export default function StudentDashboardHeader() {
   const userRole = useUserStore((state) => state.role);
   const { data: notificationData } = useNotification();
+  const {
+    data: dashboardData,
+    isLoading: isDashboardDataLoading,
+    error: dashboardError,
+  } = useDashboard();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { logout, isLoggingOut } = useLogout();
@@ -66,16 +71,21 @@ export default function StudentDashboardHeader() {
         <div className='flex gap-2 sm:gap-4 items-center text-primary-900'>
           <div className='relative'>
             <ButtonIcon
-              onClick={() => toast('Notifications')}
+              // onClick={() => toast('Notifications')}
               ariaLabel='Notifications'
               // className='hidden sm:flex'
             >
               <IoIosNotifications size={24} />
             </ButtonIcon>
-            {notificationData?.data?.data.length &&
+            {!isDashboardDataLoading &&
+              dashboardData &&
+              !dashboardError &&
+              notificationData?.data?.data.length &&
               notificationData.data.data.length > 0 && (
                 <span className='text-xs border border-white bg-white text-primary-500 font-black rounded-full w-4 h-4 absolute flex justify-center items-center  -top-2 -right-2 p-2'>
-                  {notificationData?.data.data.length || 0}
+                  {isDashboardDataLoading
+                    ? 0
+                    : notificationData?.data.data.length || 0}
                 </span>
               )}
           </div>
@@ -147,10 +157,15 @@ export default function StudentDashboardHeader() {
                 >
                   <IoIosNotifications size={24} />
                 </ButtonIcon>
-                {notificationData?.data?.data.length &&
+                {!isDashboardDataLoading &&
+                  dashboardData &&
+                  !dashboardError &&
+                  notificationData?.data?.data.length &&
                   notificationData.data.data.length > 0 && (
                     <span className='text-xs border border-white bg-white text-primary-500 font-black rounded-full w-4 h-4 absolute flex justify-center items-center  -top-2 -right-2 p-2'>
-                      {notificationData?.data.data.length || 0}
+                      {isDashboardDataLoading
+                        ? 0
+                        : notificationData?.data.data.length || 0}
                     </span>
                   )}
               </div>
