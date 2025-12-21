@@ -1050,16 +1050,20 @@ export default function AdminTestPage() {
                 </TableDataItem>
                 <TableDataItem>{item.title}</TableDataItem>
                 <TableDataItem>
-                  {(item.course?.classes ?? [])
-                    .map((el) => el.className)
-                    .join(', ')}
+                  {(item.course?.classes ?? []).length > 0
+                    ? (item.course.classes ?? [])
+                        .filter((el) => el?.className)
+                        .map((el) => el.className)
+                        .join(', ')
+                    : 'N/A'}
                 </TableDataItem>
-                <TableDataItem>{item.course?.title}</TableDataItem>
+                <TableDataItem>{item.course?.title ?? 'N/A'}</TableDataItem>
                 <TableDataItem>{item.type}</TableDataItem>
                 {role === 'admin' && (
                   <TableDataItem>
-                    {item.createdBy.firstname}{' '}
-                    {item.createdBy.lastname || 'N/A'}
+                    {item?.createdBy?.firstname && item?.createdBy?.lastname
+                      ? `${item.createdBy.firstname} ${item.createdBy.lastname}`
+                      : 'N/A'}
                   </TableDataItem>
                 )}
                 <TableDataItem>

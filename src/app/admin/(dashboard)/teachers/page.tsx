@@ -273,14 +273,20 @@ export default function AdminTeachersPage() {
                 </TableDataItem>
                 <TableDataItem>{item.phoneNumber || 'N/A'}</TableDataItem>
                 <TableDataItem>
-                  {item.teacherOf.length > 0
-                    ? item.teacherOf.map((c) => c.className).join(', ')
-                    : '--'}
+                  {(item.teacherOf ?? []).length > 0
+                    ? (item.teacherOf ?? [])
+                        .filter((c) => c?.className)
+                        .map((c) => c.className)
+                        .join(', ')
+                    : 'N/A'}
                 </TableDataItem>
                 <TableDataItem>
-                  {item.courses?.length > 0
-                    ? item.courses.map((c) => c.title).join(', ')
-                    : '--'}
+                  {(item.courses ?? []).length > 0
+                    ? (item.courses ?? [])
+                        .filter((c) => c?.title)
+                        .map((c) => c.title)
+                        .join(', ')
+                    : 'N/A'}
                 </TableDataItem>
                 <TableDataItem>
                   {formatDate(item.createdAt.toString()) || 'N/A'}

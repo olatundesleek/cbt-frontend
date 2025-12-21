@@ -117,7 +117,7 @@ export default function AdminResultPage() {
             t.student?.lastname ?? ''
           }`.trim(),
           className: t.student?.class?.className ?? '',
-          courseTitle: entry.course.title,
+          courseTitle: entry.course?.title ?? 'N/A',
           testType: t.type,
           testTitle: t.title ?? '',
           score,
@@ -166,7 +166,9 @@ export default function AdminResultPage() {
   const availableStudents = useMemo(() => {
     return (adminStudentsResp?.data.data ?? []).map((s) => ({
       value: s.id,
-      label: `${s.firstname} ${s.lastname} (${s.class.className})`,
+      label: `${s.firstname} ${s.lastname} (${
+        s?.class?.className ?? 'No Class'
+      })`,
     }));
   }, [adminStudentsResp]);
 
@@ -356,10 +358,10 @@ export default function AdminResultPage() {
                 </span>
               </TableDataItem>
               <TableDataItem className='capitalize text-center text-sm'>
-                {item.studentName}
+                {item.studentName || 'N/A'}
               </TableDataItem>
-              <TableDataItem>{item.className}</TableDataItem>
-              <TableDataItem>{item.courseTitle}</TableDataItem>
+              <TableDataItem>{item.className || 'N/A'}</TableDataItem>
+              <TableDataItem>{item.courseTitle || 'N/A'}</TableDataItem>
               <TableDataItem>{item.testType}</TableDataItem>
               <TableDataItem>{item.testTitle || '-'}</TableDataItem>
               <TableDataItem>{item.score ?? '-'}</TableDataItem>

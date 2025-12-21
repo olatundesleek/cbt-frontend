@@ -441,11 +441,13 @@ const QuestionBank = () => {
                   </span>
                 </TableDataItem>
                 <TableDataItem>{item.questionBankName}</TableDataItem>
-                <TableDataItem>{item.course.title}</TableDataItem>
-                <TableDataItem>{item.questions.length}</TableDataItem>
+                <TableDataItem>{item?.course?.title ?? 'N/A'}</TableDataItem>
+                <TableDataItem>{(item.questions ?? []).length}</TableDataItem>
                 {userRole === 'admin' && (
                   <TableDataItem>
-                    {item.teacher.firstname + ' ' + item.teacher.lastname}
+                    {item?.teacher?.firstname && item?.teacher?.lastname
+                      ? item.teacher.firstname + ' ' + item.teacher.lastname
+                      : 'N/A'}
                   </TableDataItem>
                 )}
                 <TableDataItem>

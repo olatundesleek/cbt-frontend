@@ -13,7 +13,9 @@ export default function useLogout() {
 
   const { mutate: logout, isPending: isLoggingOut } = useMutation({
     mutationFn: authService.logout,
-
+    onMutate: () => {
+      queryClient.cancelQueries();
+    },
     onSuccess: (data) => {
       toast.success(data.message);
       queryClient.invalidateQueries();

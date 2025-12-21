@@ -127,7 +127,9 @@ const UpdateCourse = ({
               </option>
               {allTeachers?.map((teacher) => (
                 <option key={teacher.id} value={teacher.id}>
-                  {teacher.firstname + ' ' + teacher.lastname}
+                  {teacher?.firstname && teacher?.lastname
+                    ? teacher.firstname + ' ' + teacher.lastname
+                    : 'N/A'}
                 </option>
               ))}
             </select>
@@ -346,7 +348,9 @@ const Courses = () => {
                   </option>
                   {allTeachers?.data.data?.map((teacher) => (
                     <option key={teacher.id} value={teacher.id}>
-                      {teacher.firstname + ' ' + teacher.lastname}
+                      {teacher?.firstname && teacher?.lastname
+                        ? teacher.firstname + ' ' + teacher.lastname
+                        : 'N/A'}
                     </option>
                   ))}
                 </select>
@@ -398,7 +402,9 @@ const Courses = () => {
                 <TableDataItem>{item.title}</TableDataItem>
                 <TableDataItem>{item.description}</TableDataItem>
                 <TableDataItem>
-                  {item.teacher.firstname + ' ' + item.teacher.lastname}
+                  {item?.teacher?.firstname && item?.teacher?.lastname
+                    ? item.teacher.firstname + ' ' + item.teacher.lastname
+                    : 'N/A'}
                 </TableDataItem>
                 <TableDataItem>
                   {formatDate(item.createdAt.toString())}

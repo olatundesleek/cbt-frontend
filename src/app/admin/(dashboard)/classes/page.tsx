@@ -143,7 +143,9 @@ const UpdateClass = ({
               </option>
               {allTeachers?.map((teacher) => (
                 <option key={teacher.id} value={teacher.id}>
-                  {teacher.firstname + ' ' + teacher.lastname}
+                  {teacher?.firstname && teacher?.lastname
+                    ? teacher.firstname + ' ' + teacher.lastname
+                    : 'N/A'}
                 </option>
               ))}
             </select>
@@ -561,9 +563,11 @@ const AdminClasses = () => {
                 </TableDataItem>
                 <TableDataItem>{item.className}</TableDataItem>
                 <TableDataItem>
-                  {item?.teacher?.firstname + ' ' + item?.teacher?.lastname}
+                  {item?.teacher?.firstname && item?.teacher?.lastname
+                    ? item.teacher.firstname + ' ' + item.teacher.lastname
+                    : 'N/A'}
                 </TableDataItem>
-                <TableDataItem>{item.courses.length}</TableDataItem>
+                <TableDataItem>{(item.courses ?? []).length}</TableDataItem>
                 <TableDataItem>{formatDate(item.createdAt)}</TableDataItem>
               </>
             )}
@@ -630,7 +634,9 @@ const AdminClasses = () => {
                     </option>
                     {allTeachers?.data?.data.map((teacher) => (
                       <option key={teacher.id} value={teacher.id}>
-                        {teacher.firstname + ' ' + teacher.lastname}
+                        {teacher?.firstname && teacher?.lastname
+                          ? teacher.firstname + ' ' + teacher.lastname
+                          : 'N/A'}
                       </option>
                     ))}
                   </select>
@@ -717,14 +723,22 @@ const AdminClasses = () => {
       >
         {modalState.type === 'view' ? (
           <div className='grid grid-cols-4 gap-4'>
-            {modalState.modalContent?.courses.map((c) => (
-              <Badge key={c.id}>
-                <span className='block text-center'>
-                  <span className='block font-black'>{c.title}</span>
-                  <span className='block text-xs'>{c.description}</span>
-                </span>
-              </Badge>
-            ))}
+            {(modalState.modalContent?.courses ?? []).length > 0 ? (
+              (modalState.modalContent?.courses ?? []).map((c) => (
+                <Badge key={c?.id ?? Math.random()}>
+                  <span className='block text-center'>
+                    <span className='block font-black'>
+                      {c?.title ?? 'N/A'}
+                    </span>
+                    <span className='block text-xs'>
+                      {c?.description ?? 'N/A'}
+                    </span>
+                  </span>
+                </Badge>
+              ))
+            ) : (
+              <span>No courses assigned</span>
+            )}
           </div>
         ) : modalState.type === 'update' ? (
           <UpdateClass

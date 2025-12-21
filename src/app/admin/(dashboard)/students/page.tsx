@@ -74,8 +74,8 @@ export default function AdminStudentsPage() {
         )
           return false;
       }
-      if (filter.course && (s.class.courses ?? []).length) {
-        if (!(s.class.courses ?? []).some((c) => c.title === filter.course))
+      if (filter.course && (s?.class?.courses ?? []).length) {
+        if (!(s?.class?.courses ?? []).some((c) => c?.title === filter.course))
           return false;
       }
       if (filter.className) {
@@ -395,12 +395,16 @@ export default function AdminStudentsPage() {
       >
         {modalState.type === 'view' ? (
           <div className='grid grid-cols-4 gap-4'>
-            {(modalState.modalContent?.class?.courses?.length || 0) > 0 ? (
-              modalState.modalContent?.class?.courses.map((c) => (
-                <Badge key={c.id}>
+            {(modalState.modalContent?.class?.courses ?? []).length > 0 ? (
+              (modalState.modalContent?.class?.courses ?? []).map((c, i) => (
+                <Badge key={c?.id ?? i}>
                   <span className='block text-center'>
-                    <span className='block font-black'>{c.title}</span>
-                    <span className='block text-xs'>{c.description}</span>
+                    <span className='block font-black'>
+                      {c?.title ?? 'N/A'}
+                    </span>
+                    <span className='block text-xs'>
+                      {c?.description ?? 'N/A'}
+                    </span>
                   </span>
                 </Badge>
               ))
@@ -501,7 +505,7 @@ function AssignToClassForm({
   const {
     register,
     handleSubmit,
-    reset,
+    // reset,
     formState: { isSubmitting },
   } = useForm<FormValues>({
     defaultValues: {
@@ -512,13 +516,13 @@ function AssignToClassForm({
   });
 
   // Keep default radio selection in sync with currently selected student
-  useEffect(() => {
-    reset({
-      classId: initialData?.class?.id
-        ? initialData.class.id.toString()
-        : undefined,
-    });
-  }, [initialData?.class?.id, reset]);
+  // useEffect(() => {
+  //   reset({
+  //     classId: initialData?.class?.id
+  //       ? initialData.class.id.toString()
+  //       : undefined,
+  //   });
+  // }, [initialData?.class?.id, reset]);
 
   const onSubmit = async (data: FormValues) => {
     if (!studentId) return;
