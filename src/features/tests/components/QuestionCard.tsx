@@ -22,21 +22,27 @@ export default function QuestionCard({
       </h2>
       <div className='space-y-2 mb-4'>
         {question.options.map((opt) => (
-          <label key={opt} className='flex items-center gap-2'>
+          <label key={opt} className='flex items-center gap-2 cursor-pointer'>
             <input
               type='radio'
               name={`q-${question.id}`}
               value={opt}
               checked={selected === opt}
               onChange={() => onSelect(opt)}
+              className='cursor-pointer'
             />
             <span>{opt}</span>
           </label>
         ))}
       </div>
 
-      <label className='flex items-center gap-2 mb-6 text-sm'>
-        <input type='checkbox' checked={marked} onChange={onMark} />
+      <label className='flex items-center gap-2 mb-6 text-sm cursor-pointer'>
+        <input
+          type='checkbox'
+          checked={marked}
+          onChange={onMark}
+          className='cursor-pointer'
+        />
         Mark for Review
       </label>
     </div>

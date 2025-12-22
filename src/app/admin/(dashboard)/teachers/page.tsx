@@ -391,6 +391,7 @@ function UpdateTeacherForm({
   initialData: AllTeachers | null;
   onClose?: () => void;
 }) {
+  const [showPasswords, setShowPasswords] = useState(false);
   type FormValues = {
     newPassword: string;
     confirmPassword: string;
@@ -425,7 +426,7 @@ function UpdateTeacherForm({
       <Input
         label='New password'
         name='newPassword'
-        type='password'
+        type={showPasswords ? 'text' : 'password'}
         hookFormRegister={register}
         errorText={errors.newPassword?.message as string}
       />
@@ -433,10 +434,21 @@ function UpdateTeacherForm({
       <Input
         label='Confirm password'
         name='confirmPassword'
-        type='password'
+        type={showPasswords ? 'text' : 'password'}
         hookFormRegister={register}
         errorText={errors.confirmPassword?.message as string}
       />
+
+      <div className='flex justify-end'>
+        <button
+          type='button'
+          onClick={() => setShowPasswords((prev) => !prev)}
+          className='text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors cursor-pointer'
+          aria-label={showPasswords ? 'Hide passwords' : 'Show passwords'}
+        >
+          {showPasswords ? 'Hide passwords' : 'Show passwords'}
+        </button>
+      </div>
 
       <div className='flex justify-end'>
         <Button

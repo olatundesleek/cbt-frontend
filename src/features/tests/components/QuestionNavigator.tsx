@@ -1,3 +1,6 @@
+'use client';
+
+import { useRef } from 'react';
 import { useTestAttemptStore } from '@/store/useTestAttemptStore';
 
 export default function QuestionNavigator({
@@ -14,8 +17,18 @@ export default function QuestionNavigator({
   answered: Array<number | string>;
   marked: number[];
 }) {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const numbers = Array.from({ length: total }, (_, i) => i + 1);
   const questionMap = useTestAttemptStore((s) => s.questionMap);
+
+  const handleScrollToTop = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      });
+    }
+  };
 
   // Normalize answered entries into a flat set of numeric ids / tokens.
   const answeredIds = new Set<number>();
@@ -30,7 +43,10 @@ export default function QuestionNavigator({
   });
 
   return (
-    <div className='bg-white rounded-2xl p-4 shadow-sm h-[85vh] overflow-scroll'>
+    <div
+      className='bg-white rounded-2xl p-4 shadow-sm h-[85vh] overflow-scroll'
+      ref={scrollContainerRef}
+    >
       <div className='grid grid-cols-5 gap-2 mb-2'>
         {numbers.map((num) => {
           // A page/display-number is answered if any known question id maps to
@@ -64,7 +80,12 @@ export default function QuestionNavigator({
           );
         })}
       </div>
-      <p className='text-center text-xs text-gray-500'>Scroll to Top</p>
+      <button
+        onClick={handleScrollToTop}
+        className='w-full text-center text-xs text-primary-600 hover:text-primary-800 hover:underline py-2 transition-colors cursor-pointer'
+      >
+        ↑ Scroll to Top
+      </button>
     </div>
   );
 }

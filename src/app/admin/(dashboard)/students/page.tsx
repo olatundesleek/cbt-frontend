@@ -132,7 +132,7 @@ export default function AdminStudentsPage() {
     const hasRegisteredCourses =
       (modalState.modalContent?.class?.courses?.length ?? 0) > 0;
 
-    return (
+    return role === 'admin' ? (
       <div className='flex flex-col gap-2 w-full'>
         {hasRegisteredCourses && (
           <button
@@ -173,8 +173,20 @@ export default function AdminStudentsPage() {
           Delete Student
         </button>
       </div>
+    ) : (
+      <div className='flex flex-col gap-2 w-full'>
+        <button
+          onClick={() => {
+            updateModalState({ key: 'type', value: 'view' });
+            updateModalState({ key: 'isOpen', value: true });
+          }}
+          className='px-2 py-1 rounded bg-primary-500 text-white text-xs cursor-pointer'
+        >
+          View Registered Courses
+        </button>
+      </div>
     );
-  }, [modalState.modalContent, updateModalState]);
+  }, [modalState.modalContent, updateModalState, role]);
 
   return (
     <section className='flex flex-col lg:flex-row gap-6 w-full'>
@@ -298,47 +310,7 @@ export default function AdminStudentsPage() {
               onActionClick={({ item }) =>
                 updateModalState({ key: 'modalContent', value: item })
               }
-              actionModalContent={
-                actionModalContent
-                // <div className='flex flex-col gap-2 w-full'>
-                //   <button
-                //     onClick={() => {
-                //       updateModalState({ key: 'type', value: 'view' });
-                //       updateModalState({ key: 'isOpen', value: true });
-                //     }}
-                //     className='px-2 py-1 rounded bg-primary-500 text-white text-xs cursor-pointer'
-                //   >
-                //     View Registered Courses
-                //   </button>
-                //   <button
-                //     onClick={() => {
-                //       updateModalState({ key: 'type', value: 'assign' });
-                //       updateModalState({ key: 'isOpen', value: true });
-                //     }}
-                //     className='px-2 py-1 rounded bg-emerald-600 text-white text-xs cursor-pointer'
-                //   >
-                //     Assign To Class
-                //   </button>
-                //   <button
-                //     onClick={() => {
-                //       updateModalState({ key: 'type', value: 'update' });
-                //       updateModalState({ key: 'isOpen', value: true });
-                //     }}
-                //     className='px-2 py-1 rounded bg-primary-500 text-white text-xs cursor-pointer'
-                //   >
-                //     Update Password
-                //   </button>
-                //   <button
-                //     onClick={() => {
-                //       updateModalState({ key: 'type', value: 'delete' });
-                //       updateModalState({ key: 'isOpen', value: true });
-                //     }}
-                //     className='px-2 py-1 rounded bg-error-500 text-white text-xs cursor-pointer'
-                //   >
-                //     Delete Student
-                //   </button>
-                // </div>
-              }
+              actionModalContent={actionModalContent}
             />
           ) : (
             <AppTable
@@ -369,15 +341,21 @@ export default function AdminStudentsPage() {
                       </span>
                     </TableDataItem>
                     <TableDataItem>
-                      {item.firstname} {item.lastname}
+                      {item.firstname && item.lastname
+                        ? `${item.firstname} ${item.lastname}`
+                        : 'N/A'}
                     </TableDataItem>
-                    <TableDataItem>{item.username ?? '--'}</TableDataItem>
+                    <TableDataItem>{item.username ?? 'N/A'}</TableDataItem>
                     <TableDataItem>
-                      {item.class?.className ?? '--'}
+                      {item.class?.className ?? 'N/A'}
                     </TableDataItem>
                   </>
                 );
               }}
+              onActionClick={({ item }) =>
+                updateModalState({ key: 'modalContent', value: item })
+              }
+              actionModalContent={actionModalContent}
             />
           )}
         </div>
@@ -691,6 +669,7 @@ function UpdateStudentForm({
   initialData: Student | null;
   onClose?: () => void;
 }) {
+  const [showPasswords, setShowPasswords] = useState(false);
   type FormValues = {
     newPassword: string;
     confirmPassword: string;
@@ -725,7 +704,7 @@ function UpdateStudentForm({
       <Input
         label='New password'
         name='newPassword'
-        type='password'
+        type={showPasswords ? 'text' : 'password'}
         hookFormRegister={register}
         errorText={errors.newPassword?.message as string}
       />
@@ -733,10 +712,21 @@ function UpdateStudentForm({
       <Input
         label='Confirm password'
         name='confirmPassword'
-        type='password'
+        type={showPasswords ? 'text' : 'password'}
         hookFormRegister={register}
         errorText={errors.confirmPassword?.message as string}
       />
+
+      <div className='flex justify-end'>
+        <button
+          type='button'
+          onClick={() => setShowPasswords((prev) => !prev)}
+          className='text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors cursor-pointer'
+          aria-label={showPasswords ? 'Hide passwords' : 'Show passwords'}
+        >
+          {showPasswords ? 'Hide passwords' : 'Show passwords'}
+        </button>
+      </div>
 
       <div className='flex justify-end'>
         <Button

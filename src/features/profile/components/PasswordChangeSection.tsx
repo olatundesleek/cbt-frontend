@@ -18,6 +18,7 @@ export default function PasswordChangeSection({
   onChangePassword,
   isLoading = false,
 }: PasswordChangeSectionProps) {
+  const [showPasswords, setShowPasswords] = useState(false);
   const [formData, setFormData] = useState<PasswordChange>({
     currentPassword: '',
     newPassword: '',
@@ -72,22 +73,33 @@ export default function PasswordChangeSection({
 
   return (
     <Card>
-      <div className='flex items-center gap-3 mb-6'>
-        <div className='w-10 h-10 rounded-lg bg-primary-50 flex items-center justify-center'>
-          <FaLock className='text-primary-600' />
+      <div className='flex items-start justify-between gap-3 mb-6'>
+        <div className='flex items-center gap-3'>
+          <div className='w-10 h-10 rounded-lg bg-primary-50 flex items-center justify-center'>
+            <FaLock className='text-primary-600' />
+          </div>
+          <div>
+            <h3 className='text-lg font-semibold text-neutral-900'>
+              Account Settings
+            </h3>
+            <p className='text-sm text-neutral-600'>Change your password</p>
+          </div>
         </div>
-        <div>
-          <h3 className='text-lg font-semibold text-neutral-900'>
-            Account Settings
-          </h3>
-          <p className='text-sm text-neutral-600'>Change your password</p>
-        </div>
+
+        <button
+          type='button'
+          onClick={() => setShowPasswords((prev) => !prev)}
+          className='text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors cursor-pointer'
+          aria-label={showPasswords ? 'Hide passwords' : 'Show passwords'}
+        >
+          {showPasswords ? 'Hide passwords' : 'Show passwords'}
+        </button>
       </div>
 
       <form onSubmit={handleSubmit} className='space-y-4'>
         <Input
           label='Current Password'
-          type='password'
+          type={showPasswords ? 'text' : 'password'}
           value={formData.currentPassword}
           onChange={(e) => handleChange('currentPassword', e.target.value)}
           error={errors.currentPassword}
@@ -96,7 +108,7 @@ export default function PasswordChangeSection({
 
         <Input
           label='New Password'
-          type='password'
+          type={showPasswords ? 'text' : 'password'}
           value={formData.newPassword}
           onChange={(e) => handleChange('newPassword', e.target.value)}
           error={errors.newPassword}
@@ -106,7 +118,7 @@ export default function PasswordChangeSection({
 
         <Input
           label='Confirm New Password'
-          type='password'
+          type={showPasswords ? 'text' : 'password'}
           value={formData.confirmPassword}
           onChange={(e) => handleChange('confirmPassword', e.target.value)}
           error={errors.confirmPassword}
