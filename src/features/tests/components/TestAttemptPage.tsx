@@ -14,6 +14,8 @@ import { useFetchQuestionsByNumber } from '../hooks/useFetchQuestionsByNumber';
 import { parseOptions } from '../utils/parseOptions';
 import { useExamSessionSocket } from '../hooks/useExamSessionSocket';
 import { useStartTestSession } from '../hooks/useStartTestSession';
+import { LuX } from 'react-icons/lu';
+import Image from 'next/image';
 
 export default function TestAttemptPage() {
   const searchParams = useSearchParams();
@@ -39,6 +41,9 @@ export default function TestAttemptPage() {
   }, [questions, sessionId, push, startTest, testId]);
 
   const [marked, setMarked] = useState<number[]>([]);
+  // Resource viewers: modal for diagrams, drawer for comprehension text
+  const [diagramModal, setDiagramModal] = useState<string | null>(null);
+  const [drawer, setDrawer] = useState<{ content: string } | null>(null);
   // Will initialize after mutation hook declaration below to avoid use-before-declare
   const [remainingSecondsState, setRemainingSecondsState] = useState<
     number | null
@@ -92,6 +97,8 @@ export default function TestAttemptPage() {
     id: q.id,
     question: q.text,
     options: parseOptions(q.options),
+    imageUrl: q.imageUrl ?? null,
+    comprehensionText: q.comprehensionText ?? null,
   });
 
   const handleSelect = (questionId: number, option: string) => {
@@ -170,7 +177,7 @@ export default function TestAttemptPage() {
         />
         <div className='flex-1 grid grid-cols-[1fr_300px] gap-4 p-6'>
           {/* Question Area */}
-          <div className='bg-white p-6 rounded-2xl shadow-sm flex flex-col justify-between'>
+          <div className='bg-white p-6 rounded-2xl shadow-sm flex flex-col justify-between relative'>
             {pageQuestions.map((q) => (
               <QuestionCard
                 key={q.id}
@@ -180,8 +187,77 @@ export default function TestAttemptPage() {
                 onSelect={(option) => handleSelect(q.id, option)}
                 onMark={() => handleMark(q.displayNumber)}
                 marked={marked.includes(q.displayNumber)}
+                onOpenResource={(type, content) =>
+                  type === 'diagram'
+                    ? setDiagramModal(content)
+                    : setDrawer({ content })
+                }
               />
             ))}
+
+            {/* Diagram modal (centered, contains full image) */}
+            {diagramModal && (
+              <div
+                className='fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4'
+                onClick={() => setDiagramModal(null)}
+              >
+                <button
+                  type='button'
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDiagramModal(null);
+                  }}
+                  className='absolute top-4 right-4 z-10 p-2 rounded-full bg-white/90 hover:bg-white cursor-pointer shadow'
+                  aria-label='Close diagram'
+                >
+                  <LuX className='w-5 h-5 text-neutral-800' />
+                </button>
+                <div
+                  className='relative w-full h-full flex items-center justify-center'
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Image
+                    src={diagramModal}
+                    alt='Question diagram'
+                    fill
+                    sizes='90vw'
+                    className='object-contain'
+                    style={{ maxWidth: '90vw', maxHeight: '90vh' }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Right-side drawer for comprehension */}
+            {drawer && (
+              <div
+                className='fixed inset-0 z-40'
+                onClick={() => setDrawer(null)}
+              >
+                <div className='absolute inset-0 bg-black/40' />
+                <div
+                  className='absolute right-0 top-0 h-full w-full max-w-[380px] bg-white shadow-xl border-l border-neutral-200 p-4 flex flex-col'
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className='flex items-center justify-between mb-3'>
+                    <h3 className='text-lg font-semibold'>Comprehension</h3>
+                    <button
+                      type='button'
+                      onClick={() => setDrawer(null)}
+                      className='p-2 rounded-full hover:bg-neutral-100'
+                      aria-label='Close drawer'
+                    >
+                      <LuX className='w-5 h-5' />
+                    </button>
+                  </div>
+                  <div className='flex-1 overflow-auto'>
+                    <p className='text-sm text-neutral-700 whitespace-pre-wrap'>
+                      {drawer.content}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
             <div className='flex justify-between'>
               <button
                 onClick={handlePrev}

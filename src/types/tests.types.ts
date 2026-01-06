@@ -28,6 +28,8 @@ export interface StartTestSessionResponse {
       createdAt: string;
       displayNumber: number;
       selectedOption: string | null;
+      imageUrl?: string | null;
+      comprehensionText?: string | null;
     }>;
     progress: {
       answeredCount: number;
@@ -80,6 +82,8 @@ export type SubmitAnswersAndGetNextResponse =
           createdAt: string;
           displayNumber: number;
           selectedOption: null | string;
+          imageUrl?: string | null;
+          comprehensionText?: string | null;
         }>;
         progress: {
           answeredCount: number;
@@ -171,6 +175,8 @@ export interface SubmitAnswersAndGetPreviousResponse {
       createdAt: string;
       displayNumber: number;
       selectedOption: string | null;
+      imageUrl?: string | null;
+      comprehensionText?: string | null;
     }>;
     progress: {
       answeredCount: number;
@@ -287,6 +293,8 @@ export interface FetchQuestionsByNumberResponse {
       createdAt: string;
       selectedOption: null | string;
       displayNumber: number;
+      imageUrl?: string | null;
+      comprehensionText?: string | null;
     }>;
     progress: {
       answeredCount: number;
