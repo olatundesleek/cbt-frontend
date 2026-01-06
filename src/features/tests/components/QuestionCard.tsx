@@ -56,8 +56,8 @@ export default function QuestionCard({
                 onOpenResource?.('comprehension', question.comprehensionText)
               }
               className='group p-1.5 rounded-full bg-primary-50 hover:bg-primary-100 border border-primary-200 w-full flex items-center justify-center gap-2 cursor-pointer'
-              aria-label='View comprehension'
-              title='View comprehension'
+              aria-label='View instructions'
+              title='View instructions'
             >
               View Instructions{' '}
               <LuFileText className='w-4 h-4 text-primary-700' />

@@ -240,7 +240,7 @@ export default function TestAttemptPage() {
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className='flex items-center justify-between mb-3'>
-                    <h3 className='text-lg font-semibold'>Comprehension</h3>
+                    <h3 className='text-lg font-semibold'>Instructions</h3>
                     <button
                       type='button'
                       onClick={() => setDrawer(null)}
