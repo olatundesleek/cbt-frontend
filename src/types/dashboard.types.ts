@@ -220,7 +220,88 @@ export interface AllTeachersResponse {
     };
   };
 }
+// Question Resource Types
+export type ResourceType = "diagram" | "comprehension";
 
+export interface DiagramResource {
+  type: "diagram";
+  url: string;
+  alt?: string;
+  caption?: string;
+}
+
+export interface ComprehensionResource {
+  type: 'comprehension';
+  text: string;
+  title?: string;
+}
+
+export type QuestionResource = DiagramResource | ComprehensionResource;
+
+export interface QuestionWithResource extends QuestionsInBank {
+  resource?: QuestionResource;
+}
+
+// Question bank image resources
+export interface QuestionBankImage {
+  id: number;
+  url: string;
+  questionBankId: number;
+  description?: string;
+}
+
+export interface UploadQuestionBankImagesResponse {
+  success: boolean;
+  message: string;
+  data: QuestionBankImage[];
+}
+
+export interface UpdateQuestionBankImageResponse {
+  success: boolean;
+  message: string;
+  data: QuestionBankImage;
+}
+
+export interface DeleteQuestionBankImageResponse {
+  success: boolean;
+  message: string;
+}
+
+// Question bank comprehension resources
+export interface QuestionBankComprehension {
+  id: number;
+  title: string;
+  content: string;
+  questionBankId: number;
+}
+
+export interface CreateComprehensionResponse {
+  success: boolean;
+  message: string;
+  data: QuestionBankComprehension;
+}
+
+export interface UpdateComprehensionResponse {
+  success: boolean;
+  message: string;
+  data: QuestionBankComprehension;
+}
+
+export interface DeleteComprehensionResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface QuestionBankResources {
+  comprehensions: QuestionBankComprehension[];
+  images: QuestionBankImage[];
+}
+
+export interface GetQuestionBankResourcesResponse {
+  success: boolean;
+  message: string;
+  data: QuestionBankResources;
+}
 export interface AllCourses {
   id: 1;
   title: string;
@@ -250,6 +331,8 @@ export interface QuestionsInBank {
   marks: number;
   options: string[];
   text: string;
+  imageUrl?: string | null;
+  comprehensionText?: string | null;
 }
 
 export interface AllQuestionBank {

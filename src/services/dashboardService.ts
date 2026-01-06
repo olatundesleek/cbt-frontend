@@ -6,6 +6,7 @@ import {
   AllQuestionBankResponse,
   AllTeachersResponse,
   DashboardResponse,
+  GetQuestionBankResourcesResponse,
   QuestionsInBank,
 } from '@/types/dashboard.types';
 
@@ -49,6 +50,13 @@ export const dashboardServices = {
     return response.data.data;
   },
 
+  getQuestionBankResources: async (
+    bankId: string | number,
+  ): Promise<GetQuestionBankResourcesResponse> => {
+    const response = await api.get(`/question-banks/${bankId}/resources`);
+    return response.data;
+  },
+
   deleteQuestion: async (questionId: string) => {
     const response = await api.delete(`/question/${questionId}`);
     return response.data.data;
@@ -63,6 +71,74 @@ export const dashboardServices = {
       },
     });
 
+    return response.data;
+  },
+
+  uploadQuestionBankImages: async (
+    bankId: string | number,
+    formData: FormData,
+  ) => {
+    const response = await api.post(
+      `/question-banks/${bankId}/images`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      },
+    );
+
+    return response.data;
+  },
+
+  updateQuestionBankImage: async (
+    imageId: string | number,
+    formData: FormData,
+  ) => {
+    const response = await api.patch(
+      `/question-banks/images/${imageId}`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      },
+    );
+
+    return response.data;
+  },
+
+  deleteQuestionBankImage: async (imageId: string | number) => {
+    const response = await api.delete(`/question-banks/images/${imageId}`);
+    return response.data;
+  },
+
+  createQuestionBankComprehension: async (
+    bankId: string | number,
+    payload: { title: string; content: string },
+  ) => {
+    const response = await api.post(
+      `/question-banks/${bankId}/comprehensions`,
+      payload,
+    );
+    return response.data;
+  },
+
+  updateQuestionBankComprehension: async (
+    comprehensionId: string | number,
+    payload: { title?: string; content?: string },
+  ) => {
+    const response = await api.patch(
+      `/question-banks/comprehensions/${comprehensionId}`,
+      payload,
+    );
+    return response.data;
+  },
+
+  deleteQuestionBankComprehension: async (comprehensionId: string | number) => {
+    const response = await api.delete(
+      `/question-banks/comprehensions/${comprehensionId}`,
+    );
     return response.data;
   },
 };
