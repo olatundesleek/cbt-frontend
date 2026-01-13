@@ -12,9 +12,10 @@ import {
   useUpdateSystemSettingsWithFiles,
 } from '@/features/settings/hooks/useSettings';
 import { useEffect, useState } from 'react';
-import { errorLogger } from '@/lib/axios';
 import SpinnerMini from '@/components/ui/SpinnerMini';
 import type { SystemSettings } from '@/types/settings.types';
+import toast from 'react-hot-toast';
+import getErrorDetails from '@/utils/getErrorDetails';
 
 const schema = Yup.object({
   appName: Yup.string().required('App Name is required'),
@@ -66,7 +67,7 @@ export default function AdminSettingsPage() {
   const loginBannerInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (settingsError) errorLogger(settingsError);
+    if (settingsError) toast.error(getErrorDetails(settingsError));
   }, [settingsError]);
 
   useEffect(() => {

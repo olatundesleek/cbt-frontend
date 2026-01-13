@@ -3,7 +3,7 @@
 
 import { LuSettings, LuPlus, LuX } from 'react-icons/lu';
 import { Button } from '@/components/ui';
-import api, { errorLogger } from '@/lib/axios';
+import api from '@/lib/axios';
 import { queryClient } from '@/providers/query-provider';
 import { useEffect, BaseSyntheticEvent, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -18,17 +18,18 @@ import ResourceTypeModal, {
   ComprehensionResource,
 } from '@/components/modal/ResourceTypeModal';
 import Image from 'next/image';
+import getErrorDetails from '@/utils/getErrorDetails';
 
 const schema = Yup.object({
-  optionA: Yup.string().required("Option A is required"),
-  optionB: Yup.string().required("Option B is required"),
-  optionC: Yup.string().required("Option C is required"),
-  optionD: Yup.string().required("Option D is required"),
-  questionText: Yup.string().required("Question Text is required"),
-  correctAnswer: Yup.string().required("Correct answer is required"),
+  optionA: Yup.string().required('Option A is required'),
+  optionB: Yup.string().required('Option B is required'),
+  optionC: Yup.string().required('Option C is required'),
+  optionD: Yup.string().required('Option D is required'),
+  questionText: Yup.string().required('Question Text is required'),
+  correctAnswer: Yup.string().required('Correct answer is required'),
   marks: Yup.string()
-    .min(0, "Mark cannot be less than 0")
-    .required("Question mark is required"),
+    .min(0, 'Mark cannot be less than 0')
+    .required('Question mark is required'),
 });
 
 type FormProps = Yup.InferType<typeof schema>;
@@ -145,7 +146,7 @@ const CreateQuestion = ({
         closeModal();
       }
     } catch (error) {
-      errorLogger(error);
+      toast.error(getErrorDetails(error));
     }
   };
 

@@ -1,5 +1,5 @@
-import api from "@/lib/axios";
-import internalApi from "@/lib/internalApi";
+import api from '@/lib/axios';
+import internalApi from '@/lib/internalApi';
 import {
   LoginPayload,
   LoginResponse,
@@ -109,7 +109,6 @@ export const authService = {
 
       return res.data;
     } catch (error) {
-
       if (error instanceof Error) {
         return { success: false, message: error.message };
       }
