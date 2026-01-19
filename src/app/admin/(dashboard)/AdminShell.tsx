@@ -8,7 +8,6 @@ import type {
   AdminDashboardData,
   TeacherDashboardData,
 } from '@/types/dashboard.types';
-import { errorLogger } from '@/lib/axios';
 import { useUserStore } from '@/store/useUserStore';
 import { SpinnerMini } from '@/components/ui';
 import { AiFillHome } from 'react-icons/ai';

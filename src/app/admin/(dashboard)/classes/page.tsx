@@ -19,7 +19,7 @@ import {
   useGetCourses,
   useGetTeachers,
 } from '@/features/dashboard/queries/useDashboard';
-import api, { errorLogger } from '@/lib/axios';
+import api from '@/lib/axios';
 import { formatDate } from '../../../../../utils/helpers';
 import { SubmitHandler, useForm, Resolver } from 'react-hook-form';
 import * as Yup from 'yup';
@@ -38,6 +38,7 @@ import ResultsFiltersBar, {
   type ResultFilterField,
 } from '@/features/results/components/ResultsFiltersBar';
 import { Badge } from '@/components/ui';
+import getErrorDetails from '@/utils/getErrorDetails';
 
 interface UpdateClassProps {
   singleClass: AllClassesResponse['data'][number] | null;
@@ -104,7 +105,7 @@ const UpdateClass = ({
       closeModal();
       toast.success(response.data.message || 'Updated Successfully');
     } catch (error) {
-      errorLogger(error);
+      toast.error(getErrorDetails(error));
     }
   };
 
@@ -366,7 +367,7 @@ const AdminClasses = () => {
       resetForm();
       toast.success(response.data.message || 'Created Successfully');
     } catch (error) {
-      errorLogger(error);
+      toast.error(getErrorDetails(error));
     }
   };
 
@@ -383,7 +384,7 @@ const AdminClasses = () => {
       toast.success(response.data.message || 'Assigned Successfully');
       assignTeacherReset();
     } catch (error) {
-      errorLogger(error);
+      toast.error(getErrorDetails(error));
     }
   };
 
@@ -397,20 +398,20 @@ const AdminClasses = () => {
       toast.success(res.data.message || 'Deleted Successfully');
       updateModalState({ key: 'isOpen', value: false });
     } catch (error) {
-      errorLogger(error);
+      toast.error(getErrorDetails(error));
     } finally {
       setIsDeleting(false);
     }
   };
 
   if (classesError) {
-    errorLogger(classesError);
+    toast.error(getErrorDetails(classesError));
   }
   if (coursesError) {
-    errorLogger(coursesError);
+    toast.error(getErrorDetails(coursesError));
   }
   if (teachersError) {
-    errorLogger(teachersError);
+    toast.error(getErrorDetails(teachersError));
   }
 
   return (

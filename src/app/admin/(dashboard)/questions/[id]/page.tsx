@@ -3,20 +3,19 @@
 import Modal from "@/components/modal";
 import AppTable, { TableDataItem } from "@/components/table";
 import { Button, SpinnerMini } from "@/components/ui";
-import { useGetQuestionsInBank } from "@/features/dashboard/queries/useDashboard";
-import { errorLogger } from "@/lib/axios";
-import { queryClient } from "@/providers/query-provider";
-import { QuestionsInBank } from "@/types/dashboard.types";
-import { useParams } from "next/navigation";
-import { ChangeEvent, useRef, useState } from "react";
-import toast from "react-hot-toast";
-import { IoMdArrowRoundBack } from "react-icons/io";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import CreateQuestion from "./create-question";
-import { useMutation } from "@tanstack/react-query";
-import { dashboardServices } from "@/services/dashboardService";
-import { MdDeleteOutline } from "react-icons/md";
+import { useGetQuestionsInBank } from '@/features/dashboard/queries/useDashboard';
+import { queryClient } from '@/providers/query-provider';
+import { QuestionsInBank } from '@/types/dashboard.types';
+import { useParams } from 'next/navigation';
+import { ChangeEvent, useRef, useState } from 'react';
+import toast from 'react-hot-toast';
+import { IoMdArrowRoundBack } from 'react-icons/io';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import CreateQuestion from './create-question';
+import { useMutation } from '@tanstack/react-query';
+import { dashboardServices } from '@/services/dashboardService';
+import { MdDeleteOutline } from 'react-icons/md';
 import { LuImage, LuFileText, LuX } from 'react-icons/lu';
 import Image from 'next/image';
 import ResourceUploadSection, {
@@ -104,14 +103,14 @@ const Questions = () => {
       toast.success(res.message);
       setSelectedFile(null);
     } catch (error) {
-      errorLogger(error);
+      toast.error(getErrorDetails(error));
     } finally {
       setIsPending(false);
     }
   };
 
   if (error) {
-    errorLogger(error);
+    toast.error(getErrorDetails(error));
   }
 
   return (

@@ -9,7 +9,6 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import toast from 'react-hot-toast';
 import { authService } from '@/services/authService';
 import { queryClient } from '@/providers/query-provider';
-import { errorLogger } from '@/lib/axios';
 import { useAdminStudents } from '@/features/students/hooks/useStudents';
 import { useServerPagination } from '@/hooks/useServerPagination';
 import useChangeStudentPassword from '@/features/students/hooks/useChangeStudentPassword';
@@ -17,12 +16,13 @@ import useDeleteStudent from '@/features/students/hooks/useDeleteStudent';
 import FilterBar, { FilterState } from '@/components/tests/FilterBar';
 import { formatDate } from '../../../../../utils/helpers';
 import StudentSummary from '@/components/tests/StudentSummary';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { Student } from '@/types/students.types';
 import useAssignClass from '@/features/students/hooks/useAssignClass';
 import { useGetClasses } from '@/features/dashboard/queries/useDashboard';
 import { AllClassesResponse } from '@/types/dashboard.types';
 import { useUserStore } from '@/store/useUserStore';
+import getErrorDetails from '@/utils/getErrorDetails';
 
 export default function AdminStudentsPage() {
   // Add server pagination hook
@@ -605,7 +605,7 @@ function AddStudentForm({
       queryClient.invalidateQueries({ queryKey: ['adminStudents'] });
       if (onClose) onClose();
     } catch (err) {
-      errorLogger(err);
+      toast.error(getErrorDetails(err));
     }
   };
 

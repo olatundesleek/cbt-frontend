@@ -12,12 +12,13 @@ import Button from '@/components/ui/Button';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import api, { errorLogger } from '@/lib/axios';
+import api from '@/lib/axios';
 import { queryClient } from '@/providers/query-provider';
 import toast from 'react-hot-toast';
 import { AllCourses, AllTeachersResponse } from '@/types/dashboard.types';
 import Modal from '@/components/modal';
 import { formatDate } from '../../../../../utils/helpers';
+import getErrorDetails from '@/utils/getErrorDetails';
 
 type FormProps = Yup.InferType<typeof schema>;
 
@@ -65,7 +66,7 @@ const UpdateCourse = ({
       resetForm();
       closeModal();
     } catch (error) {
-      errorLogger(error);
+      toast.error(getErrorDetails(error));
     }
   };
 
@@ -225,7 +226,7 @@ const Courses = () => {
       toast.success(res.data.message || 'Deleted Successfully');
       updateModalState({ key: 'isOpen', value: false });
     } catch (error) {
-      errorLogger(error);
+      toast.error(getErrorDetails(error));
     } finally {
       setIsDeleting(false);
     }
@@ -247,12 +248,12 @@ const Courses = () => {
       await queryClient.invalidateQueries({ queryKey: ['courses'] });
       resetForm();
     } catch (error) {
-      errorLogger(error);
+      toast.error(getErrorDetails(error));
     }
   };
 
   if (teachersError || coursesError) {
-    errorLogger(teachersError || coursesError);
+    toast.error(getErrorDetails(teachersError || coursesError));
   }
 
   return (

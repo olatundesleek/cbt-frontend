@@ -2,9 +2,7 @@
 import AppTable, { TableDataItem } from '@/components/table';
 import { Badge, Button } from '@/components/ui';
 import Input from '@/components/ui/input';
-// import { Test, testData } from './data';
 import { useAdminTest } from '@/features/tests/hooks/useTests';
-import { errorLogger } from '@/lib/axios';
 import { Test as TestType, AdminTestsResponse } from '@/types/tests.types';
 import { useServerPagination } from '@/hooks/useServerPagination';
 type AdminTestItem = AdminTestsResponse['data']['data'][number];
@@ -30,6 +28,7 @@ import {
 import { AllCourses, AllQuestionBank } from '@/types/dashboard.types';
 import { useToggleResultVisibility } from '@/hooks/useResultCourses';
 import { useUserStore } from '@/store/useUserStore';
+import getErrorDetails from '@/utils/getErrorDetails';
 
 const createClassSchema = Yup.object({
   title: Yup.string().required('Test title is required'),
@@ -960,11 +959,11 @@ export default function AdminTestPage() {
   };
 
   if (adminTestError) {
-    errorLogger(adminTestError);
+    toast.error(getErrorDetails(adminTestError));
   }
 
-  if (coursesError) errorLogger(coursesError);
-  if (questionBankError) errorLogger(questionBankError);
+  if (coursesError) toast.error(getErrorDetails(coursesError));
+  if (questionBankError) toast.error(getErrorDetails(questionBankError));
 
   //update modal state
   const updateModalState = ({

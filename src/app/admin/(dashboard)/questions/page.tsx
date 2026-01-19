@@ -12,7 +12,7 @@ import {
   useGetCourses,
   useGetQuestionBank,
 } from '@/features/dashboard/queries/useDashboard';
-import api, { errorLogger } from '@/lib/axios';
+import api from '@/lib/axios';
 import toast from 'react-hot-toast';
 import { queryClient } from '@/providers/query-provider';
 import { AllCourses, AllQuestionBank } from '@/types/dashboard.types';
@@ -21,6 +21,7 @@ import { GoPlus } from 'react-icons/go';
 import { useRouter } from 'next/navigation';
 import { useUserStore } from '@/store/useUserStore';
 import { formatDate } from '../../../../../utils/helpers';
+import getErrorDetails from '@/utils/getErrorDetails';
 
 type FormProps = Yup.InferType<typeof schema>;
 
@@ -75,7 +76,7 @@ const UpdateQuestionBank = ({
       closeModal();
       toast.success(response.data.message || 'Updated Successfully');
     } catch (error) {
-      errorLogger(error);
+      toast.error(getErrorDetails(error));
     }
   };
 
@@ -262,7 +263,7 @@ const QuestionBank = () => {
       await queryClient.invalidateQueries({ queryKey: ['questionBanks'] });
       resetForm();
     } catch (error) {
-      errorLogger(error);
+      toast.error(getErrorDetails(error));
     }
   };
 
@@ -278,14 +279,14 @@ const QuestionBank = () => {
       toast.success(res.data.message || 'Deleted Successfully');
       updateModalState({ key: 'isOpen', value: false });
     } catch (error) {
-      errorLogger(error);
+      toast.error(getErrorDetails(error));
     } finally {
       setIsDeleting(false);
     }
   };
 
   if (coursesError || questionBankError) {
-    errorLogger(coursesError || questionBankError);
+    toast.error(getErrorDetails(coursesError || questionBankError));
   }
 
   return (

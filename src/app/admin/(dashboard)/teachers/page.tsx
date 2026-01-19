@@ -11,8 +11,7 @@ import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { authService } from "@/services/authService";
 import { UserRole } from "@/types/auth.types";
-import toast from "react-hot-toast";
-import { errorLogger } from "@/lib/axios";
+import toast from 'react-hot-toast';
 import { queryClient } from "@/providers/query-provider";
 import { useGetTeachers } from "@/features/dashboard/queries/useDashboard";
 import { useServerPagination } from '@/hooks/useServerPagination';
@@ -20,6 +19,7 @@ import useChangeTeacherPassword from '@/features/teachers/hooks/useChangeTeacher
 import useDeleteTeacher from '@/features/teachers/hooks/useDeleteTeacher';
 import type { AllTeachers } from '@/types/dashboard.types';
 import { formatDate } from '../../../../../utils/helpers';
+import getErrorDetails from '@/utils/getErrorDetails';
 
 const schema = Yup.object({
   firstName: Yup.string().required('First Name is required'),
@@ -111,12 +111,12 @@ export default function AdminTeachersPage() {
       queryClient.invalidateQueries({ queryKey: ['teachers'] }); // invalidate and refetch teachers
       resetForm();
     } catch (error) {
-      errorLogger(error);
+      toast.error(getErrorDetails(error));
     }
   };
 
   if (teachersError) {
-    errorLogger(teachersError);
+    toast.error(getErrorDetails(teachersError));
   }
 
   return (
