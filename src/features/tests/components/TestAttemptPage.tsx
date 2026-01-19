@@ -177,7 +177,7 @@ export default function TestAttemptPage() {
         />
         <div className='flex-1 grid grid-cols-[1fr_300px] gap-4 p-6'>
           {/* Question Area */}
-          <div className='bg-white p-6 rounded-2xl shadow-sm flex flex-col justify-between relative'>
+          <div className='bg-white p-6 rounded-2xl shadow-sm flex flex-col justify-between relative overflow-scroll h-[90vh] max-h-screen'>
             {pageQuestions.map((q) => (
               <QuestionCard
                 key={q.id}
