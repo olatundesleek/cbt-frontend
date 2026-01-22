@@ -7,7 +7,6 @@ interface Question {
   bankId: number;
   createdAt: string;
   options: string[];
-  correctAnswer: string;
 }
 
 interface Answer {
@@ -16,6 +15,7 @@ interface Answer {
   selectedOption: string;
   isCorrect: boolean;
   question: Question;
+  correctAnswer: string;
 }
 
 interface TestSession {

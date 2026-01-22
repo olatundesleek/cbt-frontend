@@ -26,10 +26,8 @@ export default function StudentProfilePage({
   // Handler for saving personal information
   const handleSavePersonalInfo = (data: PersonalInformation) => {
     if (!profileData) return;
+    // Only send editable fields (email and phoneNumber)
     const payload = {
-      firstname: data.firstname ?? profileData.firstname,
-      lastname: data.lastname ?? profileData.lastname,
-      username: data.username,
       email: data.email ?? profileData.email ?? '',
       phoneNumber: data.phoneNumber ?? profileData.phoneNumber ?? '',
     };

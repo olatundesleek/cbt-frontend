@@ -379,6 +379,7 @@ const CreateQuestion = ({
               placeholder='1'
               type='number'
               min={0}
+              step='any'
               hookFormRegister={register}
               errorText={errors.marks && errors.marks.message}
             />

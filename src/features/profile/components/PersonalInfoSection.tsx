@@ -64,7 +64,8 @@ export default function PersonalInfoSection({
             type='text'
             value={formData.firstname || ''}
             onChange={(e) => handleChange('firstname', e.target.value)}
-            disabled={!isEditing}
+            // disabled={!isEditing}
+            disabled={true}
             placeholder='First name'
           />
           <Input
@@ -72,7 +73,8 @@ export default function PersonalInfoSection({
             type='text'
             value={formData.lastname || ''}
             onChange={(e) => handleChange('lastname', e.target.value)}
-            disabled={!isEditing}
+            // disabled={!isEditing}
+            disabled={true}
             placeholder='Last name'
           />
         </div>
@@ -81,7 +83,8 @@ export default function PersonalInfoSection({
           type='text'
           value={formData.username}
           onChange={(e) => handleChange('username', e.target.value)}
-          disabled={!isEditing}
+          // disabled={!isEditing}
+          disabled={true}
           className={!isEditing ? 'bg-neutral-50' : ''}
         />
 
