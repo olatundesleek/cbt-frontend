@@ -46,9 +46,9 @@ export interface AcademicInformation {
 
 // Update profile payload/response
 export interface UpdateProfileRequest {
-  firstname: string;
-  lastname: string;
-  username: string;
+  // firstname: string;
+  // lastname: string;
+  // username: string;
   email: string;
   phoneNumber: string;
 }

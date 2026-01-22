@@ -125,6 +125,7 @@ export type SubmitAnswersAndGetNextResponse =
             questionId: number;
             selectedOption: string;
             isCorrect: boolean;
+            correctAnswer: string;
             question: {
               id: number;
               text: string;
@@ -132,7 +133,6 @@ export type SubmitAnswersAndGetNextResponse =
               bankId: number;
               createdAt: string;
               options: string[];
-              correctAnswer: string;
             };
           }>;
         };
@@ -221,6 +221,7 @@ export interface SubmitTestSessionResponse {
       questionId: number;
       selectedOption: string;
       isCorrect: boolean;
+      correctAnswer: string;
       question: {
         id: number;
         text: string;
@@ -228,7 +229,6 @@ export interface SubmitTestSessionResponse {
         bankId: number;
         createdAt: string;
         options: string[];
-        correctAnswer: string;
       };
     }>;
   };
