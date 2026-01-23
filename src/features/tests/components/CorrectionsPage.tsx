@@ -26,6 +26,7 @@ export default function CorrectionsPage() {
   const correctCount = answers.filter((a) => a.isCorrect).length;
   const percentage = Math.round((score / totalQuestions) * 100);
 
+
   return (
     <div className='min-h-screen bg-gray-50 py-8 px-4'>
       <div className='max-w-4xl mx-auto'>
@@ -118,8 +119,7 @@ export default function CorrectionsPage() {
               {/* Options */}
               <div className='space-y-2'>
                 {answer.question.options.map((option, optIndex) => {
-                  const isCorrectAnswer =
-                    option === answer.question.correctAnswer;
+                  const isCorrectAnswer = option === answer.correctAnswer;
                   const isUserAnswer = option === answer.selectedOption;
 
                   return (
@@ -129,8 +129,8 @@ export default function CorrectionsPage() {
                         isCorrectAnswer
                           ? 'bg-green-50 border-green-500'
                           : isUserAnswer && !answer.isCorrect
-                          ? 'bg-red-50 border-red-500'
-                          : 'bg-gray-50 border-gray-200'
+                            ? 'bg-red-50 border-red-500'
+                            : 'bg-gray-50 border-gray-200'
                       }`}
                     >
                       <div className='flex items-center justify-between'>
@@ -139,8 +139,8 @@ export default function CorrectionsPage() {
                             isCorrectAnswer
                               ? 'text-green-700'
                               : isUserAnswer && !answer.isCorrect
-                              ? 'text-red-700'
-                              : 'text-gray-700'
+                                ? 'text-red-700'
+                                : 'text-gray-700'
                           }`}
                         >
                           {option}
