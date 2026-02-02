@@ -69,12 +69,12 @@ const Questions = () => {
     mutationFn: dashboardServices.deleteQuestion,
     onSuccess: async (data) => {
       await queryClient.invalidateQueries({ queryKey: ['questionBanks'] });
-      toast.success(data.message || 'Deleted Successfully');
+      toast.success(data?.message || 'Question Deleted Successfully');
       updateModalState({ key: 'isOpen', value: false });
     },
-    // onError: (error) => {
-    //   toast.error(getErrorDetails(error));
-    // },
+    onError: (error) => {
+      toast.error(getErrorDetails(error));
+    },
   });
 
   // select items
@@ -83,7 +83,9 @@ const Questions = () => {
     if (!file) return;
 
     setSelectedFile(file);
-  };
+    // Reset input value so the same file can be selected again
+    e.target.value = '';
+  };;
 
   // download questions template
   const handleImportQuestions = async () => {
@@ -168,7 +170,7 @@ const Questions = () => {
                 onActionClick={({ item }) =>
                   updateModalState({ key: 'modalContent', value: item })
                 }
-                renderItem={({ item, itemIndex }) => {
+                renderItem={({ item }) => {
                   // Calculate global index by finding item position in full dataset
                   const globalIndex = (questions ?? []).findIndex(
                     (q) => q.id === item.id,
@@ -300,8 +302,8 @@ const Questions = () => {
                       {isPending
                         ? 'Uploading...'
                         : selectedFile
-                        ? 'Upload selected file'
-                        : 'Import Questions'}
+                          ? 'Upload selected file'
+                          : 'Import Questions'}
                     </Button>
                     <input
                       hidden
@@ -312,7 +314,7 @@ const Questions = () => {
                     />
                     {selectedFile && (
                       <div className='flex flex-row items-center justify-between gap-4 w-full'>
-                        <span className='text-base font-medium'>
+                        <span className='text-base font-medium text-purple-800'>
                           {selectedFile?.name}
                         </span>
                         <button
