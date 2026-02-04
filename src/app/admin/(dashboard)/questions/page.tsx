@@ -37,6 +37,12 @@ const schema = Yup.object({
   course: Yup.string().required('Course is required'),
 });
 
+const defaultValues: FormProps = {
+  questionBankName: '',
+  course: '',
+  description: '',
+};
+
 const UpdateQuestionBank = ({
   singleBank,
   closeModal,
@@ -50,11 +56,7 @@ const UpdateQuestionBank = ({
     formState: { errors, isSubmitting },
   } = useForm<FormProps>({
     resolver: yupResolver(schema),
-    defaultValues: {
-      questionBankName: '',
-      course: '',
-      description: '',
-    },
+    defaultValues,
   });
 
   const handleUpdateQuestionBank: SubmitHandler<FormProps> = async (data) => {
@@ -171,6 +173,7 @@ const QuestionBank = () => {
     defaultLimit: 10,
   });
 
+  const [createQuestionBankFormKey, setCreateQuestionBankFormKey] = useState(0);
   const [searchValue, setSearchValue] = useState<string>('');
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [modalState, setModalState] = useState<{
@@ -190,7 +193,7 @@ const QuestionBank = () => {
     handleSubmit,
     reset: resetForm,
   } = useForm<FormProps>({
-    defaultValues: { questionBankName: '', course: '', description: '' },
+    defaultValues,
     resolver: yupResolver(schema),
   });
 
@@ -261,7 +264,8 @@ const QuestionBank = () => {
       const res = await api.post('/question-banks', payload);
       toast.success(res.data.message || 'Success');
       await queryClient.invalidateQueries({ queryKey: ['questionBanks'] });
-      resetForm();
+      resetForm(defaultValues);
+      setCreateQuestionBankFormKey((k) => k + 1);
     } catch (error) {
       toast.error(getErrorDetails(error));
     }
@@ -300,6 +304,7 @@ const QuestionBank = () => {
           <form
             onSubmit={handleSubmit(handleCreateQuestionBank)}
             className='flex flex-col gap-3 w-full'
+            key={createQuestionBankFormKey}
           >
             <div className='flex flex-col gap-1 w-full'>
               <label htmlFor='course'>

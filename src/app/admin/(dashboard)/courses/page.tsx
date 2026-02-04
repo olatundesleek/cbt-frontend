@@ -34,6 +34,8 @@ const schema = Yup.object({
   teacher: Yup.string().required('Course Teacher is required'),
 });
 
+const defaultValues: FormProps = { title: '', teacher: '', description: '' };
+
 const UpdateCourse = ({
   course,
   allTeachers,
@@ -46,7 +48,7 @@ const UpdateCourse = ({
     setValue,
     reset: resetForm,
   } = useForm<FormProps>({
-    defaultValues: { title: '', teacher: '', description: '' },
+    defaultValues,
     resolver: yupResolver(schema),
   });
 
@@ -143,7 +145,7 @@ const UpdateCourse = ({
 
         <div className='w-fit'>
           <Button type='submit' disabled={isSubmitting}>
-            {isSubmitting ? 'Updating...' : 'Update Teacher'}
+            {isSubmitting ? 'Updating...' : 'Update Course'}
           </Button>
         </div>
       </form>
@@ -158,6 +160,7 @@ const Courses = () => {
     defaultLimit: 10,
   });
 
+  const [createCourseFormKey, setCreateCourseFormKey] = useState(0);
   const [searchValue, setSearchValue] = useState<string>('');
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [modalState, setModalState] = useState<{
@@ -176,7 +179,7 @@ const Courses = () => {
     handleSubmit,
     reset: resetForm,
   } = useForm<FormProps>({
-    defaultValues: { title: '', teacher: '', description: '' },
+    defaultValues,
     resolver: yupResolver(schema),
   });
 
@@ -246,7 +249,8 @@ const Courses = () => {
       const res = await api.post('/courses', payload);
       toast.success(res.data.message || 'Success');
       await queryClient.invalidateQueries({ queryKey: ['courses'] });
-      resetForm();
+      resetForm(defaultValues);
+      setCreateCourseFormKey((k) => k + 1);
     } catch (error) {
       toast.error(getErrorDetails(error));
     }
@@ -308,6 +312,7 @@ const Courses = () => {
           <form
             onSubmit={handleSubmit(handleCreateCourse)}
             className='flex flex-col gap-3 w-full'
+            key={createCourseFormKey}
           >
             <Input
               label='Course Title'

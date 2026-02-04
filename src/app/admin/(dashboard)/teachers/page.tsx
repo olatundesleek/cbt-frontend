@@ -41,6 +41,13 @@ const passwordUpdateSchema = Yup.object({
     .required('Confirm password is required'),
 });
 
+const defaultValues: FormProps = {
+  firstName: '',
+  lastName: '',
+  userName: '',
+  password: '',
+};
+
 export default function AdminTeachersPage() {
   // Add server pagination hook
   const { params, goToPage, updateParams, setLimit } = useServerPagination({
@@ -48,6 +55,7 @@ export default function AdminTeachersPage() {
     defaultLimit: 10,
   });
 
+  const [createTeacherFormKey, setCreateTeacherFormKey] = useState(0);
   const [togglePassword, setTogglePassword] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>('');
 
@@ -76,7 +84,7 @@ export default function AdminTeachersPage() {
     handleSubmit,
     reset: resetForm,
   } = useForm<FormProps>({
-    defaultValues: { firstName: '', lastName: '', userName: '', password: '' },
+    defaultValues,
     resolver: yupResolver(schema),
   });
 
@@ -109,7 +117,8 @@ export default function AdminTeachersPage() {
       const res = await authService.register(payload);
       toast.success(res.message || 'Success');
       queryClient.invalidateQueries({ queryKey: ['teachers'] }); // invalidate and refetch teachers
-      resetForm();
+      resetForm(defaultValues);
+      setCreateTeacherFormKey((k) => k + 1);
     } catch (error) {
       toast.error(getErrorDetails(error));
     }
@@ -130,6 +139,7 @@ export default function AdminTeachersPage() {
           <form
             onSubmit={handleSubmit(handleRegisterTeacher)}
             className='flex flex-col gap-3 w-full'
+            key={createTeacherFormKey}
           >
             <Input
               label='First Name'
