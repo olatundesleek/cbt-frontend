@@ -34,6 +34,16 @@ const schema = Yup.object({
 
 type FormProps = Yup.InferType<typeof schema>;
 
+const defaultValues: FormProps = {
+  optionA: '',
+  optionB: '',
+  optionC: '',
+  optionD: '',
+  questionText: '',
+  correctAnswer: '',
+  marks: '',
+};
+
 interface CreateQuestionProps {
   bankId: string;
   type: 'update' | 'create';
@@ -52,6 +62,7 @@ const CreateQuestion = ({
   singleQuestion,
   availableResources,
 }: CreateQuestionProps) => {
+  const [formKey, setFormKey] = useState(0);
   const [resourceModalOpen, setResourceModalOpen] = useState(false);
   const [selectedResources, setSelectedResources] = useState<{
     diagram: DiagramResource | null;
@@ -70,6 +81,7 @@ const CreateQuestion = ({
     formState: { errors, isSubmitting },
   } = useForm<FormProps>({
     resolver: yupResolver(schema),
+    defaultValues,
   });
 
   const questionOptions = [
@@ -140,10 +152,14 @@ const CreateQuestion = ({
         queryKey: ['questionBanks', bankId],
       });
       toast.success(res.data.message || 'Successful');
-      reset();
+      reset(defaultValues);
+      setSelectedResources({ diagram: null, comprehension: null });
+      setRemovedResources({ diagram: false, comprehension: false });
 
       if (buttonValue !== 'save-another') {
         closeModal();
+      } else {
+        setFormKey((prev) => prev + 1);
       }
     } catch (error) {
       toast.error(getErrorDetails(error));
@@ -302,6 +318,7 @@ const CreateQuestion = ({
         )}
 
         <form
+          key={formKey}
           onSubmit={handleSubmit(handleSubmitQuestion)}
           className='flex flex-col gap-3 w-full'
         >

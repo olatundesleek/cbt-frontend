@@ -15,6 +15,7 @@ import { GiGraduateCap, GiTeacher } from 'react-icons/gi';
 import { IoIosSettings } from 'react-icons/io';
 import { BiBell, BiNotepad, BiPause, BiUser } from 'react-icons/bi';
 import { FiTarget } from 'react-icons/fi';
+import Footer from '@/components/layout/Footer';
 
 const adminRoutes: { path: string; label: string; icon: ReactNode }[] = [
   {
@@ -157,11 +158,7 @@ export default function AdminShell({
 
           <div className='flex-1 w-full p-4'>{children}</div>
 
-          <div className='flex items-center justify-center w-full'>
-            <small>
-              Florintech CBT Admin Portal &#9400; {new Date().getFullYear()}
-            </small>
-          </div>
+          <Footer />
         </section>
       )}
     </main>

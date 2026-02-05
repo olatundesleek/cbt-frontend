@@ -70,6 +70,12 @@ const assignSchema = Yup.object({
 type FormProps = Yup.InferType<typeof schema>;
 type AssignFormProps = Yup.InferType<typeof assignSchema>;
 
+const defaultValues: FormProps = {
+  teacher: '',
+  nameOfClass: '',
+  courses: [],
+};
+
 const UpdateClass = ({
   singleClass,
   closeModal,
@@ -84,11 +90,7 @@ const UpdateClass = ({
     formState: { errors, isSubmitting },
   } = useForm<FormProps>({
     resolver: yupResolver(schema) as Resolver<FormProps>,
-    defaultValues: {
-      teacher: '',
-      nameOfClass: '',
-      courses: [],
-    },
+    defaultValues,
   });
 
   const handleUpdateClass: SubmitHandler<FormProps> = async (data) => {
@@ -245,6 +247,7 @@ const AdminClasses = () => {
     [],
   );
 
+const [createClassFormKey, setCreateClassFormKey] = useState(0);
   const [searchValue, setSearchValue] = useState<string>('');
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [modalState, setModalState] = useState<{
@@ -265,11 +268,7 @@ const AdminClasses = () => {
     reset: resetForm,
   } = useForm<FormProps>({
     resolver: yupResolver(schema) as Resolver<FormProps>,
-    defaultValues: {
-      teacher: '',
-      nameOfClass: '',
-      courses: [],
-    },
+    defaultValues,
   });
 
   // assign class teacher form
@@ -364,7 +363,8 @@ const AdminClasses = () => {
     try {
       const response = await api.post('/class', payload);
       await queryClient.invalidateQueries({ queryKey: ['classes'] }); // invalidate and refetch classes
-      resetForm();
+      resetForm(defaultValues);
+      setCreateClassFormKey((k) => k + 1);
       toast.success(response.data.message || 'Created Successfully');
     } catch (error) {
       toast.error(getErrorDetails(error));
@@ -426,6 +426,7 @@ const AdminClasses = () => {
             <form
               onSubmit={handleSubmit(handleCreateClass)}
               className='flex flex-col items-stretch gap-2 w-full'
+              key={createClassFormKey}
             >
               <div className='flex flex-col gap-1 w-full'>
                 <label htmlFor='teacher'>
