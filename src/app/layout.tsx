@@ -9,6 +9,9 @@ import { ToastProvider } from '@/providers/toast-provider';
 // import api from '@/lib/axios';
 import { SystemSettingsResponse } from '@/types/settings.types';
 import SystemSettingsHydrator from '@/components/layout/SystemSettingsHydrator';
+import 'react-quill-new/dist/quill.snow.css';
+import 'katex/dist/katex.min.css';
+
 
 const inter = Inter({
   subsets: ['latin'],

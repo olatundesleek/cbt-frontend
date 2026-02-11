@@ -1,3 +1,4 @@
+import MathHtmlRenderer from '@/components/mathHtmlRenderer';
 import { LuFileText, LuImage } from 'react-icons/lu';
 
 type QuestionShape = {
@@ -29,8 +30,10 @@ export default function QuestionCard({
 }: Props) {
   return (
     <div className='relative'>
-      <h2 className='font-medium flex-1'>
-        Q{displayNumber}. {question.question}
+      <h2 className='font-medium flex-1 flex items-center gap-2'>
+        {/* Q{displayNumber}. {question.question}Q{displayNumber}.{' '} */}
+        {`Q${displayNumber}. `}
+        {<MathHtmlRenderer html={question.question} />}
       </h2>
 
       <div className='space-y-2 mb-4'>
@@ -44,7 +47,8 @@ export default function QuestionCard({
               onChange={() => onSelect(opt)}
               className='cursor-pointer'
             />
-            <span>{opt}</span>
+            {/* <span>{opt}</span> */}
+            <span>{<MathHtmlRenderer html={opt} />}</span>
           </label>
         ))}
       </div>

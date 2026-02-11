@@ -22,6 +22,7 @@ import ResourceUploadSection, {
   Resource,
 } from '@/components/resources/ResourceUploadSection';
 import getErrorDetails from '@/utils/getErrorDetails';
+import MathHtmlRenderer from '@/components/mathHtmlRenderer';
 
 const Questions = () => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -227,7 +228,13 @@ const Questions = () => {
                           )}
                         </div>
                       </TableDataItem>
-                      <TableDataItem>{item.text}</TableDataItem>
+                      <TableDataItem>
+                        {/* <div
+                          className='prose max-w-none'
+                          dangerouslySetInnerHTML={{ __html: item.text }}
+                        /> */}
+                        <MathHtmlRenderer html={item.text} />
+                      </TableDataItem>
                       <TableDataItem>{item.answer}</TableDataItem>
                       <TableDataItem>
                         {item.options?.join?.(', ') ?? ''}

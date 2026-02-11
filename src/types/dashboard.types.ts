@@ -1,4 +1,21 @@
 import { TestType } from '@/lib/constants';
+import { IconType } from 'react-icons/lib';
+
+export type EditorAction =
+  | 'bold'
+  | 'italic'
+  | 'underline'
+  | 'math'
+  | 'color'
+  | 'background'
+  | 'text'
+  | 'strike';
+
+export interface EditorIcons {
+  label: string;
+  icon: IconType;
+  action: EditorAction;
+}
 
 export interface Course {
   subject: string;
@@ -221,10 +238,10 @@ export interface AllTeachersResponse {
   };
 }
 // Question Resource Types
-export type ResourceType = "diagram" | "comprehension";
+export type ResourceType = 'diagram' | 'comprehension';
 
 export interface DiagramResource {
-  type: "diagram";
+  type: 'diagram';
   url: string;
   alt?: string;
   caption?: string;
@@ -361,3 +378,4 @@ export interface AllQuestionBankResponse {
     };
   };
 }
+

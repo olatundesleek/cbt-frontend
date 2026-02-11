@@ -4,6 +4,7 @@ import { useTestResultStore } from '@/store/useTestResultStore';
 import { useEffect } from 'react';
 import { FaCheckCircle, FaTimesCircle, FaArrowLeft } from 'react-icons/fa';
 import { useTestStore } from '@/store/useTestStore';
+import MathHtmlRenderer from '@/components/mathHtmlRenderer';
 
 export default function CorrectionsPage() {
   const router = useRouter();
@@ -113,7 +114,8 @@ export default function CorrectionsPage() {
 
               {/* Question Text */}
               <h3 className='text-lg font-semibold text-gray-900 mb-4'>
-                {answer.question.text}
+                {/* {answer.question.text} */}
+                {<MathHtmlRenderer html={answer.question.text} />}
               </h3>
 
               {/* Options */}
@@ -143,7 +145,7 @@ export default function CorrectionsPage() {
                                 : 'text-gray-700'
                           }`}
                         >
-                          {option}
+                          {<MathHtmlRenderer html={option} />}
                         </span>
                         {isCorrectAnswer && (
                           <span className='flex items-center gap-1 text-green-600 text-sm font-medium'>
