@@ -16,7 +16,7 @@ import useDeleteStudent from '@/features/students/hooks/useDeleteStudent';
 import FilterBar, { FilterState } from '@/components/tests/FilterBar';
 import { formatDate } from '../../../../../utils/helpers';
 import StudentSummary from '@/components/tests/StudentSummary';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import type { Student } from '@/types/students.types';
 import useAssignClass from '@/features/students/hooks/useAssignClass';
 import { useGetClasses } from '@/features/dashboard/queries/useDashboard';
@@ -35,7 +35,10 @@ export default function AdminStudentsPage() {
   const { data: adminStudentsData, isLoading: isStudentsLoading } =
     useAdminStudents(params);
 
-  const { data: allClasses, isLoading: classesLoading } = useGetClasses();
+  const { data: allClasses, isLoading: classesLoading } = useGetClasses({
+    limit: 1000,
+    page: 1,
+  });
 
   const [filter, setFilter] = useState<FilterState>({ query: '' });
 
@@ -49,10 +52,17 @@ export default function AdminStudentsPage() {
     [adminStudentsData],
   );
 
+  // const classes = useMemo(() => {
+  //   const arr = (allClasses?.data || []).flatMap((c) => c.className);
+  //   return Array.from(new Set(arr)).filter((v): v is string => !!v);
+  // }, [allClasses]);
+
   const classes = useMemo(() => {
-    const arr = (allClasses?.data || []).flatMap((c) => c.className);
-    return Array.from(new Set(arr)).filter((v): v is string => !!v);
-  }, [allClasses]);
+    const arr = students
+      .map((s) => s.class?.className)
+      .filter((v): v is string => !!v);
+    return Array.from(new Set(arr));
+  }, [students]);
 
   const courses = useMemo(() => {
     const arr = students.flatMap((s) =>
@@ -114,19 +124,22 @@ export default function AdminStudentsPage() {
   const deleteMutation = useDeleteStudent();
 
   // update modal state helper
-  const updateModalState = ({
-    key,
-    value,
-  }: {
-    key: keyof typeof modalState;
-    value:
-      | boolean
-      | Student
-      | ('create' | 'update' | 'delete' | 'assign' | 'view')
-      | null;
-  }) => {
-    setModalState((prev) => ({ ...prev, [key]: value }));
-  };
+  const updateModalState = useCallback(
+    ({
+      key,
+      value,
+    }: {
+      key: keyof typeof modalState;
+      value:
+        | boolean
+        | Student
+        | ('create' | 'update' | 'delete' | 'assign' | 'view')
+        | null;
+    }) => {
+      setModalState((prev) => ({ ...prev, [key]: value }));
+    },
+    [],
+  );
 
   const actionModalContent = useMemo(() => {
     const hasRegisteredCourses =
@@ -189,278 +202,282 @@ export default function AdminStudentsPage() {
   }, [modalState.modalContent, updateModalState, role]);
 
   return (
-    <section className='flex flex-col lg:flex-row gap-6 w-full'>
-      <div className='flex-1 flex flex-col gap-4'>
-        <div className='flex justify-between w-full'>
-          <h1 className='text-2xl font-semibold'>Manage Students</h1>
-          {role === 'admin' && (
-            <div>
-              <Button
-                onClick={() => {
-                  updateModalState({ key: 'type', value: 'create' });
-                  updateModalState({ key: 'isOpen', value: true });
-                }}
-                label='+ Create Student'
-                disabled={role !== 'admin'}
-              />
-            </div>
-          )}
-        </div>
-
-        <FilterBar
-          courses={courses}
-          classes={classes}
-          onChange={(s) => setFilter(s)}
-          onReset={handleOuterReset}
-          showStatusFilter={false}
-          showTestTitleFilter={false}
-        >
-          {/* Search and Filter Section */}
-          <>
-            <select
-              value={params.sort || ''}
-              onChange={(e) =>
-                updateParams({ sort: e.target.value || undefined })
-              }
-              className='rounded-md border border-neutral-300 px-3 py-2 bg-background text-foreground'
-              aria-label='Sort by field'
-            >
-              <option value='' disabled>
-                Sort By
-              </option>
-              <option value='firstname'>First Name</option>
-              <option value='lastname'>Last Name</option>
-              <option value='createdAt'>Date Created</option>
-            </select>
-            <select
-              value={params.order || ''}
-              onChange={(e) =>
-                updateParams({ order: e.target.value as 'asc' | 'desc' })
-              }
-              className='rounded-md border border-neutral-300 px-3 py-2 bg-background text-foreground'
-              aria-label='Sort order'
-            >
-              <option value='' disabled className='bg-neutral-500'>
-                Order
-              </option>
-              <option value='asc'>Ascending</option>
-              <option value='desc'>Descending</option>
-            </select>
-            <select
-              value={params.limit || 10}
-              onChange={(e) => setLimit(Number(e.target.value))}
-              className='rounded-md border border-neutral-300 px-3 py-2 bg-background text-foreground'
-              aria-label='Items per page'
-            >
-              <option value={5}>5 per page</option>
-              <option value={10}>10 per page</option>
-              <option value={20}>20 per page</option>
-              <option value={50}>50 per page</option>
-            </select>
-          </>
-        </FilterBar>
-
-        <div>
-          {role === 'admin' ? (
-            <AppTable
-              isLoading={isStudentsLoading || classesLoading}
-              headerColumns={tableHeaders}
-              data={filteredData}
-              itemKey={({ item }) => `${item.username}`}
-              centralizeLabel={false}
-              paginationMode='server'
-              paginationMeta={{
-                currentPage: adminStudentsData?.data?.pagination?.page || 1,
-                totalPages: adminStudentsData?.data?.pagination?.pages || 1,
-                totalItems: adminStudentsData?.data?.pagination?.total || 0,
-                itemsPerPage: adminStudentsData?.data?.pagination?.limit || 10,
-              }}
-              itemsPerPage={adminStudentsData?.data?.pagination?.limit || 10}
-              onPageChange={goToPage}
-              renderItem={({ item, itemIndex }) => {
-                return (
-                  <>
-                    <TableDataItem>
-                      <span className='font-light text-sm text-neutral-600'>
-                        {((params?.page ?? 1) - 1) *
-                          (adminStudentsData?.data?.pagination?.limit || 10) +
-                          itemIndex +
-                          1}
-                        .
-                      </span>
-                    </TableDataItem>
-                    <TableDataItem>
-                      {item.firstname} {item.lastname}
-                    </TableDataItem>
-                    <TableDataItem>{item.username ?? 'N/A'}</TableDataItem>
-                    <TableDataItem>{item.email ?? 'N/A'}</TableDataItem>
-                    <TableDataItem>{item.phoneNumber ?? 'N/A'}</TableDataItem>
-                    <TableDataItem>
-                      {item.class?.className ?? 'Unassigned'}
-                    </TableDataItem>
-
-                    <TableDataItem>
-                      {item.createdAt
-                        ? formatDate(item.createdAt.toString())
-                        : 'N/A'}
-                    </TableDataItem>
-                  </>
-                );
-              }}
-              onActionClick={({ item }) =>
-                updateModalState({ key: 'modalContent', value: item })
-              }
-              actionModalContent={actionModalContent}
-            />
-          ) : (
-            <AppTable
-              isLoading={isStudentsLoading || classesLoading}
-              headerColumns={tableHeaders}
-              data={filteredData}
-              itemKey={({ item }) => `${item.username}`}
-              centralizeLabel={false}
-              paginationMode='server'
-              paginationMeta={{
-                currentPage: adminStudentsData?.data?.pagination?.page || 1,
-                totalPages: adminStudentsData?.data?.pagination?.pages || 1,
-                totalItems: adminStudentsData?.data?.pagination?.total || 0,
-                itemsPerPage: adminStudentsData?.data?.pagination?.limit || 10,
-              }}
-              itemsPerPage={adminStudentsData?.data?.pagination?.limit || 10}
-              onPageChange={goToPage}
-              renderItem={({ item, itemIndex }) => {
-                return (
-                  <>
-                    <TableDataItem>
-                      <span className='font-light text-sm text-neutral-600'>
-                        {((params?.page ?? 1) - 1) *
-                          (adminStudentsData?.data?.pagination?.limit || 10) +
-                          itemIndex +
-                          1}
-                        .
-                      </span>
-                    </TableDataItem>
-                    <TableDataItem>
-                      {item.firstname && item.lastname
-                        ? `${item.firstname} ${item.lastname}`
-                        : 'N/A'}
-                    </TableDataItem>
-                    <TableDataItem>{item.username ?? 'N/A'}</TableDataItem>
-                    <TableDataItem>
-                      {item.class?.className ?? 'N/A'}
-                    </TableDataItem>
-                  </>
-                );
-              }}
-              onActionClick={({ item }) =>
-                updateModalState({ key: 'modalContent', value: item })
-              }
-              actionModalContent={actionModalContent}
-            />
-          )}
-        </div>
-      </div>
-
-      <aside className='w-full lg:w-80'>
-        <StudentSummary students={students} />
-      </aside>
-
-      <Modal
-        modalIsOpen={modalState.isOpen}
-        setModalIsOpen={(v) =>
-          updateModalState({ key: 'isOpen', value: v as boolean })
-        }
-      >
-        {modalState.type === 'view' ? (
-          <div className='grid grid-cols-4 gap-4'>
-            {(modalState.modalContent?.class?.courses ?? []).length > 0 ? (
-              (modalState.modalContent?.class?.courses ?? []).map((c, i) => (
-                <Badge key={c?.id ?? i}>
-                  <span className='block text-center'>
-                    <span className='block font-black'>
-                      {c?.title ?? 'N/A'}
-                    </span>
-                    <span className='block text-xs'>
-                      {c?.description ?? 'N/A'}
-                    </span>
-                  </span>
-                </Badge>
-              ))
-            ) : (
-              <span>Unassigned</span>
+    <section className=''>
+      <div className='flex flex-col lg:flex-row gap-6 w-full'>
+        <div className='flex-1 flex flex-col gap-4'>
+          <div className='flex justify-between w-full'>
+            <h1 className='text-2xl font-semibold'>Manage Students</h1>
+            {role === 'admin' && (
+              <div>
+                <Button
+                  onClick={() => {
+                    updateModalState({ key: 'type', value: 'create' });
+                    updateModalState({ key: 'isOpen', value: true });
+                  }}
+                  label='+ Create Student'
+                  disabled={role !== 'admin'}
+                />
+              </div>
             )}
           </div>
-        ) : modalState.type === 'create' ? (
-          <AddStudentForm
-            classes={allClasses?.data || []}
-            onClose={() => {
-              updateModalState({ key: 'isOpen', value: false });
-              updateModalState({ key: 'modalContent', value: null });
-            }}
-          />
-        ) : modalState.type === 'update' ? (
-          <UpdateStudentForm
-            classes={allClasses?.data || []}
-            initialData={modalState.modalContent}
-            onClose={() => {
-              updateModalState({ key: 'isOpen', value: false });
-              updateModalState({ key: 'modalContent', value: null });
-            }}
-          />
-        ) : modalState.type === 'assign' ? (
-          <AssignToClassForm
-            classes={allClasses?.data || []}
-            initialData={modalState.modalContent}
-            studentId={modalState.modalContent?.id}
-            onClose={() => {
-              updateModalState({ key: 'isOpen', value: false });
-              updateModalState({ key: 'modalContent', value: null });
-            }}
-          />
-        ) : (
-          <div className='w-full h-full flex flex-col gap-6'>
-            <div className='flex flex-col items-center gap-2 w-full'>
-              <span className='text-lg text-error-700 font-medium'>
-                Delete Student
-              </span>
-              <span className='text-sm font-normal'>
-                This action is irreversible
-              </span>
+
+          <FilterBar
+            courses={courses}
+            classes={classes}
+            onChange={(s) => setFilter(s)}
+            onReset={handleOuterReset}
+            showStatusFilter={false}
+            showTestTitleFilter={false}
+          >
+            {/* Search and Filter Section */}
+            <>
+              <select
+                value={params.sort || ''}
+                onChange={(e) =>
+                  updateParams({ sort: e.target.value || undefined })
+                }
+                className='rounded-md border border-neutral-300 px-3 py-2 bg-background text-foreground'
+                aria-label='Sort by field'
+              >
+                <option value='' disabled>
+                  Sort By
+                </option>
+                <option value='firstname'>First Name</option>
+                <option value='lastname'>Last Name</option>
+                <option value='createdAt'>Date Created</option>
+              </select>
+              <select
+                value={params.order || ''}
+                onChange={(e) =>
+                  updateParams({ order: e.target.value as 'asc' | 'desc' })
+                }
+                className='rounded-md border border-neutral-300 px-3 py-2 bg-background text-foreground'
+                aria-label='Sort order'
+              >
+                <option value='' disabled className='bg-neutral-500'>
+                  Order
+                </option>
+                <option value='asc'>Ascending</option>
+                <option value='desc'>Descending</option>
+              </select>
+              <select
+                value={params.limit || 10}
+                onChange={(e) => setLimit(Number(e.target.value))}
+                className='rounded-md border border-neutral-300 px-3 py-2 bg-background text-foreground'
+                aria-label='Items per page'
+              >
+                <option value={5}>5 per page</option>
+                <option value={10}>10 per page</option>
+                <option value={20}>20 per page</option>
+                <option value={50}>50 per page</option>
+              </select>
+            </>
+          </FilterBar>
+        </div>
+
+        <aside className='w-full lg:w-80'>
+          <StudentSummary students={students} />
+        </aside>
+
+        <Modal
+          modalIsOpen={modalState.isOpen}
+          setModalIsOpen={(v) =>
+            updateModalState({ key: 'isOpen', value: v as boolean })
+          }
+        >
+          {modalState.type === 'view' ? (
+            <div className='grid grid-cols-4 gap-4'>
+              {(modalState.modalContent?.class?.courses ?? []).length > 0 ? (
+                (modalState.modalContent?.class?.courses ?? []).map((c, i) => (
+                  <Badge key={c?.id ?? i}>
+                    <span className='block text-center'>
+                      <span className='block font-black'>
+                        {c?.title ?? 'N/A'}
+                      </span>
+                      <span className='block text-xs'>
+                        {c?.description ?? 'N/A'}
+                      </span>
+                    </span>
+                  </Badge>
+                ))
+              ) : (
+                <span>Unassigned</span>
+              )}
             </div>
+          ) : modalState.type === 'create' ? (
+            <AddStudentForm
+              classes={allClasses?.data || []}
+              onClose={() => {
+                updateModalState({ key: 'isOpen', value: false });
+                updateModalState({ key: 'modalContent', value: null });
+              }}
+            />
+          ) : modalState.type === 'update' ? (
+            <UpdateStudentForm
+              classes={allClasses?.data || []}
+              initialData={modalState.modalContent}
+              onClose={() => {
+                updateModalState({ key: 'isOpen', value: false });
+                updateModalState({ key: 'modalContent', value: null });
+              }}
+            />
+          ) : modalState.type === 'assign' ? (
+            <AssignToClassForm
+              classes={allClasses?.data || []}
+              initialData={modalState.modalContent}
+              studentId={modalState.modalContent?.id}
+              onClose={() => {
+                updateModalState({ key: 'isOpen', value: false });
+                updateModalState({ key: 'modalContent', value: null });
+              }}
+            />
+          ) : (
+            <div className='w-full h-full flex flex-col gap-6'>
+              <div className='flex flex-col items-center gap-2 w-full'>
+                <span className='text-lg text-error-700 font-medium'>
+                  Delete Student
+                </span>
+                <span className='text-sm font-normal'>
+                  This action is irreversible
+                </span>
+              </div>
 
-            <div className='flex flex-row items-center justify-center w-full'>
-              <div className='flex flex-row items-center gap-2 w-full max-w-[50%] mx-auto'>
-                <Button
-                  variant='danger'
-                  onClick={async () => {
-                    if (!modalState.modalContent) return;
-                    try {
-                      await deleteMutation.mutateAsync({
-                        studentId: modalState.modalContent.id,
-                      });
-                      updateModalState({ key: 'isOpen', value: false });
-                      updateModalState({ key: 'modalContent', value: null });
-                    } catch {
-                      // handled in hook
+              <div className='flex flex-row items-center justify-center w-full'>
+                <div className='flex flex-row items-center gap-2 w-full max-w-[50%] mx-auto'>
+                  <Button
+                    variant='danger'
+                    onClick={async () => {
+                      if (!modalState.modalContent) return;
+                      try {
+                        await deleteMutation.mutateAsync({
+                          studentId: modalState.modalContent.id,
+                        });
+                        updateModalState({ key: 'isOpen', value: false });
+                        updateModalState({ key: 'modalContent', value: null });
+                      } catch {
+                        // handled in hook
+                      }
+                    }}
+                    disabled={deleteMutation.isPending}
+                  >
+                    {deleteMutation.isPending ? 'Deleting...' : 'Yes, Delete'}
+                  </Button>
+
+                  <Button
+                    onClick={() =>
+                      updateModalState({ key: 'isOpen', value: false })
                     }
-                  }}
-                  disabled={deleteMutation.isPending}
-                >
-                  {deleteMutation.isPending ? 'Deleting...' : 'Yes, Delete'}
-                </Button>
-
-                <Button
-                  onClick={() =>
-                    updateModalState({ key: 'isOpen', value: false })
-                  }
-                >
-                  No, Cancel
-                </Button>
+                  >
+                    No, Cancel
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
+          )}
+        </Modal>
+      </div>
+
+      {/* ////////////////////////////////// */}
+
+      <div>
+        {role === 'admin' ? (
+          <AppTable
+            isLoading={isStudentsLoading || classesLoading}
+            headerColumns={tableHeaders}
+            data={filteredData}
+            itemKey={({ item }) => `${item.username}`}
+            centralizeLabel={false}
+            paginationMode='server'
+            paginationMeta={{
+              currentPage: adminStudentsData?.data?.pagination?.page || 1,
+              totalPages: adminStudentsData?.data?.pagination?.pages || 1,
+              totalItems: adminStudentsData?.data?.pagination?.total || 0,
+              itemsPerPage: adminStudentsData?.data?.pagination?.limit || 10,
+            }}
+            itemsPerPage={adminStudentsData?.data?.pagination?.limit || 10}
+            onPageChange={goToPage}
+            renderItem={({ item, itemIndex }) => {
+              return (
+                <>
+                  <TableDataItem>
+                    <span className='font-light text-sm text-neutral-600'>
+                      {((params?.page ?? 1) - 1) *
+                        (adminStudentsData?.data?.pagination?.limit || 10) +
+                        itemIndex +
+                        1}
+                      .
+                    </span>
+                  </TableDataItem>
+                  <TableDataItem>
+                    {item.firstname} {item.lastname}
+                  </TableDataItem>
+                  <TableDataItem>{item.username ?? 'N/A'}</TableDataItem>
+                  <TableDataItem>{item.email ?? 'N/A'}</TableDataItem>
+                  <TableDataItem>{item.phoneNumber ?? 'N/A'}</TableDataItem>
+                  <TableDataItem>
+                    {item.class?.className ?? 'Unassigned'}
+                  </TableDataItem>
+
+                  <TableDataItem>
+                    {item.createdAt
+                      ? formatDate(item.createdAt.toString())
+                      : 'N/A'}
+                  </TableDataItem>
+                </>
+              );
+            }}
+            onActionClick={({ item }) =>
+              updateModalState({ key: 'modalContent', value: item })
+            }
+            actionModalContent={actionModalContent}
+          />
+        ) : (
+          <AppTable
+            isLoading={isStudentsLoading || classesLoading}
+            headerColumns={tableHeaders}
+            data={filteredData}
+            itemKey={({ item }) => `${item.username}`}
+            centralizeLabel={false}
+            paginationMode='server'
+            paginationMeta={{
+              currentPage: adminStudentsData?.data?.pagination?.page || 1,
+              totalPages: adminStudentsData?.data?.pagination?.pages || 1,
+              totalItems: adminStudentsData?.data?.pagination?.total || 0,
+              itemsPerPage: adminStudentsData?.data?.pagination?.limit || 10,
+            }}
+            itemsPerPage={adminStudentsData?.data?.pagination?.limit || 10}
+            onPageChange={goToPage}
+            renderItem={({ item, itemIndex }) => {
+              return (
+                <>
+                  <TableDataItem>
+                    <span className='font-light text-sm text-neutral-600'>
+                      {((params?.page ?? 1) - 1) *
+                        (adminStudentsData?.data?.pagination?.limit || 10) +
+                        itemIndex +
+                        1}
+                      .
+                    </span>
+                  </TableDataItem>
+                  <TableDataItem>
+                    {item.firstname && item.lastname
+                      ? `${item.firstname} ${item.lastname}`
+                      : 'N/A'}
+                  </TableDataItem>
+                  <TableDataItem>{item.username ?? 'N/A'}</TableDataItem>
+                  <TableDataItem>
+                    {item.class?.className ?? 'N/A'}
+                  </TableDataItem>
+                </>
+              );
+            }}
+            onActionClick={({ item }) =>
+              updateModalState({ key: 'modalContent', value: item })
+            }
+            actionModalContent={actionModalContent}
+          />
         )}
-      </Modal>
+      </div>
     </section>
   );
 }

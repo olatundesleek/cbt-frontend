@@ -78,12 +78,15 @@ export default function AdminResultPage() {
   }, [resp?.data?.pagination?.total, params.limit]);
 
   // fetch classes and courses for filter selects (from dashboard hooks)
-  const { data: classesResp } = useGetClasses();
-  const { data: coursesResp } = useGetCourses();
-  const { data: testResp } = useAdminTest();
+  const { data: classesResp } = useGetClasses({ limit: 1000, page: 1 });
+  const { data: coursesResp } = useGetCourses({ limit: 1000, page: 1 });
+  const { data: testResp } = useAdminTest({ limit: 1000, page: 1 }); 
 
   // fetch total students from admin students hook
-  const { data: adminStudentsResp } = useAdminStudents();
+  const { data: adminStudentsResp } = useAdminStudents({
+    limit: 1000,
+    page: 1,
+  }); 
 
   // flatten tests into rows
   const rows: Row[] = useMemo(() => {
@@ -106,8 +109,8 @@ export default function AdminResultPage() {
           score != null && courseTotal != null
             ? Math.round((score / courseTotal) * 100)
             : score != null
-            ? `${score}`
-            : '-';
+              ? `${score}`
+              : '-';
 
         out.push({
           id: `${entry.course.id}-${t.session?.id ?? t.id}`,

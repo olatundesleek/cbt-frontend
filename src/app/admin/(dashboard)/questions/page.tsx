@@ -202,7 +202,7 @@ const QuestionBank = () => {
     data: allCourses,
     isLoading: coursesLoading,
     error: coursesError,
-  } = useGetCourses();
+  } = useGetCourses({ limit: 1000, page: 1 }); 
 
   // get all question banks
   const {

@@ -188,7 +188,7 @@ const Courses = () => {
     data: allTeachers,
     isLoading: teachersLoading,
     error: teachersError,
-  } = useGetTeachers();
+  } = useGetTeachers({ limit: 1000, page: 1 }); 
 
   //get all courses
   const {

@@ -714,13 +714,13 @@ export default function AdminTestPage() {
     data: coursesData,
     isLoading: isCoursesDataLoading,
     error: coursesError,
-  } = useGetCourses();
+  } = useGetCourses({ limit: 1000, page: 1 }); 
 
   const {
     data: allQuestionBank,
     isLoading: questionBankLoading,
     error: questionBankError,
-  } = useGetQuestionBank();
+  } = useGetQuestionBank({ limit: 1000, page: 1 }); 
 
   const deleteMutation = useDeleteTest();
 
