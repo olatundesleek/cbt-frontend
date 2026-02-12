@@ -247,7 +247,7 @@ const AdminClasses = () => {
     [],
   );
 
-const [createClassFormKey, setCreateClassFormKey] = useState(0);
+  const [createClassFormKey, setCreateClassFormKey] = useState(0);
   const [searchValue, setSearchValue] = useState<string>('');
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [modalState, setModalState] = useState<{
@@ -306,15 +306,21 @@ const [createClassFormKey, setCreateClassFormKey] = useState(0);
     data: allTeachers,
     isLoading: teachersLoading,
     error: teachersError,
-  } = useGetTeachers();
+  } = useGetTeachers({ page: 1, limit: 1000 });
 
   const {
     data: coursesData,
     isLoading: isCoursesDataLoading,
     error: coursesError,
-  } = useGetCourses();
+  } = useGetCourses({ page: 1, limit: 1000 });
 
-  const { data: students } = useAdminStudents();
+  const {
+    data: allAssignClasses,
+    // isLoading: allAssignClassesLoading,
+    // error: allAssignClassesError,
+  } = useGetClasses({ limit: 1000, page: 1 });
+
+  const { data: students } = useAdminStudents({ limit: 1000, page: 1 });
 
   const quickStats: { icon: ReactNode; label: string; count: number }[] = [
     {
@@ -664,7 +670,7 @@ const [createClassFormKey, setCreateClassFormKey] = useState(0);
                     <option value={''} disabled>
                       Select Class
                     </option>
-                    {allClasses?.data?.map((item) => (
+                    {allAssignClasses?.data?.map((item) => (
                       <option key={item.id} value={item.id}>
                         {item.className}
                       </option>

@@ -398,12 +398,14 @@ function AddTestForm({
   isCoursesDataLoading,
   questionBankLoading,
   role = 'teacher',
+  onClose,
 }: {
   coursesData: AllCourses[];
   allQuestionBank?: { data: AllQuestionBank[] };
   isCoursesDataLoading?: boolean;
   questionBankLoading?: boolean;
   role?: 'admin' | 'teacher' | 'student';
+  onClose?: () => void;
 }) {
   const createTestMutation = useCreateTest();
 
@@ -490,6 +492,8 @@ function AddTestForm({
     try {
       await createTestMutation.mutateAsync(payload);
       reset();
+      toast.success('Test created successfully');
+      if (onClose) onClose();
     } catch (err) {}
   };
 
@@ -710,13 +714,13 @@ export default function AdminTestPage() {
     data: coursesData,
     isLoading: isCoursesDataLoading,
     error: coursesError,
-  } = useGetCourses();
+  } = useGetCourses({ limit: 1000, page: 1 }); 
 
   const {
     data: allQuestionBank,
     isLoading: questionBankLoading,
     error: questionBankError,
-  } = useGetQuestionBank();
+  } = useGetQuestionBank({ limit: 1000, page: 1 }); 
 
   const deleteMutation = useDeleteTest();
 
@@ -1156,6 +1160,10 @@ export default function AdminTestPage() {
             isCoursesDataLoading={isCoursesDataLoading}
             questionBankLoading={questionBankLoading}
             role={role}
+            onClose={() => {
+              updateModalState({ key: 'isOpen', value: false });
+              updateModalState({ key: 'modalContent', value: null });
+            }}
           />
         ) : modalState.type === 'update' ? (
           <UpdateForm

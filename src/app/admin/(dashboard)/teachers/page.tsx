@@ -132,8 +132,8 @@ export default function AdminTeachersPage() {
     <section className='flex flex-col gap-4 w-full'>
       <h1 className='text-2xl font-semibold'>Manage Teachers</h1>
 
-      <div className='grid grid-cols-1 lg:grid-cols-3 w-full gap-4'>
-        <div className='col-span-1 flex flex-col gap-1 bg-background rounded-xl w-full p-3 h-fit'>
+      <div className='flex flex-col w-full gap-4'>
+        <div className='flex flex-col gap-1 bg-background rounded-xl w-full p-3 h-fit'>
           <span className='font-medium'>Create Teacher</span>
 
           <form
@@ -191,7 +191,7 @@ export default function AdminTeachersPage() {
           </form>
         </div>
 
-        <div className='col-span-2 flex flex-col gap-3 bg-background rounded-xl w-full p-3'>
+        <div className='flex flex-col gap-3 bg-background rounded-xl w-full p-3'>
           <span className='font-medium'>All Teachers</span>
 
           {/* Search and Filter Section */}

@@ -244,10 +244,10 @@ const ResourceUploadSection = ({
         </div>
 
         <div className='flex gap-2'>
-          <span className='text-sm px-3 py-1.5 bg-primary-100 text-primary-700 rounded-full'>
+          <span className='text-sm px-3 py-1.5 bg-primary-100 text-primary-700 rounded-full flex items-center gap-1 flex-col text-center'>
             {diagrams.length} Diagrams
           </span>
-          <span className='text-sm px-3 py-1.5 bg-primary-100 text-primary-700 rounded-full'>
+          <span className='text-sm px-3 py-1.5 bg-primary-100 text-primary-700 rounded-full flex items-center gap-1 flex-col text-center'>
             {comprehensions.length} Instructions
           </span>
         </div>
