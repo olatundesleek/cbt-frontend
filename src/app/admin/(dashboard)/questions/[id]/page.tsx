@@ -147,14 +147,88 @@ const Questions = () => {
         <SpinnerMini color='#0c4a6e' />
       ) : (
         <>
-          {/* Resource Upload Section */}
-          <ResourceUploadSection
-            bankId={`${questionBankId}`}
-            onResourcesChange={(resources) => setBankResources(resources)}
-          />
+          <div className='grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full'>
+            <div className=' col-span-3'>
+              {/* Resource Upload Section */}
+              <ResourceUploadSection
+                bankId={`${questionBankId}`}
+                onResourcesChange={(resources) => setBankResources(resources)}
+              />
+            </div>
+            <div className='col-span-1 flex flex-col gap-5 w-full'>
+              <div className='p-3 flex flex-col gap-3 w-full border border-neutral-200 rounded-2xl'>
+                <span className='text-base font-bold'>
+                  Question Bank Summary
+                </span>
+                <div className='flex flex-col gap-4 w-full'>
+                  <div className='flex flex-row items-center justify-between w-full'>
+                    <span>Total Questions</span>
+                    <span>{questions?.length}</span>
+                  </div>
+                  <div className='flex flex-row items-center justify-between w-full'>
+                    <span>Bank ID</span>
+                    <span>{questionBankId}</span>
+                  </div>
+                </div>
+              </div>
 
-          <div className='grid grid-cols-1 lg:grid-cols-4 w-full gap-4'>
-            <div className='grid col-span-1 lg:col-span-3'>
+              <div className='p-3 flex flex-col gap-3 w-full border border-neutral-200 rounded-2xl'>
+                <span className='text-base font-bold'>Upload CSV File</span>
+
+                <Link
+                  download
+                  href={`${
+                    process.env.NEXT_PUBLIC_API_URL
+                  }${dashboardServices.getQuestionsTemplate()}`}
+                  className='px-3 py-2 text-sm font-semibold text-neutral-800 shadow-sm border border-neutral-200 focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer w-fit hover:bg-neutral-200 rounded-md'
+                >
+                  Download Template
+                </Link>
+
+                <div className='flex flex-col gap-4 w-full'>
+                  {/* PUT QUESTIONS HERE */}
+
+                  <div className='flex flex-col gap-2 w-fit'>
+                    <Button
+                      disabled={isPending}
+                      onClick={handleImportQuestions}
+                    >
+                      {isPending
+                        ? 'Uploading...'
+                        : selectedFile
+                          ? 'Upload selected file'
+                          : 'Import Questions'}
+                    </Button>
+                    <input
+                      hidden
+                      ref={inputRef}
+                      type='file'
+                      onChange={handleSelectQuestion}
+                      accept='.csv'
+                    />
+                    {selectedFile && (
+                      <div className='flex flex-row items-center justify-between gap-4 w-full'>
+                        <span className='text-base font-medium text-purple-800'>
+                          {selectedFile?.name}
+                        </span>
+                        <button
+                          aria-label='Remove file'
+                          type='button'
+                          className='cursor-pointer opacity-100 hover:opacity-70'
+                          onClick={() => setSelectedFile(null)}
+                        >
+                          <MdDeleteOutline color='#ef4444' size={16} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className='w-full gap-4'>
+            <div>
               <AppTable
                 data={questions ?? []}
                 isLoading={isLoading}
@@ -235,9 +309,21 @@ const Questions = () => {
                         /> */}
                         <MathHtmlRenderer html={item.text} />
                       </TableDataItem>
-                      <TableDataItem>{item.answer}</TableDataItem>
                       <TableDataItem>
-                        {item.options?.join?.(', ') ?? ''}
+                        {/* {item.answer} */}
+                        <MathHtmlRenderer html={item.answer} />
+                      </TableDataItem>
+                      <TableDataItem>
+                        {/* {item.options?.join?.(', ') ?? ''} */}
+                        {/* {item.options?.map((option, index) => (
+                          <span key={index} className='flex items-center gap-2'>
+                            <MathHtmlRenderer html={option} />
+                          </span>
+                        )) ?? ''} */}
+                        <MathHtmlRenderer
+                          html={item.options?.join(', ') ?? ''}
+                          // options={{ delimiter: '||' }}
+                        />
                       </TableDataItem>
                       <TableDataItem>{item.marks}</TableDataItem>
                     </>
@@ -266,77 +352,6 @@ const Questions = () => {
                   </div>
                 }
               />
-            </div>
-
-            <div className='col-span-1 flex flex-col gap-5 w-full'>
-              <div className='p-3 flex flex-col gap-3 w-full border border-neutral-200 rounded-2xl'>
-                <span className='text-base font-bold'>
-                  Question Bank Summary
-                </span>
-                <div className='flex flex-col gap-4 w-full'>
-                  <div className='flex flex-row items-center justify-between w-full'>
-                    <span>Total Questions</span>
-                    <span>{questions?.length}</span>
-                  </div>
-                  <div className='flex flex-row items-center justify-between w-full'>
-                    <span>Bank ID</span>
-                    <span>{questionBankId}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className='p-3 flex flex-col gap-3 w-full border border-neutral-200 rounded-2xl'>
-                <span className='text-base font-bold'>Upload CSV File</span>
-
-                <Link
-                  download
-                  href={`${
-                    process.env.NEXT_PUBLIC_API_URL
-                  }${dashboardServices.getQuestionsTemplate()}`}
-                  className='px-3 py-2 text-sm font-semibold text-neutral-800 shadow-sm border border-neutral-200 focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer w-fit hover:bg-neutral-200 rounded-md'
-                >
-                  Download Template
-                </Link>
-
-                <div className='flex flex-col gap-4 w-full'>
-                  {/* PUT QUESTIONS HERE */}
-
-                  <div className='flex flex-col gap-2 w-fit'>
-                    <Button
-                      disabled={isPending}
-                      onClick={handleImportQuestions}
-                    >
-                      {isPending
-                        ? 'Uploading...'
-                        : selectedFile
-                          ? 'Upload selected file'
-                          : 'Import Questions'}
-                    </Button>
-                    <input
-                      hidden
-                      ref={inputRef}
-                      type='file'
-                      onChange={handleSelectQuestion}
-                      accept='.csv'
-                    />
-                    {selectedFile && (
-                      <div className='flex flex-row items-center justify-between gap-4 w-full'>
-                        <span className='text-base font-medium text-purple-800'>
-                          {selectedFile?.name}
-                        </span>
-                        <button
-                          aria-label='Remove file'
-                          type='button'
-                          className='cursor-pointer opacity-100 hover:opacity-70'
-                          onClick={() => setSelectedFile(null)}
-                        >
-                          <MdDeleteOutline color='#ef4444' size={16} />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </>
