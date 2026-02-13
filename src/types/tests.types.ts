@@ -105,6 +105,7 @@ export type SubmitAnswersAndGetNextResponse =
           startedAt: string;
           endedAt: string;
           score: number;
+          totalMarks: number;
           test: {
             id: number;
             title: string;
@@ -201,6 +202,7 @@ export interface SubmitTestSessionResponse {
     startedAt: string;
     endedAt: string;
     score: number;
+    totalMarks: number;
     test: {
       id: number;
       title: string;

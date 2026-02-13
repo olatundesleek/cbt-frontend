@@ -112,6 +112,9 @@ const Questions = () => {
     }
   };
 
+  const totalMarks =
+    questions?.reduce((sum, question) => sum + question.marks, 0) ?? 0;
+
   if (error) {
     toast.error(getErrorDetails(error));
   }
@@ -164,6 +167,10 @@ const Questions = () => {
                   <div className='flex flex-row items-center justify-between w-full'>
                     <span>Total Questions</span>
                     <span>{questions?.length}</span>
+                  </div>
+                  <div className='flex flex-row items-center justify-between w-full'>
+                    <span>Total Marks</span>
+                    <span>{totalMarks}</span>
                   </div>
                   <div className='flex flex-row items-center justify-between w-full'>
                     <span>Bank ID</span>

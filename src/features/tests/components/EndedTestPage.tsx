@@ -35,7 +35,7 @@ export default function EndedTestPage() {
   };
 
   if (testResult.test?.type ?? false) {
-    const { test, score } = testResult;
+    const { test, score, totalMarks } = testResult;
     const totalQuestions = selectedTest.totalQuestions;
     const testType = test?.type.toLowerCase() as 'test' | 'exam' | 'practice';
 
@@ -70,14 +70,12 @@ export default function EndedTestPage() {
             </div>
 
             {/* Score Display (if available) */}
-            {score !== undefined && totalQuestions !== undefined && (
+            {score !== undefined && totalMarks !== undefined && (
               <div className='bg-linear-to-r from-primary-50 to-primary-100 rounded-2xl p-6 text-center'>
                 <p className='text-sm text-gray-600 mb-2'>Your Score</p>
                 <p className='text-5xl font-bold text-primary-700'>
                   {score}
-                  <span className='text-2xl text-gray-500'>
-                    /{totalQuestions}
-                  </span>
+                  <span className='text-2xl text-gray-500'>/{totalMarks}</span>
                 </p>
               </div>
             )}
