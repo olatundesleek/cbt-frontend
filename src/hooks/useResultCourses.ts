@@ -2,7 +2,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { resultsServices } from '@/services/resultsService';
 import type {
   StudentResultCoursesResponse,
-  CourseResults,
   getAllResultAdminResponse,
   AdminSingleResultResponse,
 } from '@/types/results.types';

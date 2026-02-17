@@ -125,7 +125,7 @@ export const resultsServices = {
   getTestBySessionId: async (
     sessionId: number,
   ): Promise<AdminSingleResultResponse> => {
-    const response = await api.get(`results/test/${sessionId}`);
+    const response = await api.get(`results/session/${sessionId}`);
     return response.data as AdminSingleResultResponse;
   },
 };

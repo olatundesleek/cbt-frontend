@@ -18,6 +18,7 @@ import ResultsFiltersBar, {
 } from '@/features/results/components/ResultsFiltersBar';
 import DownloadResults from '@/features/results/components/DownloadResults';
 import { useAdminTest } from '@/features/tests/hooks/useTests';
+import StudentAnswersViewer from '@/features/results/components/StudentAnswersViewer';
 
 type Row = {
   id: string;
@@ -379,7 +380,7 @@ export default function AdminResultPage() {
                     setModalOpen(true);
                   }}
                 >
-                  View
+                  View Session
                 </Button>
               </TableDataItem>
             </>
@@ -388,11 +389,11 @@ export default function AdminResultPage() {
       </div>
       {/* Result detail modal */}
       <Modal modalIsOpen={modalOpen} setModalIsOpen={setModalOpen}>
-        <div className='p-6'>
-          <div className='flex justify-between items-center'>
+        <div className='p-6 max-h-[90vh] overflow-y-auto'>
+          <div className='flex justify-between items-center mb-6'>
             <h2 className='text-xl font-semibold'>Result Details</h2>
             <button
-              className='text-sm text-neutral-500'
+              className='text-sm text-neutral-500 hover:text-neutral-700'
               onClick={() => setModalOpen(false)}
             >
               Close
@@ -402,91 +403,104 @@ export default function AdminResultPage() {
           {/* show loading state while we fetch single result */}
           {singleResultQuery.isLoading ? (
             <div className='mt-6'>
-              <div className='text-sm text-neutral-500'>Loading result...</div>
+              <div className='text-sm text-neutral-500'>Loading session...</div>
             </div>
           ) : singleResultQuery.data ? (
             (() => {
               const payload = singleResultQuery.data.data;
+              const hasAnswers = 'questionsAnswers' in payload;
+
+              //  show basic result details
               const s = payload.session;
               const st = payload.student;
               const t = payload.test;
 
               return (
-                <div className='mt-4 space-y-4'>
-                  <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-                    <div className='bg-gray-50 p-4 rounded'>
-                      <div className='text-sm text-neutral-500'>Test</div>
-                      <div className='font-medium'>{t?.title}</div>
-                      <div className='text-sm text-neutral-500 mt-2'>Type</div>
-                      <div className='font-medium'>{t?.type}</div>
-                      <div className='text-sm text-neutral-500 mt-2'>
-                        Test ID
+                <>
+                  <div className='mt-4 space-y-4'>
+                    <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                      <div className='bg-gray-50 p-4 rounded'>
+                        <div className='text-sm text-neutral-500'>Test</div>
+                        <div className='font-medium'>{t?.title}</div>
+                        <div className='text-sm text-neutral-500 mt-2'>
+                          Type
+                        </div>
+                        <div className='font-medium'>{t?.type}</div>
+                        <div className='text-sm text-neutral-500 mt-2'>
+                          Test ID
+                        </div>
+                        <div className='font-medium'>{t?.id}</div>
                       </div>
-                      <div className='font-medium'>{t?.id}</div>
-                      {/* <div className='text-sm text-neutral-500 mt-2'>
-                        Can view answers
-                      </div>
-                      <div className='font-medium capitalize'>
-                        {String(payload.canViewAnswers)}
-                      </div> */}
-                    </div>
 
-                    <div className='bg-gray-50 p-4 rounded'>
-                      {/* <div className='text-sm text-neutral-500'>Session</div>
-                      <div className='font-medium'>ID: {s?.id}</div> */}
-                      <div className='text-sm text-neutral-500 mt-2'>
-                        Started At
+                      <div className='bg-gray-50 p-4 rounded'>
+                        <div className='text-sm text-neutral-500 mt-2'>
+                          Started At
+                        </div>
+                        <div className='font-medium'>
+                          {s?.startedAt
+                            ? new Date(s.startedAt).toLocaleString()
+                            : '-'}
+                        </div>
+                        <div className='text-sm text-neutral-500 mt-2'>
+                          Ended At
+                        </div>
+                        <div className='font-medium'>
+                          {s?.endedAt
+                            ? new Date(s.endedAt).toLocaleString()
+                            : '-'}
+                        </div>
+                        <div className='text-sm text-neutral-500 mt-2'>
+                          Score
+                        </div>
+                        <div className='font-medium'>{s?.score ?? '-'}</div>
+                        <div className='text-sm text-neutral-500 mt-2'>
+                          Status
+                        </div>
+                        <div
+                          className={`font-medium capitalize px-3 py-1 rounded w-fit ${
+                            s?.status?.toUpperCase() === 'PASSED'
+                              ? 'bg-green-100 text-green-700'
+                              : 'bg-red-100 text-red-700'
+                          }`}
+                        >
+                          {s?.status}
+                        </div>
                       </div>
-                      <div className='font-medium'>
-                        {s?.startedAt
-                          ? new Date(s.startedAt).toLocaleString()
-                          : '-'}
-                      </div>
-                      <div className='text-sm text-neutral-500 mt-2'>
-                        Ended At
-                      </div>
-                      <div className='font-medium'>
-                        {s?.endedAt
-                          ? new Date(s.endedAt).toLocaleString()
-                          : '-'}
-                      </div>
-                      <div className='text-sm text-neutral-500 mt-2'>Score</div>
-                      <div className='font-medium'>{s?.score ?? '-'}</div>
-                      <div className='text-sm text-neutral-500 mt-2'>
-                        Status
-                      </div>
-                      <div
-                        className={`font-medium capitalize px-3 py-1 rounded w-fit ${
-                          s?.status?.toUpperCase() === 'PASSED'
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-red-100 text-red-700'
-                        }`}
-                      >
-                        {s?.status}
-                      </div>
-                    </div>
 
-                    <div className='bg-gray-50 p-4 rounded'>
-                      <div className='text-sm text-neutral-500'>Student</div>
-                      <div className='font-medium capitalize'>
-                        {st?.firstname} {st?.lastname}
-                      </div>
-                      {/* <div className='text-sm text-neutral-500 mt-2'>
-                        Student ID
-                      </div>
-                      <div className='font-medium'>{st?.id}</div> */}
-                      <div className='text-sm text-neutral-500 mt-2'>Class</div>
-                      <div className='font-medium'>{st?.class?.className}</div>
+                      <div className='bg-gray-50 p-4 rounded'>
+                        <div className='text-sm text-neutral-500'>Student</div>
+                        <div className='font-medium capitalize'>
+                          {st?.firstname} {st?.lastname}
+                        </div>
+                        <div className='text-sm text-neutral-500 mt-2'>
+                          Class
+                        </div>
+                        <div className='font-medium'>
+                          {st?.class?.className}
+                        </div>
 
-                      <div className='text-sm text-neutral-500 mt-2'>
-                        Test Created By
-                      </div>
-                      <div className='font-medium'>
-                        {t?.createdBy.name ?? '-'}
+                        <div className='text-sm text-neutral-500 mt-2'>
+                          Test Created By
+                        </div>
+                        <div className='font-medium'>
+                          {t?.createdBy.name ?? '-'}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                  {
+                    // If we have detailed answers, show the StudentAnswersViewer component
+                    hasAnswers && payload.questionsAnswers && (
+                      <StudentAnswersViewer
+                        data={
+                          payload as unknown as Parameters<
+                            typeof StudentAnswersViewer
+                          >[0]['data']
+                        }
+                      />
+                    )
+                  }
+                </>
               );
             })()
           ) : (

@@ -11,23 +11,24 @@ interface ModalProps {
 
 const customStyles = {
   overlay: {
-    background: "rgba(0,0,0,0.7)",
+    background: 'rgba(0,0,0,0.7)',
     zIndex: 100,
   },
   content: {
-    top: "50%",
-    left: "50%",
-    right: "auto",
-    bottom: "auto",
-    marginRight: "-50%",
-    transform: "translate(-50%, -50%)",
-    background: "#fff",
-    width: "100%",
-    borderRadius: "1rem",
-    maxWidth: "50%",
-    minHeight: "20vh",
-    maxHeight: "90vh",
-    overflow: "auto",
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)',
+    background: '#fff',
+    width: '100%',
+    borderRadius: '1rem',
+    minWidth: '300px',
+    maxWidth: '50%',
+    minHeight: '20vh',
+    maxHeight: '90vh',
+    overflow: 'auto',
   },
 };
 

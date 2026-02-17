@@ -205,3 +205,67 @@ export interface AdminSingleResultResponse {
     course: Course;
   };
 }
+
+// New types for session with detailed answers
+export interface QuestionDetail {
+  id: number;
+  text: string;
+  options: string[];
+  imageUrl: string | null;
+  comprehensionText: string | null;
+  marks: number;
+}
+
+export interface QuestionAnswerDetail {
+  id: number | null;
+  questionId: number;
+  selectedOption: string | null;
+  isCorrect: boolean;
+  displayNumber: number;
+  question: QuestionDetail;
+  correctAnswer: string;
+}
+
+export interface SessionStudent {
+  id: number;
+  firstname: string;
+  lastname: string;
+  class: {
+    id: number;
+    className: string;
+    teacherId: number;
+    createdAt: string;
+  };
+}
+
+export interface SessionTest {
+  id: number;
+  title: string;
+  type: TestType;
+  showResult: boolean;
+  createdBy: {
+    id: number;
+    name: string;
+  };
+  passMark: number;
+}
+
+export interface SessionCourse {
+  id: number;
+  title: string;
+  description: string;
+  teacherId: number;
+  createdAt: string;
+}
+
+export interface ResultSessionWithAnswersResponse {
+  success: boolean;
+  message: string;
+  data: {
+    session: TestSessionDetail;
+    student: SessionStudent;
+    test: SessionTest;
+    course: SessionCourse;
+    questionsAnswers: QuestionAnswerDetail[];
+  };
+}
