@@ -27,6 +27,7 @@ interface TestSession {
   startedAt: string;
   endedAt: string;
   score: number;
+  totalMarks: number;
   test: {
     id: number;
     title: string;

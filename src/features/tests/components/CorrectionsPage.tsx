@@ -22,10 +22,10 @@ export default function CorrectionsPage() {
     return null;
   }
 
-  const { test, answers, score } = testResult;
+  const { test, answers, score, totalMarks } = testResult;
   const totalQuestions = selectedTest?.totalQuestions || 0;
   const correctCount = answers.filter((a) => a.isCorrect).length;
-  const percentage = Math.round((score / totalQuestions) * 100);
+  const percentage = Math.round((score / totalMarks) * 100);
 
 
   return (
@@ -54,7 +54,7 @@ export default function CorrectionsPage() {
             <div className='bg-primary-50 rounded-xl p-4 text-center min-w-[150px]'>
               <p className='text-sm text-gray-600 mb-1'>Your Score</p>
               <p className='text-3xl font-bold text-primary-700'>
-                {score}/{totalQuestions}
+                {score}/{totalMarks}
               </p>
               <p className='text-sm text-gray-500'>{percentage}%</p>
             </div>
