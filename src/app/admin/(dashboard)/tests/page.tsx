@@ -198,6 +198,7 @@ function UpdateForm({
     }
   };
 
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
       <Input
@@ -408,7 +409,7 @@ function AddTestForm({
   onClose?: () => void;
 }) {
   const createTestMutation = useCreateTest();
-
+console.log({ allQuestionBank });
   type FormValues = {
     title: string;
     type: string;
@@ -601,7 +602,10 @@ function AddTestForm({
                   <div className='flex flex-col'>
                     <span className='font-medium'>{bank.questionBankName}</span>
                     <small className='text-neutral-500'>
-                      {bank._count?.questions ?? 0} questions
+                      {bank._count?.questions ?? 0} questions{' '}
+                      {bank.totalObtainableMarks
+                        ? `- Total Marks: ${bank.totalObtainableMarks}`
+                        : '0 marks'}
                     </small>
                   </div>
                 </label>
