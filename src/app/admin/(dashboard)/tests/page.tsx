@@ -330,17 +330,6 @@ function UpdateForm({
                 No question banks available for this course
               </div>
             )}
-            {selectedBankId && (
-              <div className='text-sm text-neutral-500'>
-                Total obtainable marks:{' '}
-                {(() => {
-                  const selectedBank = (allQuestionBank?.data ?? []).find(
-                    (bank) => `${bank.id}` === `${selectedBankId}`,
-                  );
-                  return selectedBank?.totalObtainableMarks ?? 0;
-                })()}
-              </div>
-            )}
           </div>
         )}
       </div>
@@ -661,17 +650,6 @@ function AddTestForm({
             ).length === 0 && (
               <div className='text-sm text-error-500'>
                 No question banks available for this course
-              </div>
-            )}
-            {selectedBankId && (
-              <div className='text-sm text-neutral-500'>
-                Total obtainable marks:{' '}
-                {(() => {
-                  const selectedBank = (allQuestionBank?.data ?? []).find(
-                    (bank) => `${bank.id}` === `${selectedBankId}`,
-                  );
-                  return selectedBank?.totalObtainableMarks ?? 0;
-                })()}
               </div>
             )}
           </div>

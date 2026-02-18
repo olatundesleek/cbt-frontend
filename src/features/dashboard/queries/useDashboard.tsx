@@ -61,6 +61,16 @@ export const useGetQuestionBank = (params?: PaginationParams) => {
   return queryResponse;
 };
 
+export const useGetQuestionBankDetails = (bankId: string) => {
+  const queryResponse = useQuery({
+    queryFn: () => dashboardServices.getQuestionBankDetails(bankId),
+    queryKey: ['questionBankDetails', bankId],
+    enabled: !!bankId,
+  });
+
+  return queryResponse;
+};
+
 export const useGetQuestionsInBank = (bankId: string) => {
   const queryResponse = useQuery({
     queryFn: () => dashboardServices.getQuestionsInBank(bankId),

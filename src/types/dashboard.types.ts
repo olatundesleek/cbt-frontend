@@ -379,4 +379,8 @@ export interface AllQuestionBankResponse {
     };
   };
 }
-
+export interface QuestionBankDetailsResponse {
+  success: boolean;
+  message: string;
+  data: AllQuestionBank;
+}
