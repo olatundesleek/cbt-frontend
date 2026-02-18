@@ -7,6 +7,7 @@ import {
   AllTeachersResponse,
   DashboardResponse,
   GetQuestionBankResourcesResponse,
+  QuestionBankDetailsResponse,
   QuestionsInBank,
 } from '@/types/dashboard.types';
 
@@ -42,6 +43,13 @@ export const dashboardServices = {
     params?: PaginationParams,
   ): Promise<AllQuestionBankResponse> => {
     const response = await api.get('/question-banks', { params });
+    return response.data;
+  },
+
+  getQuestionBankDetails: async (
+    bankId: string,
+  ): Promise<QuestionBankDetailsResponse> => {
+    const response = await api.get(`/question-banks/${bankId}`);
     return response.data;
   },
 

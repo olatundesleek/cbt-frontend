@@ -1,3 +1,4 @@
+import { Question } from './../store/useTestAttemptStore';
 import { TestType } from '@/lib/constants';
 import { IconType } from 'react-icons/lib';
 
@@ -379,4 +380,8 @@ export interface AllQuestionBankResponse {
     };
   };
 }
-
+export interface QuestionBankDetailsResponse {
+  success: boolean;
+  message: string;
+  data: AllQuestionBank;
+}
