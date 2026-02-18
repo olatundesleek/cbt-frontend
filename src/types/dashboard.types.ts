@@ -1,4 +1,3 @@
-import { Question } from './../store/useTestAttemptStore';
 import { TestType } from '@/lib/constants';
 import { IconType } from 'react-icons/lib';
 
