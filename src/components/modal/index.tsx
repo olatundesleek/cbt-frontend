@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Dispatch, ReactNode, SetStateAction } from "react";
+import React, { Dispatch, ReactNode, SetStateAction, useEffect } from "react";
 import ReactModal from "react-modal";
 
 interface ModalProps {
@@ -36,6 +36,18 @@ const Modal = ({ modalIsOpen, setModalIsOpen, children }: ModalProps) => {
   const handleCloseModal = () => {
     setModalIsOpen(false);
   };
+
+  useEffect(() => {
+    if (modalIsOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [modalIsOpen]);
 
   return (
     <ReactModal
