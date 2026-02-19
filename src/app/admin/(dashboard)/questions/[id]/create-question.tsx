@@ -262,6 +262,7 @@ interface QuestionEditorProps {
   editorInputRef: RefObject<ReactQuill | null>;
   onChange: (value: string) => void;
   onFocus: () => void;
+  errorMessage?: string;
 }
 
 const QuestionEditor = ({
@@ -269,6 +270,7 @@ const QuestionEditor = ({
   editorInputRef,
   onChange,
   onFocus,
+  errorMessage,
 }: QuestionEditorProps) => {
   return (
     <div className='flex flex-col gap-1'>
@@ -281,10 +283,16 @@ const QuestionEditor = ({
         value={editorValue}
         onChange={onChange}
         onChangeSelection={onFocus}
-        className='rounded-lg border border-neutral-300 focus-within:border-blue-500 overflow-hidden shadow-sm focus-within:ring-1 focus-within:ring-blue-500 h-10'
+        className={`rounded-lg overflow-hidden shadow-sm h-10 ${
+          errorMessage
+            ? 'border border-error-500 focus-within:border-error-500 focus-within:ring-1 focus-within:ring-error-500'
+            : 'border border-neutral-300 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500'
+        }`}
         id='questionText'
         placeholder='What is 1 + 5'
       />
+
+      {errorMessage && <small className='text-error-500'>{errorMessage}</small>}
     </div>
   );
 };
@@ -296,6 +304,7 @@ interface OptionEditorProps {
   editorRef: RefObject<ReactQuill | null>;
   onChange: (value: string) => void;
   onFocus: (optionKey: OptionKey) => void;
+  errorMessage?: string;
 }
 
 const OptionEditor = ({
@@ -305,6 +314,7 @@ const OptionEditor = ({
   editorRef,
   onChange,
   onFocus,
+  errorMessage,
 }: OptionEditorProps) => {
   return (
     <div className='flex flex-col gap-2 p-2 rounded-md'>
@@ -315,10 +325,16 @@ const OptionEditor = ({
         value={value}
         onChange={onChange}
         onChangeSelection={() => onFocus(optionKey)}
-        className='rounded-md border border-neutral-300 focus-within:border-blue-500 shadow-sm focus-within:ring-1 focus-within:ring-blue-500 h-12 bg-white'
+        className={`rounded-md shadow-sm h-12 bg-white ${
+          errorMessage
+            ? 'border border-error-500 focus-within:border-error-500 focus-within:ring-1 focus-within:ring-error-500'
+            : 'border border-neutral-300 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500'
+        }`}
         id={optionKey}
         placeholder={`Enter ${label}`}
       />
+
+      {errorMessage && <small className='text-error-500'>{errorMessage}</small>}
     </div>
   );
 };
@@ -370,6 +386,7 @@ const QuestionFormFields = ({
             editorRef={optionEditorRefs[optionKey]}
             onChange={(value) => onOptionChange(optionKey, value)}
             onFocus={onOptionFocus}
+            errorMessage={errors[optionKey]?.message}
           />
         ),
       )}
@@ -544,7 +561,10 @@ const CreateQuestion = ({
 
   const handleEditorChange = (value: string) => {
     setEditorValue(value);
-    setValue('questionText', value, { shouldDirty: true });
+    setValue('questionText', value, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
   };
 
   const handleOptionChange = (optionKey: OptionKey, value: string) => {
@@ -555,7 +575,7 @@ const CreateQuestion = ({
         value,
       },
     }));
-    setValue(optionKey, value, { shouldDirty: true });
+    setValue(optionKey, value, { shouldDirty: true, shouldValidate: true });
   };
 
   const applyFormatToActiveOption = (action: EditorAction, value?: string) => {
@@ -958,6 +978,7 @@ const CreateQuestion = ({
             editorInputRef={editorInputRef}
             onChange={handleEditorChange}
             onFocus={() => setActiveOptionKey(null)}
+            errorMessage={errors.questionText?.message}
           />
 
           <QuestionFormFields

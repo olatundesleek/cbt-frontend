@@ -314,7 +314,11 @@ export default function AdminNotificationPage() {
           updateModalState({ key: 'isOpen', value: value as boolean })
         }
       >
-        {modalState.type === 'create' && <CreateNotificationForm />}
+        {modalState.type === 'create' && (
+          <CreateNotificationForm
+            onClose={() => updateModalState({ key: 'isOpen', value: false })}
+          />
+        )}
         {modalState.type === 'update' && (
           <UpdateNotificationForm
             initialData={modalState.modalContent}
@@ -517,7 +521,7 @@ function UpdateNotificationForm({
   );
 }
 
-function CreateNotificationForm() {
+function CreateNotificationForm({ onClose }: { onClose?: () => void }) {
   const {
     mutate: createNotification,
     isPending: isCreatingNotificationPending,
@@ -547,6 +551,7 @@ function CreateNotificationForm() {
       courseId: data.courseId ? Number(data.courseId) : undefined,
     };
     createNotification(payload);
+    if (onClose) onClose();
   };
 
   return (
