@@ -30,25 +30,32 @@ export default function QuestionCard({
 }: Props) {
   return (
     <div className='relative'>
-      <h2 className='font-medium flex-1 flex items-center gap-2'>
+      <h2 className='font-medium mb-4 w-full max-w-full flex items-start gap-1'>
         {/* Q{displayNumber}. {question.question}Q{displayNumber}.{' '} */}
-        {`Q${displayNumber}. `}
-        {<MathHtmlRenderer html={question.question} />}
+        <span className='shrink-0'>{`Q${displayNumber}.`}</span>
+        <div className='min-w-0 flex-1 wrap-break-word'>
+          <MathHtmlRenderer html={question.question} />
+        </div>
       </h2>
 
       <div className='space-y-2 mb-4'>
         {question.options.map((opt) => (
-          <label key={opt} className='flex items-center gap-2 cursor-pointer'>
+          <label
+            key={opt}
+            className='flex items-start gap-2 cursor-pointer min-w-0'
+          >
             <input
               type='radio'
               name={`q-${question.id}`}
               value={opt}
               checked={selected === opt}
               onChange={() => onSelect(opt)}
-              className='cursor-pointer'
+              className='cursor-pointer mt-1 shrink-0'
             />
             {/* <span>{opt}</span> */}
-            <span>{<MathHtmlRenderer html={opt} />}</span>
+            <span className='min-w-0 wrap-break-word'>
+              <MathHtmlRenderer html={opt} />
+            </span>
           </label>
         ))}
       </div>

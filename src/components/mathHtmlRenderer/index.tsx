@@ -37,7 +37,7 @@ export default function MathHtmlRenderer({ html }: { html: string }) {
   return (
     <div
       ref={ref}
-      className='prose max-w-none'
+      className='prose max-w-none wrap-break-word **:wrap-break-word'
       dangerouslySetInnerHTML={{ __html: transformMath(html) }}
     />
   );

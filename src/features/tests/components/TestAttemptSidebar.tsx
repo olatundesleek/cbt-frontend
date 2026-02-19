@@ -113,7 +113,7 @@ export default function TestAttemptSidebar({
 
       {/* Submit Button */}
       <div className='mt-10'>
-        <Button label='Submit Exam' onClick={handleSubmit} />
+        <Button label='Submit' onClick={handleSubmit} />
       </div>
 
       <p className='text-xs text-gray-400 mt-3'>

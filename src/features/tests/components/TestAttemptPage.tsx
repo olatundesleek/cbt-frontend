@@ -277,7 +277,7 @@ export default function TestAttemptPage() {
                   disabled={isSubmitting || isSubmittingAndGettingNext}
                   className='w-full max-w-40 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium'
                 >
-                  {isSubmitting ? 'Submitting...' : 'Submit Test'}
+                  {isSubmitting ? 'Submitting...' : 'Submit'}
                 </button>
               ) : (
                 <button
