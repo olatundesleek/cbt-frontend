@@ -34,9 +34,9 @@ export const resultsServices = {
     Object.entries(params ?? {})
       .filter(
         ([key, value]) =>
-          key !== 'limit' &&
-          key !== 'page' &&
-          key !== 'search' &&
+          // key !== 'limit' &&
+          // key !== 'page' &&
+          // key !== 'search' &&
           value !== undefined,
       )
       .forEach(([key, value]) => {
@@ -77,7 +77,8 @@ export const resultsServices = {
     Object.entries(params ?? {})
       .filter(
         ([key, value]) =>
-          key !== 'limit' && key !== 'page' && value !== undefined,
+          // key !== 'limit' && key !== 'page' &&
+          value !== undefined,
       )
       .forEach(([key, value]) => {
         query.append(key, String(value));
