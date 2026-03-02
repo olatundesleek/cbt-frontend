@@ -78,6 +78,11 @@ type RemovedResources = {
 
 type OptionKey = 'optionA' | 'optionB' | 'optionC' | 'optionD';
 
+type EditorSelection = {
+  index: number;
+  length: number;
+};
+
 type OptionEditorState = {
   optionA: {
     value: string;
@@ -517,6 +522,9 @@ const CreateQuestion = ({
   const [mathTargetOption, setMathTargetOption] = useState<OptionKey | null>(
     null,
   );
+  const [mathSelection, setMathSelection] = useState<EditorSelection | null>(
+    null,
+  );
   const [editorValue, setEditorValue] = useState('');
   const editorInputRef = useRef<ReactQuill>(null);
   const [activeOptionKey, setActiveOptionKey] = useState<OptionKey | null>(
@@ -589,6 +597,7 @@ const CreateQuestion = ({
 
     if (action === 'math') {
       setMathTargetOption(activeOptionKey);
+      setMathSelection({ index: range.index, length: range.length });
       setShowMathModal(true);
       return;
     }
@@ -829,6 +838,8 @@ const CreateQuestion = ({
     if (!range) return;
 
     if (action === 'math') {
+      setMathTargetOption(null);
+      setMathSelection({ index: range.index, length: range.length });
       setShowMathModal(true);
       return;
     }
@@ -917,18 +928,31 @@ const CreateQuestion = ({
       ? optionEditorRefs[mathTargetOption]
       : editorInputRef;
     const quill = targetRef.current?.getEditor();
-    const range = quill?.getSelection();
-    if (!quill || !range) return;
+    if (!quill) return;
 
     const cleanedLatex = mathValue
       .replace(/\\\s+/g, ' ') // remove "\\ "
       .replace(/\s+/g, ' ') // normalize spaces
       .trim();
 
-    quill.insertText(range.index, `⟦${cleanedLatex}⟧`);
+    const range = quill.getSelection() ?? mathSelection;
+    const insertionIndex = range?.index ?? quill.getLength();
+
+    quill.focus();
+    quill.setSelection(insertionIndex, 0, 'silent');
+    quill.insertText(insertionIndex, `⟦${cleanedLatex}⟧`);
+
     setShowMathModal(false);
     setMathValue('');
     setMathTargetOption(null);
+    setMathSelection(null);
+  };
+
+  const handleCloseMathModal = () => {
+    setShowMathModal(false);
+    setMathValue('');
+    setMathTargetOption(null);
+    setMathSelection(null);
   };
 
   return (
@@ -998,7 +1022,7 @@ const CreateQuestion = ({
         <MathModal
           mathValue={mathValue}
           onChange={setMathValue}
-          onClose={() => setShowMathModal(false)}
+          onClose={handleCloseMathModal}
           onInsert={handleInsertMath}
         />
       )}
