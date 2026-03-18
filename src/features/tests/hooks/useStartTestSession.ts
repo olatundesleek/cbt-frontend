@@ -48,17 +48,17 @@ export function useStartTestSession(): UseMutationResult<
 
         // Merge any returned selectedOption into the answers map
         const merged: Record<number, string> = { ...answers };
-        data.data.questions.forEach((q) => {
+        data.data.answered.forEach((q) => {
           if (typeof q.selectedOption === 'string' && q.selectedOption) {
-            merged[q.id] = q.selectedOption;
+            merged[q.questionId] = q.selectedOption;
           }
         });
         setAnswers(merged);
 
         // Populate question id -> displayNumber map for navigator
         updateQuestionMap(
-          data.data.questions.map((q) => ({
-            id: q.id,
+          data.data.answered.map((q) => ({
+            id: q.questionId,
             displayNumber: q.displayNumber,
           })),
         );
