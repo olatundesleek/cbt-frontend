@@ -8,12 +8,12 @@ import getErrorDetails from '@/utils/getErrorDetails';
 /**
  * React Query hook to submit an answer for a test session
  */
-export function useSubmitAnswer(sessionId: string | number) {
+export function useSubmitAnswer() {
   return useMutation<SubmitAnswerResponse, AppError, SubmitAnswerRequest>({
-    mutationFn: (data: SubmitAnswerRequest) => submitAnswer(sessionId, data),
+    mutationFn: (data: SubmitAnswerRequest) => submitAnswer(data),
     onError: (err) => {
-         const message = getErrorDetails(err);
-         toast.error(message);
+      const message = getErrorDetails(err);
+      toast.error(message);
     },
   });
 }

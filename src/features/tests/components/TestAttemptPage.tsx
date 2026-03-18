@@ -16,6 +16,7 @@ import { useExamSessionSocket } from '../hooks/useExamSessionSocket';
 import { useStartTestSession } from '../hooks/useStartTestSession';
 import { LuX } from 'react-icons/lu';
 import Image from 'next/image';
+import { useSubmitAnswer } from '../hooks/useSubmitAnswer';
 
 export default function TestAttemptPage() {
   const searchParams = useSearchParams();
@@ -81,6 +82,9 @@ export default function TestAttemptPage() {
     Number(sessionId),
   );
 
+  const { mutate: submitAnswer, isPending: isSubmittingAnswer } =
+    useSubmitAnswer(); 
+
   // Handle loading state - if no questions yet, show loading
   if (!questions || questions.length === 0 || isStartingTest) {
     return (
@@ -104,6 +108,15 @@ export default function TestAttemptPage() {
   const handleSelect = (questionId: number, option: string) => {
     // Just update local state, don't submit yet
     updateAnswer(questionId, option);
+    submitAnswer({
+      sessionId: Number(sessionId),
+      answers: [
+        {
+          questionId,
+          selectedOption: option,
+        },
+      ],
+    });
   };
 
   const handleMark = (questionId: number) => {
@@ -304,4 +317,3 @@ export default function TestAttemptPage() {
     </div>
   );
 }
-
