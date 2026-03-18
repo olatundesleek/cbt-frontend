@@ -82,8 +82,7 @@ export default function TestAttemptPage() {
     Number(sessionId),
   );
 
-  const { mutate: submitAnswer, isPending: isSubmittingAnswer } =
-    useSubmitAnswer(); 
+  const { mutate: submitAnswer } = useSubmitAnswer(); 
 
   // Handle loading state - if no questions yet, show loading
   if (!questions || questions.length === 0 || isStartingTest) {
