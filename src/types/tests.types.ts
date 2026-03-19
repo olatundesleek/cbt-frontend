@@ -56,8 +56,11 @@ export interface StartTestSessionResponse {
 
 
 export interface SubmitAnswerRequest {
-  questionId: number | string;
-  selectedOption: string;
+  sessionId: number | string;
+  answers: Array<{
+    questionId: number | string;
+    selectedOption: string; // made non-optional since user must select an option to submit an answer
+  }>;
 }
 
 // Submit multiple answers and get next questions

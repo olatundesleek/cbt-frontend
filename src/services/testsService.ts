@@ -68,10 +68,17 @@ export const startTestSession = async ({
 };
 
 export const submitAnswer = async (
-  sessionId: string | number,
   data: SubmitAnswerRequest,
 ): Promise<SubmitAnswerResponse> => {
-  const response = await axios.post(`/testSessions/${sessionId}/answers`, data);
+  const { answers, sessionId } = data;
+
+  const { questionId } = answers[0]; //only one answer is submitted at a time
+
+  const response = await axios.post(
+    `/sessions/${sessionId}/questions/${questionId}/submit`,
+    data,
+  );
+
   return response.data;
 };
 
@@ -115,3 +122,4 @@ export const fetchQuestionsByNumber = async (
   );
   return response.data;
 };
+
