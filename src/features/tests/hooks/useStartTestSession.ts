@@ -38,6 +38,7 @@ export function useStartTestSession(): UseMutationResult<
     mutationFn: startTestSession,
     onSuccess: (data) => {
       if (data.success && data.data) {
+      console.log(data.data);
         // Store session data in context
         setSession(data.data.session);
         setQuestions(data.data.questions);
@@ -48,20 +49,22 @@ export function useStartTestSession(): UseMutationResult<
 
         // Merge any returned selectedOption into the answers map
         const merged: Record<number, string> = { ...answers };
-        data.data.answered.forEach((q) => {
-          if (typeof q.selectedOption === 'string' && q.selectedOption) {
-            merged[q.questionId] = q.selectedOption;
-          }
-        });
-        setAnswers(merged);
+        if (data.data.answered) {
+          data.data.answered.forEach((q) => {
+            if (typeof q.selectedOption === 'string' && q.selectedOption) {
+              merged[q.questionId] = q.selectedOption;
+            }
+          });
+          setAnswers(merged);
 
-        // Populate question id -> displayNumber map for navigator
-        updateQuestionMap(
-          data.data.answered.map((q) => ({
-            id: q.questionId,
-            displayNumber: q.displayNumber,
-          })),
-        );
+          // Populate question id -> displayNumber map for navigator
+          updateQuestionMap(
+            data.data.answered.map((q) => ({
+              id: q.questionId,
+              displayNumber: q.displayNumber,
+            })),
+          );
+        }
 
         // Route to /attempt/[sessionId]
 
@@ -71,6 +74,7 @@ export function useStartTestSession(): UseMutationResult<
       }
     },
     onError: (err) => {
+      console.log(err);
       const message = getErrorDetails(err);
       toast.error(message);
     },
