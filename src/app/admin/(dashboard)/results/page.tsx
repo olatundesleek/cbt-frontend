@@ -315,7 +315,7 @@ export default function AdminResultPage() {
       <ResultsFiltersBar
         fields={filterFields}
         limit={params.limit}
-        limitOptions={[5, 10, 20, 30, 40]}
+        limitOptions={[5, 10, 20, 30, 40, 50, 100]}
         initialValues={params}
         onChange={handleFilterChange}
         onLimitChange={setLimit}
