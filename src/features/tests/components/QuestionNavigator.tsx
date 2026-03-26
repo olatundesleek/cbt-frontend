@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import { useTestAttemptStore } from '@/store/useTestAttemptStore';
 
 export default function QuestionNavigator({
@@ -20,6 +20,7 @@ export default function QuestionNavigator({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const numbers = Array.from({ length: total }, (_, i) => i + 1);
   const questionMap = useTestAttemptStore((s) => s.questionMap);
+  const questions = useTestAttemptStore((s) => s.questions);
 
   const handleScrollToTop = () => {
     if (scrollContainerRef.current) {
@@ -31,16 +32,56 @@ export default function QuestionNavigator({
   };
 
   // Normalize answered entries into a flat set of numeric ids / tokens.
-  const answeredIds = new Set<number>();
-  answered.forEach((entry) => {
-    if (typeof entry === 'number' && !Number.isNaN(entry)) {
-      answeredIds.add(entry);
-      return;
-    }
-    const s = String(entry || '');
-    const matches = s.match(/\d+/g);
-    if (matches) matches.map(Number).forEach((n) => answeredIds.add(n));
-  });
+  const answeredIds = useMemo(() => {
+    const ids = new Set<number>();
+
+    answered.forEach((entry) => {
+      if (typeof entry === 'number' && !Number.isNaN(entry)) {
+        ids.add(entry);
+        return;
+      }
+      const s = String(entry || '');
+      const matches = s.match(/\d+/g);
+      if (matches) matches.map(Number).forEach((n) => ids.add(n));
+    });
+
+    return ids;
+  }, [answered]);
+
+  const resolvedQuestionMap = useMemo(() => {
+    const map = new Map<number, number>();
+
+    // Seed from persisted/question map in store.
+    Object.entries(questionMap || {}).forEach(([questionId, displayNumber]) => {
+      const qid = Number(questionId);
+      if (!Number.isNaN(qid) && typeof displayNumber === 'number') {
+        map.set(qid, displayNumber);
+      }
+    });
+
+    // Ensure currently loaded page questions are always represented.
+    questions.forEach((q) => {
+      map.set(q.id, q.displayNumber);
+    });
+
+    return map;
+  }, [questionMap, questions]);
+
+  const answeredDisplayNumbers = useMemo(() => {
+    const set = new Set<number>();
+
+    answeredIds.forEach((qid) => {
+      const mappedDisplayNumber = resolvedQuestionMap.get(qid);
+      if (mappedDisplayNumber !== undefined) {
+        set.add(mappedDisplayNumber);
+      } else {
+        // Fallback for cases where answer keys are already display numbers.
+        set.add(qid);
+      }
+    });
+
+    return set;
+  }, [answeredIds, resolvedQuestionMap]);
 
   return (
     <div
@@ -49,16 +90,7 @@ export default function QuestionNavigator({
     >
       <div className='grid grid-cols-5 gap-2 mb-2'>
         {numbers.map((num) => {
-          // A page/display-number is answered if any known question id maps to
-          // this displayNumber and that id is present in the answers set.
-          const isAnswered = Array.from(answeredIds).some((qid) => {
-            // If questionMap knows this question id, compare its displayNumber
-            if (questionMap && questionMap[qid] !== undefined) {
-              return questionMap[qid] === num;
-            }
-            // Fallback: if answeredIds contains the display number itself
-            return qid === num;
-          });
+          const isAnswered = answeredDisplayNumbers.has(num);
           const isMarked = marked.includes(num);
           const isCurrent = num === current;
 
@@ -89,3 +121,5 @@ export default function QuestionNavigator({
     </div>
   );
 }
+
+

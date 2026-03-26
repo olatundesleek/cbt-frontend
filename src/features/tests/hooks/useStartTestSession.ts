@@ -38,7 +38,6 @@ export function useStartTestSession(): UseMutationResult<
     mutationFn: startTestSession,
     onSuccess: (data) => {
       if (data.success && data.data) {
-      console.log(data.data);
         // Store session data in context
         setSession(data.data.session);
         setQuestions(data.data.questions);
@@ -46,6 +45,15 @@ export function useStartTestSession(): UseMutationResult<
         setStudent(data.data.student);
         setCourse(data.data.course);
         setCurrentPage(data.data.questions[0].displayNumber);
+
+        // Always seed question id -> displayNumber map from fetched questions
+        // so navigator can highlight answered items immediately.
+        updateQuestionMap(
+          data.data.questions.map((q) => ({
+            id: q.id,
+            displayNumber: q.displayNumber,
+          })),
+        );
 
         // Merge any returned selectedOption into the answers map
         const merged: Record<number, string> = { ...answers };
