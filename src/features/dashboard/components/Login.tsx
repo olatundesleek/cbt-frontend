@@ -76,8 +76,8 @@ export default function Login() {
                   {...register('id', {
                     required: 'Username is required',
                     maxLength: {
-                      value: 10,
-                      message: 'Username cannot be more than 10 characters',
+                      value: 20,
+                      message: 'Username cannot be more than 20 characters',
                     },
                   })}
                 />
