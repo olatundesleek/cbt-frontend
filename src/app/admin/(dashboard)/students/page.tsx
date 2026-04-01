@@ -23,6 +23,7 @@ import { useGetClasses } from '@/features/dashboard/queries/useDashboard';
 import { AllClassesResponse } from '@/types/dashboard.types';
 import { useUserStore } from '@/store/useUserStore';
 import getErrorDetails from '@/utils/getErrorDetails';
+import UpdateAnyProfileAdmin from '@/components/updateAnyProfileAdmin';
 
 export default function AdminStudentsPage() {
   // Add server pagination hook
@@ -118,7 +119,7 @@ export default function AdminStudentsPage() {
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
     modalContent: Student | null;
-    type: 'create' | 'update' | 'delete' | 'assign' | 'view';
+    type: 'create' | 'update' | 'delete' | 'assign' | 'view' | 'updateProfile';
   }>({ isOpen: false, modalContent: null, type: 'create' });
 
   const deleteMutation = useDeleteStudent();
@@ -133,7 +134,7 @@ export default function AdminStudentsPage() {
       value:
         | boolean
         | Student
-        | ('create' | 'update' | 'delete' | 'assign' | 'view')
+        | ('create' | 'update' | 'delete' | 'assign' | 'view' | 'updateProfile')
         | null;
     }) => {
       setModalState((prev) => ({ ...prev, [key]: value }));
@@ -167,6 +168,17 @@ export default function AdminStudentsPage() {
         >
           Assign To Class
         </button>
+
+        <button
+          onClick={() => {
+            updateModalState({ key: 'type', value: 'updateProfile' });
+            updateModalState({ key: 'isOpen', value: true });
+          }}
+          className='px-2 py-1 rounded bg-primary-500 text-white text-xs cursor-pointer'
+        >
+          Update Profile
+        </button>
+
         <button
           onClick={() => {
             updateModalState({ key: 'type', value: 'update' });
@@ -326,6 +338,14 @@ export default function AdminStudentsPage() {
               classes={allClasses?.data || []}
               initialData={modalState.modalContent}
               studentId={modalState.modalContent?.id}
+              onClose={() => {
+                updateModalState({ key: 'isOpen', value: false });
+                updateModalState({ key: 'modalContent', value: null });
+              }}
+            />
+          ) : modalState.type === 'updateProfile' ? (
+            <UpdateAnyProfileAdmin
+              initialData={modalState.modalContent || undefined}
               onClose={() => {
                 updateModalState({ key: 'isOpen', value: false });
                 updateModalState({ key: 'modalContent', value: null });

@@ -7,6 +7,9 @@ import type {
   StudentProfile,
   UpdatePasswordRequest,
   UpdatePasswordResponse,
+  AdminUpdateAnyProfileRequest,
+  UserProfile,
+  AdminUpdateAnyProfileResponse,
 } from '@/types/profile.types';
 import type { AppError } from '@/types/errors.types';
 import getErrorDetails from '@/utils/getErrorDetails';
@@ -63,6 +66,52 @@ export function useUpdatePassword() {
     },
     onError: (err) => {
       toast.error(err.message);
+    },
+  });
+}
+
+export function useAdminUpdateAnyProfile(onClose?: () => void) {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    AdminUpdateAnyProfileResponse,
+    AppError,
+    AdminUpdateAnyProfileRequest,
+    { previousProfile: UserProfile | undefined }
+  >({
+    mutationFn: ({ data, userId }) =>
+      profileService.adminUpdateAnyProfile({ data, userId }),
+    onMutate: async () => {
+      // Cancel outgoing refetches to avoid overwriting our optimistic update
+      await queryClient.cancelQueries({ queryKey: ['profile'] });
+
+      const previousProfile = queryClient.getQueryData<UserProfile>([
+        'profile',
+      ]);
+
+      // Return context with the previous value for rollback
+      return { previousProfile };
+    },
+    onSuccess: (res) => {
+      toast.success(res.message || 'Profile updated');
+
+      queryClient.invalidateQueries({
+        queryKey: ['adminStudents'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['teachers'],
+      });
+      onClose?.();
+    },
+    onError: (err, _variables, context) => {
+      // Rollback to previous data on error
+      if (context?.previousProfile) {
+        queryClient.setQueryData<UserProfile>(
+          ['profile'],
+          context.previousProfile,
+        );
+      }
+      toast.error(getErrorDetails(err));
     },
   });
 }

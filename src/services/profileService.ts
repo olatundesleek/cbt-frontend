@@ -8,6 +8,8 @@ import {
   UpdatePasswordResponse,
   PersonalInformation,
   PasswordChange,
+  UserProfile,
+  AdminUpdateAnyProfileRequest,
 } from '@/types/profile.types';
 
 export const profileService = {
@@ -107,5 +109,14 @@ export const profileService = {
     } catch (error) {
       throw new Error('Failed to update profile image');
     }
+  },
+
+  adminUpdateAnyProfile: async ({
+    data,
+    userId,
+  }: AdminUpdateAnyProfileRequest) => {
+    const response = await api.patch(`/profile/admin/${userId}`, data);
+
+    return response.data;
   },
 };

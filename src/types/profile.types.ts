@@ -3,6 +3,9 @@
  * Type definitions for student profile data and components
  */
 
+import { AllTeachers } from './dashboard.types';
+import { Student } from './students.types';
+
 export interface TeacherOfType {
   id: number;
   className: string;
@@ -79,4 +82,25 @@ export interface PasswordChange {
 
 export interface ProfileFormData extends PersonalInformation {
   address: string;
+}
+
+export type UserProfile =
+  | Pick<
+      Student,
+      'username' | 'firstname' | 'lastname' | 'email' | 'phoneNumber' | 'id'
+    >
+  | Pick<
+      AllTeachers,
+      'username' | 'firstname' | 'lastname' | 'email' | 'phoneNumber' | 'id'
+    >;
+
+export interface AdminUpdateAnyProfileRequest {
+  data: Omit<UserProfile, 'id'>; // Data to update (excluding id)
+  userId: number; // ID of the user being updated
+}
+
+export interface AdminUpdateAnyProfileResponse {
+  success: boolean;
+  message: string;
+  data: UserProfile;
 }
