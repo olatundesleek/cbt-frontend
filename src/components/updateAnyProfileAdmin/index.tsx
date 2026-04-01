@@ -1,10 +1,25 @@
 import { useAdminUpdateAnyProfile } from '@/features/profile/hooks/useUpdateProfile';
-import { UserProfile } from '@/types/profile.types';
-import { on } from 'events';
 import { useForm } from 'react-hook-form';
 
+interface UpdateAnyProfileFormValues {
+  username: string;
+  firstname: string;
+  lastname: string;
+  email: string;
+  phoneNumber: string;
+}
+
+interface UpdateAnyProfileInitialData {
+  id: number;
+  username?: string | null;
+  firstname?: string | null;
+  lastname?: string | null;
+  email?: string | null;
+  phoneNumber?: string | null;
+}
+
 interface UpdateAnyProfileAdminProps {
-  initialData?: UserProfile;
+  initialData?: UpdateAnyProfileInitialData;
   onClose?: () => void;
   //   onSubmit?: (data: UserProfile) => Promise<void>;
   //   isLoading?: boolean;
@@ -12,12 +27,12 @@ interface UpdateAnyProfileAdminProps {
 
 export default function UpdateAnyProfileAdmin({
   initialData = {
+    id: 0,
     username: '',
     firstname: '',
     lastname: '',
     email: '',
     phoneNumber: '',
-    id: 0,
   },
   onClose,
 }: UpdateAnyProfileAdminProps) {
@@ -25,8 +40,14 @@ export default function UpdateAnyProfileAdmin({
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<UserProfile>({
-    defaultValues: initialData,
+  } = useForm<UpdateAnyProfileFormValues>({
+    defaultValues: {
+      username: initialData.username ?? '',
+      firstname: initialData.firstname ?? '',
+      lastname: initialData.lastname ?? '',
+      email: initialData.email ?? '',
+      phoneNumber: initialData.phoneNumber ?? '',
+    },
   });
 
   const {
@@ -35,7 +56,7 @@ export default function UpdateAnyProfileAdmin({
     isSuccess,
   } = useAdminUpdateAnyProfile(onClose);
 
-  const onValidSubmit = async (data: UserProfile) => {
+  const onValidSubmit = async (data: UpdateAnyProfileFormValues) => {
     const { username, firstname, lastname, email, phoneNumber } = data;
 
     updateAnyProfile({
@@ -118,19 +139,10 @@ export default function UpdateAnyProfileAdmin({
         <input
           id='email'
           type='email'
-          {...register('email', {
-            required: 'Email is required',
-            pattern: {
-              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-              message: 'Invalid email format',
-            },
-          })}
+          {...register('email')}
           disabled={isFormLoading}
           className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100'
         />
-        {errors.email && (
-          <p className='text-red-500 text-sm mt-1'>{errors.email.message}</p>
-        )}
       </div>
 
       <div>
@@ -140,20 +152,10 @@ export default function UpdateAnyProfileAdmin({
         <input
           id='phoneNumber'
           type='tel'
-          {...register('phoneNumber', {
-            required: 'Phone number is required',
-            validate: (value) =>
-              /^\d{10,}$/.test(value.replace(/\D/g, '')) ||
-              'Invalid phone number',
-          })}
+          {...register('phoneNumber')}
           disabled={isFormLoading}
           className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100'
         />
-        {errors.phoneNumber && (
-          <p className='text-red-500 text-sm mt-1'>
-            {errors.phoneNumber.message}
-          </p>
-        )}
       </div>
 
       <button
