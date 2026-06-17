@@ -2,6 +2,12 @@ import axios from '@/lib/axios';
 import {
   SystemSettingsResponse,
   SystemSettingsUpdatePayload,
+  GetAllBackupsResponse,
+  UploadAndRestoreBackupResponse,
+  UploadAndRestoreBackupPayload,
+  RestoreFromBackupPayload,
+  RestoreFromBackupResponse,
+  CreateBackupResponse,
 } from '@/types/settings.types';
 
 export const settingsService = {
@@ -71,4 +77,80 @@ export const settingsService = {
     });
     return response.data;
   },
+
+  getAllBackups: async (): Promise<GetAllBackupsResponse> => {
+    const response = await axios.get('/backup-restore/list');
+    return response.data;
+  },
+
+  createBackup: async (): Promise<CreateBackupResponse> => {
+    const response = await axios.post('/backup-restore/backup');
+    return response.data;
+  },
+
+  uploadAndRestoreBackup: async (
+    backupFile: UploadAndRestoreBackupPayload,
+  ): Promise<UploadAndRestoreBackupResponse> => {
+    const form = new FormData();
+    form.append('backup', backupFile.backupFile);
+
+    const response = await axios.post(
+      'backup-restore/restore-from-file',
+      form,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      },
+    );
+    return response.data;
+  },
+
+  restoreFromBackup: async (
+    backupFilename: RestoreFromBackupPayload,
+  ): Promise<RestoreFromBackupResponse> => {
+    const response = await axios.post('/backup-restore/restore', {
+      filename: backupFilename.filename,
+    });
+    return response.data;
+  },
+
+  downloadBackupFile: async (backupFilename: string) => {
+    // For file downloads, we can simply set window.location to the download URL
+    // and let the browser handle it. The server should set appropriate headers
+    // to trigger a download.
+    // window.location.href = `/backup-restore/download?filename=${encodeURIComponent(
+    //   backupFilename,
+    // )}`;
+
+    const url = `${
+      process.env.NEXT_PUBLIC_API_URL
+    }/backup-restore/download/${encodeURIComponent(backupFilename)}`;
+
+    const response = await fetch(url, {
+      method: 'GET',
+      credentials: 'include', // 🔥 REQUIRED for Firefox to send cookies
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to download backup');
+    }
+
+    const blob = await response.blob();
+    const downloadUrl = window.URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = `backup`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(downloadUrl);
+  },
+
+  deleteBackupFile: async (backupFilename: string) => {
+    const response = await axios.delete(
+      `/backup-restore/${encodeURIComponent(backupFilename)}`,
+    );
+    return response.data;
+  },
 };
+
