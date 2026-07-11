@@ -27,3 +27,40 @@ export type SystemSettingsUpdatePayload = Partial<
   faviconUrl?: string | null;
   loginBannerUrl?: string | null;
 };
+
+export interface Backup {
+  filename: string;
+  createdAt: string;
+  size: number;
+}
+
+export interface GetAllBackupsResponse {
+  success: boolean;
+  message: string;
+  data: { backups: Backup[] };
+}
+
+export interface CreateBackupResponse {
+  success: boolean;
+  message: string;
+  filename: string;
+  path: string;
+}
+
+export interface UploadAndRestoreBackupPayload {
+  backupFile: File;
+}
+
+export interface UploadAndRestoreBackupResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface RestoreFromBackupResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface RestoreFromBackupPayload {
+  filename: string;
+}
