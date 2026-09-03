@@ -41,7 +41,17 @@ export default function AdminStudentsPage() {
     page: 1,
   });
 
-  const [filter, setFilter] = useState<FilterState>({ query: '' });
+  const handleFilterChange = (nextFilter: FilterState) => {
+    updateParams({
+      page: 1,
+      search: nextFilter.query || undefined,
+      course: nextFilter.course || undefined,
+      className: nextFilter.className || undefined,
+      status: nextFilter.status || undefined,
+      testTitle: nextFilter.testTitle || undefined,
+      startDate: nextFilter.startDate || undefined,
+    });
+  };
 
   const handleOuterReset = () => {
     setLimit(10);
@@ -52,6 +62,7 @@ export default function AdminStudentsPage() {
     () => adminStudentsData?.data.data ?? [],
     [adminStudentsData],
   );
+  const filteredData = students;
 
   // const classes = useMemo(() => {
   //   const arr = (allClasses?.data || []).flatMap((c) => c.className);
@@ -73,32 +84,6 @@ export default function AdminStudentsPage() {
     );
     return Array.from(new Set(arr));
   }, [students]);
-
-  const filteredData = useMemo(() => {
-    return students.filter((s) => {
-      if (filter.query) {
-        const q = filter.query.toLowerCase();
-        const fullName = `${s.firstname} ${s.lastname}`.toLowerCase();
-        if (
-          !fullName.includes(q) &&
-          !(s.username ?? '').toLowerCase().includes(q)
-        )
-          return false;
-      }
-      if (filter.course && (s?.class?.courses ?? []).length) {
-        if (!(s?.class?.courses ?? []).some((c) => c?.title === filter.course))
-          return false;
-      }
-      if (filter.className) {
-        if (s.class?.className !== filter.className) return false;
-      }
-      if (filter.startDate && s.class?.createdAt) {
-        const d = new Date(s.class.createdAt).toISOString().slice(0, 10);
-        if (d !== filter.startDate) return false;
-      }
-      return true;
-    });
-  }, [students, filter]);
 
   const tableHeaders = useMemo(
     () =>
@@ -236,7 +221,7 @@ export default function AdminStudentsPage() {
           <FilterBar
             courses={courses}
             classes={classes}
-            onChange={(s) => setFilter(s)}
+            onChange={handleFilterChange}
             onReset={handleOuterReset}
             showStatusFilter={false}
             showTestTitleFilter={false}
@@ -404,7 +389,7 @@ export default function AdminStudentsPage() {
           <AppTable
             isLoading={isStudentsLoading || classesLoading}
             headerColumns={tableHeaders}
-            data={filteredData}
+            data={students}
             itemKey={({ item }) => `${item.username}`}
             centralizeLabel={false}
             paginationMode='server'

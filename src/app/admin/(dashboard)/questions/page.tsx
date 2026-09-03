@@ -8,6 +8,7 @@ import AppTable, { TableDataItem } from '@/components/table';
 import Input from '@/components/ui/input';
 import Button from '@/components/ui/Button';
 import { useServerPagination } from '@/hooks/useServerPagination';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import {
   useGetCourses,
   useGetQuestionBank,
@@ -174,7 +175,10 @@ const QuestionBank = () => {
   });
 
   const [createQuestionBankFormKey, setCreateQuestionBankFormKey] = useState(0);
-  const [searchValue, setSearchValue] = useState<string>('');
+  const [searchValue, setSearchValue] = useState(
+    typeof params.search === 'string' ? params.search : '',
+  );
+  const debouncedSearch = useDebouncedValue(searchValue);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
@@ -211,15 +215,13 @@ const QuestionBank = () => {
     error: questionBankError,
   } = useGetQuestionBank(params);
 
-  // Client-side search filtering
-  const filteredQuestionBanks =
-    allQuestionBank?.data.data?.filter((bank) =>
-      searchValue
-        ? bank.questionBankName
-            .toLowerCase()
-            .includes(searchValue.toLowerCase())
-        : true,
-    ) ?? [];
+  useEffect(() => {
+    const currentSearch =
+      typeof params.search === 'string' ? params.search : '';
+    if (debouncedSearch !== currentSearch) {
+      updateParams({ page: 1, search: debouncedSearch || undefined });
+    }
+  }, [debouncedSearch, params.search, updateParams]);
 
   const tableColumns = useMemo(
     () =>
@@ -418,7 +420,7 @@ const QuestionBank = () => {
           </div>
 
           <AppTable
-            data={filteredQuestionBanks}
+            data={allQuestionBank?.data.data ?? []}
             label='All Question Banks'
             isLoading={questionBankLoading}
             onRowPress={({ item }) => push(`/admin/questions/${item.id}`)}

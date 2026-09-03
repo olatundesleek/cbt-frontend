@@ -134,21 +134,51 @@ function UpdateForm({
 
     if (initialData.startTime) {
       const s = new Date(initialData.startTime);
-      setValue('startDate', s.toISOString().slice(0, 10));
-      setValue('startTime', s.toISOString().slice(11, 16));
+
+      // Extract local date components (YYYY-MM-DD)
+      const localDate = `${s.getFullYear()}-${String(s.getMonth() + 1).padStart(2, '0')}-${String(s.getDate()).padStart(2, '0')}`;
+      // Extract local time components (HH:mm)
+      const localTime = `${String(s.getHours()).padStart(2, '0')}:${String(s.getMinutes()).padStart(2, '0')}`;
+
+      setValue('startDate', localDate);
+      setValue('startTime', localTime);
     } else {
       setValue('startDate', '');
       setValue('startTime', '');
     }
 
     if (initialData.endTime) {
-      const e = new Date(initialData.endTime);
-      setValue('endDate', e.toISOString().slice(0, 10));
-      setValue('endTime', e.toISOString().slice(11, 16));
+      const date = new Date(initialData.endTime);
+
+      // Extract local date components (YYYY-MM-DD)
+      const localDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      // Extract local time components (HH:mm)
+      const localTime = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+
+      setValue('endDate', localDate);
+      setValue('endTime', localTime);
     } else {
       setValue('endDate', '');
       setValue('endTime', '');
     }
+
+    // if (initialData.startTime) {
+    //   const s = new Date(initialData.startTime);
+    //   setValue('startDate', s.toISOString().slice(0, 10));
+    //   setValue('startTime', s.toISOString().slice(11, 16));
+    // } else {
+    //   setValue('startDate', '');
+    //   setValue('startTime', '');
+    // }
+
+    // if (initialData.endTime) {
+    //   const e = new Date(initialData.endTime);
+    //   setValue('endDate', da.toISOString().slice(0, 10));
+    //   setValue('endTime', e.toISOString().slice(11, 16));
+    // } else {
+    //   setValue('endDate', '');
+    //   setValue('endTime', '');
+    // }
   }, [initialData, setValue]);
 
   const selectedCourseId = watch('courseId');
@@ -808,11 +838,18 @@ export default function AdminTestPage() {
         startDate: startDate as string | undefined,
       });
 
-      // Update server params (sort, order, page, limit)
+      // Send all filters to the server so filtering spans every page.
       updateParams({
         page: 1,
         sort: sort as string | undefined,
         order: order as string | undefined,
+        search: search as string | undefined,
+        course: course as string | undefined,
+        className: className as string | undefined,
+        status: status as string | undefined,
+        testType: testType as string | undefined,
+        testTitle: testTitle as string | undefined,
+        startDate: startDate as string | undefined,
         ...rest,
       });
     },
@@ -938,47 +975,7 @@ export default function AdminTestPage() {
     };
   }, [adminTestsData?.data?.pagination?.total, params.limit]);
 
-  const filteredData = useMemo(() => {
-    const list = adminTestsData?.data.data ?? ([] as AdminTestItem[]);
-    return list.filter((item: AdminTestItem) => {
-      // search
-      if (
-        clientFilters.search &&
-        !item.title.toLowerCase().includes(clientFilters.search.toLowerCase())
-      )
-        return false;
-      // course
-      if (clientFilters.course && item.course?.title !== clientFilters.course)
-        return false;
-      // class
-      if (
-        clientFilters.className &&
-        !(item.course?.classes ?? []).some(
-          (c) => c.className === clientFilters.className,
-        )
-      )
-        return false;
-      // status
-      if (clientFilters.status && item.testState !== clientFilters.status)
-        return false;
-      // test type
-      if (
-        clientFilters.testType &&
-        String(item.type).toUpperCase() !==
-          String(clientFilters.testType).toUpperCase()
-      )
-        return false;
-      // start date equality (yyyy-mm-dd)
-      if (clientFilters.startDate && item.startTime) {
-        const d = new Date(item.startTime).toISOString().slice(0, 10);
-        if (d !== clientFilters.startDate) return false;
-      }
-      // test title
-      if (clientFilters.testTitle && item.title !== clientFilters.testTitle)
-        return false;
-      return true;
-    });
-  }, [adminTestsData, clientFilters]);
+  const filteredData = adminTestsData?.data.data ?? ([] as AdminTestItem[]);
 
   const tableHeaders = useMemo(() => {
     const headers = ['S/N', 'Test Title', 'Class', 'Course', 'Test Type'];

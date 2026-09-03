@@ -6,6 +6,7 @@ import {
   useGetTeachers,
 } from "@/features/dashboard/queries/useDashboard";
 import { useServerPagination } from '@/hooks/useServerPagination';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import AppTable, { TableDataItem } from '@/components/table';
 import Input from '@/components/ui/input';
 import Button from '@/components/ui/Button';
@@ -161,7 +162,10 @@ const Courses = () => {
   });
 
   const [createCourseFormKey, setCreateCourseFormKey] = useState(0);
-  const [searchValue, setSearchValue] = useState<string>('');
+  const [searchValue, setSearchValue] = useState(
+    typeof params.search === 'string' ? params.search : '',
+  );
+  const debouncedSearch = useDebouncedValue(searchValue);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
@@ -197,13 +201,13 @@ const Courses = () => {
     error: coursesError,
   } = useGetCourses(params);
 
-  // Client-side search filtering
-  const filteredCourses =
-    allCourses?.data?.filter((course) =>
-      searchValue
-        ? course.title.toLowerCase().includes(searchValue.toLowerCase())
-        : true,
-    ) ?? [];
+  useEffect(() => {
+    const currentSearch =
+      typeof params.search === 'string' ? params.search : '';
+    if (debouncedSearch !== currentSearch) {
+      updateParams({ page: 1, search: debouncedSearch || undefined });
+    }
+  }, [debouncedSearch, params.search, updateParams]);
 
   //update modal state
   const updateModalState = ({
@@ -379,7 +383,7 @@ const Courses = () => {
 
         <div className='col-span-2 flex flex-col gap-3 bg-background rounded-xl w-full p-3'>
           <AppTable
-            data={filteredCourses}
+            data={allCourses?.data ?? []}
             centralizeLabel
             isLoading={coursesLoading}
             label='All Courses'
