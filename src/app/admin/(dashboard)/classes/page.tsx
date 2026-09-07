@@ -14,6 +14,7 @@ import { HiUserGroup } from 'react-icons/hi';
 import { LuBuilding2 } from 'react-icons/lu';
 import AppTable, { TableDataItem } from '@/components/table';
 import { useServerPagination } from '@/hooks/useServerPagination';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import {
   useGetClasses,
   useGetCourses,
@@ -248,7 +249,10 @@ const AdminClasses = () => {
   );
 
   const [createClassFormKey, setCreateClassFormKey] = useState(0);
-  const [searchValue, setSearchValue] = useState<string>('');
+  const [searchValue, setSearchValue] = useState(
+    typeof params.search === 'string' ? params.search : '',
+  );
+  const debouncedSearch = useDebouncedValue(searchValue);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
@@ -294,13 +298,13 @@ const AdminClasses = () => {
     error: classesError,
   } = useGetClasses(params);
 
-  // Client-side search filtering
-  const filteredClasses =
-    allClasses?.data?.filter((classItem) =>
-      searchValue
-        ? classItem.className.toLowerCase().includes(searchValue.toLowerCase())
-        : true,
-    ) ?? [];
+  useEffect(() => {
+    const currentSearch =
+      typeof params.search === 'string' ? params.search : '';
+    if (debouncedSearch !== currentSearch) {
+      updateParams({ page: 1, search: debouncedSearch || undefined });
+    }
+  }, [debouncedSearch, params.search, updateParams]);
 
   const {
     data: allTeachers,
@@ -541,7 +545,7 @@ const AdminClasses = () => {
           />
 
           <AppTable
-            data={filteredClasses}
+            data={allClasses?.data ?? []}
             label='All Classes'
             isLoading={classesLoading}
             headerColumns={headerColumns}

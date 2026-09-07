@@ -1,7 +1,7 @@
 "use client";
 
 import AppTable, { TableDataItem } from "@/components/table";
-import { useState } from "react";
+import { useEffect, useState } from 'react';
 import Input from "@/components/ui/input";
 import Button from "@/components/ui/Button";
 import Modal from '@/components/modal';
@@ -15,6 +15,7 @@ import toast from 'react-hot-toast';
 import { queryClient } from "@/providers/query-provider";
 import { useGetTeachers } from "@/features/dashboard/queries/useDashboard";
 import { useServerPagination } from '@/hooks/useServerPagination';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import useChangeTeacherPassword from '@/features/teachers/hooks/useChangeTeacherPassword';
 import useDeleteTeacher from '@/features/teachers/hooks/useDeleteTeacher';
 import type { AllTeachers } from '@/types/dashboard.types';
@@ -58,7 +59,18 @@ export default function AdminTeachersPage() {
 
   const [createTeacherFormKey, setCreateTeacherFormKey] = useState(0);
   const [togglePassword, setTogglePassword] = useState<boolean>(false);
-  const [searchValue, setSearchValue] = useState<string>('');
+  const [searchValue, setSearchValue] = useState(
+    typeof params.search === 'string' ? params.search : '',
+  );
+  const debouncedSearch = useDebouncedValue(searchValue);
+
+  useEffect(() => {
+    const currentSearch =
+      typeof params.search === 'string' ? params.search : '';
+    if (debouncedSearch !== currentSearch) {
+      updateParams({ page: 1, search: debouncedSearch || undefined });
+    }
+  }, [debouncedSearch, params.search, updateParams]);
 
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
@@ -98,16 +110,6 @@ export default function AdminTeachersPage() {
     isLoading: teachersLoading,
     error: teachersError,
   } = useGetTeachers(params);
-
-  // Client-side search filtering
-  const filteredTeachers =
-    allTeachers?.data.data?.filter((teacher) =>
-      searchValue
-        ? `${teacher.firstname} ${teacher.lastname}`
-            .toLowerCase()
-            .includes(searchValue.toLowerCase())
-        : true,
-    ) ?? [];
 
   const handleRegisterTeacher: SubmitHandler<FormProps> = async (data) => {
     const payload = {
@@ -245,7 +247,7 @@ export default function AdminTeachersPage() {
           </div>
 
           <AppTable
-            data={filteredTeachers}
+            data={allTeachers?.data.data ?? []}
             centralizeLabel
             isLoading={teachersLoading}
             label='All Teachers'
