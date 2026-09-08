@@ -20,6 +20,7 @@ const Pagination: React.FC<PaginationProps> = ({
   page,
   limit,
   totalItems,
+  totalPages: serverTotalPages,
   onPageChange,
   className = '',
   disabled = false,
@@ -32,8 +33,12 @@ const Pagination: React.FC<PaginationProps> = ({
   pageRangeDisplayed = 5,
   pageSizeOptions = [5, 10, 20, 50, 100],
 }) => {
-  const { totalPages, startIndex, endIndex, hasNextPage, hasPreviousPage } =
-    calculatePagination(page, limit, totalItems);
+  const pagination = calculatePagination(page, limit, totalItems);
+  const totalPages = serverTotalPages ?? pagination.totalPages;
+  const startIndex = pagination.startIndex;
+  const endIndex = pagination.endIndex;
+  const hasNextPage = page < totalPages;
+  const hasPreviousPage = page > 1;
 
   // Handle page change
   const handlePageChange = (newPage: number) => {
@@ -164,8 +169,8 @@ const Pagination: React.FC<PaginationProps> = ({
                   isActive
                     ? activeButtonClass
                     : disabled
-                    ? disabledButtonClass
-                    : enabledButtonClass
+                      ? disabledButtonClass
+                      : enabledButtonClass
                 }`}
                 aria-label={`Page ${pageNum}`}
                 aria-current={isActive ? 'page' : undefined}

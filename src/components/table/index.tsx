@@ -274,6 +274,7 @@ const AppTable = <T,>({
             page={currentPage}
             limit={itemsPerPage}
             totalItems={totalItems}
+            totalPages={normalizedMeta?.totalPages}
             onPageChange={handlePageClick}
             showPageNumbers={true}
             showFirstLast={true}

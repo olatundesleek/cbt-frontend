@@ -35,6 +35,8 @@ export interface PaginationConfig {
   limit: number;
   /** Total number of items */
   totalItems: number;
+  /** Optional server-provided page count */
+  totalPages?: number;
   /** Optional callback when page changes */
   onPageChange?: (page: number) => void;
 }
