@@ -408,7 +408,12 @@ const Courses = () => {
             }
             renderItem={({ item, itemIndex }) => (
               <>
-                <TableDataItem>{itemIndex + 1}</TableDataItem>
+                <TableDataItem>
+                  {((params?.page ?? 1) - 1) *
+                    (allCourses?.pagination?.limit || 10) +
+                    itemIndex +
+                    1}
+                </TableDataItem>
                 <TableDataItem>{item.title}</TableDataItem>
                 <TableDataItem>{item.description}</TableDataItem>
                 <TableDataItem>
