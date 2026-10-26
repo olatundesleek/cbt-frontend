@@ -17,7 +17,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       console.warn('Unauthorized — redirect to login');
       axios
-        .post('/api/auth/logout', null, { withCredentials: true })
+        .post('/api/auth/client-logout', null, { withCredentials: true })
         .catch(() => {}) // ignore failures
         .finally(() => {
           if (window.location.pathname !== '/') {
