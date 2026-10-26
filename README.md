@@ -209,7 +209,7 @@ operations:
 - `POST /api/auth/set-auth-cookie` — sets the `httpOnly` `token` and `role`
   cookies after authentication.
 - `GET /api/auth/status` — checks authentication status.
-- `POST /api/auth/logout` — clears the local authentication session.
+- `POST /api/auth/client-logout` — clears the local authentication session.
 
 ## Authentication and route protection
 

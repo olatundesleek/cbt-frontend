@@ -293,7 +293,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
 
       const completeForceLogout = async () => {
         try {
-          await fetch('/api/auth/logout', {
+          await fetch('/api/auth/client-logout', {
             method: 'POST',
             credentials: 'include',
           });

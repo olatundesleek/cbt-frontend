@@ -61,7 +61,7 @@ export async function proxySetCookie({
 
 async function proxyLogout() {
   try {
-    const response = await internalApi.post('/api/auth/logout', null, {
+    const response = await internalApi.post('/api/auth/client-logout', null, {
       withCredentials: true,
     });
     return response.data;
