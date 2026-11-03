@@ -7,6 +7,7 @@ import {
   AllTeachersResponse,
   DashboardResponse,
   GetQuestionBankResourcesResponse,
+  MoveClassStudentsResponse,
   QuestionBankDetailsResponse,
   QuestionsInBank,
 } from '@/types/dashboard.types';
@@ -22,6 +23,16 @@ export const dashboardServices = {
     params?: PaginationParams,
   ): Promise<AllClassesResponse> => {
     const response = await api.get('/class', { params });
+    return response.data;
+  },
+
+  moveClassStudents: async (
+    sourceClassId: string | number,
+    destinationClassId: string | number,
+  ): Promise<MoveClassStudentsResponse> => {
+    const response = await api.post(`/class/${sourceClassId}/move-students`, {
+      destinationClassId: Number(destinationClassId),
+    });
     return response.data;
   },
 

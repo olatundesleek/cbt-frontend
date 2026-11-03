@@ -139,7 +139,7 @@ export const settingsService = {
 
     const link = document.createElement('a');
     link.href = downloadUrl;
-    link.download = `backup`;
+    link.download = 'backup.sql';
     document.body.appendChild(link);
     link.click();
     link.remove();

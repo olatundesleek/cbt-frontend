@@ -22,6 +22,7 @@ import useUpdateTest from '@/features/tests/hooks/useUpdateTest';
 import Modal from '@/components/modal';
 import useDeleteTest from '@/features/tests/hooks/useDeleteTest';
 import {
+  useGetClasses,
   useGetCourses,
   useGetQuestionBank,
 } from '@/features/dashboard/queries/useDashboard';
@@ -781,6 +782,8 @@ export default function AdminTestPage() {
     isLoading: isCoursesDataLoading,
     error: coursesError,
   } = useGetCourses({ limit: 1000, page: 1 }); 
+  const { data: classesData } = useGetClasses({ limit: 1000, page: 1 });
+  const { data: allTests } = useAdminTest({ limit: 1000, page: 1 });
 
   const {
     data: allQuestionBank,
@@ -803,11 +806,11 @@ export default function AdminTestPage() {
   // Client-side filter state
   const [clientFilters, setClientFilters] = useState<{
     search?: string;
-    course?: string;
-    className?: string;
+    courseId?: string;
+    classId?: string;
     status?: string;
     testType?: string;
-    testTitle?: string;
+    testId?: string;
     startDate?: string;
   }>({});
 
@@ -818,11 +821,11 @@ export default function AdminTestPage() {
         sort,
         order,
         search,
-        course,
-        className,
+        courseId,
+        classId,
         status,
         testType,
-        testTitle,
+        testId,
         startDate,
         ...rest
       } = nextParams;
@@ -830,11 +833,11 @@ export default function AdminTestPage() {
       // Update client filters
       setClientFilters({
         search: search as string | undefined,
-        course: course as string | undefined,
-        className: className as string | undefined,
+        courseId: courseId as string | undefined,
+        classId: classId as string | undefined,
         status: status as string | undefined,
         testType: testType as string | undefined,
-        testTitle: testTitle as string | undefined,
+        testId: testId as string | undefined,
         startDate: startDate as string | undefined,
       });
 
@@ -844,11 +847,11 @@ export default function AdminTestPage() {
         sort: sort as string | undefined,
         order: order as string | undefined,
         search: search as string | undefined,
-        course: course as string | undefined,
-        className: className as string | undefined,
+        courseId: courseId as string | undefined,
+        classId: classId as string | undefined,
         status: status as string | undefined,
         testType: testType as string | undefined,
-        testTitle: testTitle as string | undefined,
+        testId: testId as string | undefined,
         startDate: startDate as string | undefined,
         ...rest,
       });
@@ -858,28 +861,28 @@ export default function AdminTestPage() {
 
   const toggleMutation = useToggleResultVisibility();
 
-  const courses = useMemo(() => {
-    const arr = (adminTestsData?.data.data ?? [])
-      .map((d: AdminTestItem) => d.course?.title)
-      .filter(Boolean) as string[];
-    return Array.from(new Set(arr));
-  }, [adminTestsData]);
+  const courses = useMemo(
+    () =>
+      (coursesData?.data ?? []).map((course) => ({
+        value: course.id,
+        label: course.title,
+      })),
+    [coursesData],
+  );
 
   const availableTests = useMemo(() => {
-    const set = new Set<string>();
-    (adminTestsData?.data.data ?? []).forEach((t) => {
-      if (t?.title) set.add(String(t.title));
-    });
-    return Array.from(set).sort();
-  }, [adminTestsData]);
+    return (allTests?.data.data ?? []).map((test) => ({
+      value: test.id,
+      label: test.title,
+    }));
+  }, [allTests]);
 
   const classes = useMemo(() => {
-    const arr = (adminTestsData?.data.data ?? []).flatMap(
-      (d: AdminTestItem) =>
-        d.course?.classes?.map((c) => c.className) ?? ([] as string[]),
-    );
-    return Array.from(new Set(arr));
-  }, [adminTestsData]);
+    return (classesData?.data ?? []).map((item) => ({
+      value: item.id,
+      label: item.className,
+    }));
+  }, [classesData]);
 
   // Filter fields configuration
   const filterFields = useMemo<ResultFilterField[]>(
@@ -892,23 +895,23 @@ export default function AdminTestPage() {
       },
       {
         type: 'select',
-        name: 'course',
+        name: 'courseId',
         label: 'Course',
-        options: courses.map((c) => ({ value: c, label: c })),
+        options: courses,
         placeholder: 'All courses',
       },
       {
         type: 'select',
-        name: 'className',
+        name: 'classId',
         label: 'Class',
-        options: classes.map((c) => ({ value: c, label: c })),
+        options: classes,
         placeholder: 'All classes',
       },
       {
         type: 'select',
-        name: 'testTitle',
-        label: 'Test Title',
-        options: availableTests.map((t) => ({ value: t, label: t })),
+        name: 'testId',
+        label: 'Test',
+        options: availableTests,
         placeholder: 'All tests',
       },
 

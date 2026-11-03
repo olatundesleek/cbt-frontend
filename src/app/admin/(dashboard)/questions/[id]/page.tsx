@@ -92,6 +92,12 @@ const Questions = () => {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
 
+    if (!file.name.toLowerCase().endsWith('.xlsx')) {
+      toast.error('Please select an Excel .xlsx file.');
+      e.target.value = '';
+      return;
+    }
+
     setSelectedFile(file);
     // Reset input value so the same file can be selected again
     e.target.value = '';
@@ -191,7 +197,7 @@ const Questions = () => {
               </div>
 
               <div className='p-3 flex flex-col gap-3 w-full border border-neutral-200 rounded-2xl'>
-                <span className='text-base font-bold'>Upload CSV File</span>
+                <span className='text-base font-bold'>Upload Excel File</span>
 
                 <Link
                   download
@@ -200,7 +206,7 @@ const Questions = () => {
                   }${dashboardServices.getQuestionsTemplate()}`}
                   className='px-3 py-2 text-sm font-semibold text-neutral-800 shadow-sm border border-neutral-200 focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer w-fit hover:bg-neutral-200 rounded-md'
                 >
-                  Download Template
+                  Download Excel Template
                 </Link>
 
                 <div className='flex flex-col gap-4 w-full'>
@@ -222,7 +228,7 @@ const Questions = () => {
                       ref={inputRef}
                       type='file'
                       onChange={handleSelectQuestion}
-                      accept='.csv'
+                      accept='.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
                     />
                     {selectedFile && (
                       <div className='flex flex-row items-center justify-between gap-4 w-full'>

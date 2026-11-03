@@ -9,21 +9,26 @@ import React, {
 
 export type FilterState = {
   query: string;
-  course?: string;
-  className?: string;
+  courseId?: string | number;
+  classId?: string | number;
   status?: string;
-  testTitle?: string;
+  testId?: string | number;
   startDate?: string;
 };
 
+export type FilterOption = {
+  value: string | number;
+  label: string;
+};
+
 type Props = {
-  courses?: string[];
-  classes?: string[];
+  courses?: FilterOption[];
+  classes?: FilterOption[];
   statuses?: string[];
   initial?: Partial<FilterState>;
   onChange?: (state: FilterState) => void;
   onReset?: () => void;
-  tests?: string[];
+  tests?: FilterOption[];
   showStatusFilter?: boolean;
   showTestTitleFilter?: boolean;
   children?: ReactNode;
@@ -44,10 +49,10 @@ export default function FilterBar({
   const initialState = useMemo<FilterState>(
     () => ({
       query: initial?.query ?? '',
-      course: initial?.course ?? '',
-      className: initial?.className ?? '',
+      courseId: initial?.courseId ?? '',
+      classId: initial?.classId ?? '',
       status: initial?.status ?? '',
-      testTitle: initial?.testTitle ?? '',
+      testId: initial?.testId ?? '',
       startDate: initial?.startDate ?? '',
     }),
     [initial],
@@ -68,9 +73,6 @@ export default function FilterBar({
     setState(initialState);
     onReset?.();
   };
-
-  const courseOptions = useMemo(() => [''].concat(courses), [courses]);
-  const classOptions = useMemo(() => [''].concat(classes), [classes]);
 
   return (
     <div className='w-full bg-white rounded-md p-4 shadow-sm'>
@@ -94,14 +96,15 @@ export default function FilterBar({
           <select
             aria-label='course-select'
             className='w-full md:w-auto min-w-[140px] border border-slate-200 rounded-md px-3 py-2'
-            value={state.course}
+            value={state.courseId ?? ''}
             onChange={(e) =>
-              setState((s) => ({ ...s, course: e.target.value }))
+              setState((s) => ({ ...s, courseId: e.target.value || undefined }))
             }
           >
-            {courseOptions.map((c) => (
-              <option key={c} value={c} disabled={c === ''}>
-                {c === '' ? 'Course' : c}
+            <option value=''>Course</option>
+            {courses.map((course) => (
+              <option key={course.value} value={course.value}>
+                {course.label}
               </option>
             ))}
           </select>
@@ -109,14 +112,15 @@ export default function FilterBar({
           <select
             aria-label='class-select'
             className='w-full md:w-auto min-w-[120px] border border-slate-200 rounded-md px-3 py-2'
-            value={state.className}
+            value={state.classId ?? ''}
             onChange={(e) =>
-              setState((s) => ({ ...s, className: e.target.value }))
+              setState((s) => ({ ...s, classId: e.target.value || undefined }))
             }
           >
-            {classOptions.map((c) => (
-              <option key={c} value={c} disabled={c === ''}>
-                {c === '' ? 'Class' : c}
+            <option value=''>Class</option>
+            {classes.map((classOption) => (
+              <option key={classOption.value} value={classOption.value}>
+                {classOption.label}
               </option>
             ))}
           </select>
@@ -145,17 +149,15 @@ export default function FilterBar({
             <select
               aria-label='test-title-select'
               className='w-full md:w-auto min-w-40 border border-slate-200 rounded-md px-3 py-2'
-              value={state.testTitle}
+              value={state.testId ?? ''}
               onChange={(e) =>
-                setState((s) => ({ ...s, testTitle: e.target.value }))
+                setState((s) => ({ ...s, testId: e.target.value || undefined }))
               }
             >
-              <option value='' disabled>
-                Test Title
-              </option>
-              {tests.map((t) => (
-                <option key={t} value={t}>
-                  {t}
+              <option value=''>Test</option>
+              {tests.map((test) => (
+                <option key={test.value} value={test.value}>
+                  {test.label}
                 </option>
               ))}
             </select>
