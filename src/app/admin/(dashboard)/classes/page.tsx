@@ -34,6 +34,7 @@ import {
 } from '@/types/dashboard.types';
 import Modal from '@/components/modal';
 import { useAdminStudents } from '@/features/students/hooks/useStudents';
+import useMoveClassStudents from '@/features/dashboard/hooks/useMoveClassStudents';
 import { FaUsers } from 'react-icons/fa';
 import ResultsFiltersBar, {
   type ResultFilterField,
@@ -51,6 +52,7 @@ interface UpdateClassProps {
 const headerColumns = [
   'S/N',
   'Class',
+  'Student Count',
   'Teacher',
   'Total Courses',
   'Created On',
@@ -254,10 +256,12 @@ const AdminClasses = () => {
   );
   const debouncedSearch = useDebouncedValue(searchValue);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [destinationClassId, setDestinationClassId] = useState('');
+  const moveStudents = useMoveClassStudents();
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
     modalContent: AllClassesResponse['data'][number] | null;
-    type: 'update' | 'delete' | 'view';
+    type: 'update' | 'delete' | 'view' | 'move';
   }>({
     isOpen: false,
     modalContent: null,
@@ -353,7 +357,7 @@ const AdminClasses = () => {
     value:
       | boolean
       | AllClassesResponse['data'][number]
-      | ('update' | 'delete' | 'view')
+      | ('update' | 'delete' | 'view' | 'move')
       | null;
   }) => {
     setModalState((prev) => ({
@@ -412,6 +416,23 @@ const AdminClasses = () => {
     } finally {
       setIsDeleting(false);
     }
+  };
+
+  const handleMoveStudents = () => {
+    if (!modalState.modalContent || !destinationClassId) return;
+
+    moveStudents.mutate(
+      {
+        sourceClassId: modalState.modalContent.id,
+        destinationClassId,
+      },
+      {
+        onSuccess: () => {
+          setDestinationClassId('');
+          updateModalState({ key: 'isOpen', value: false });
+        },
+      },
+    );
   };
 
   if (classesError) {
@@ -574,6 +595,7 @@ const AdminClasses = () => {
                   </span>
                 </TableDataItem>
                 <TableDataItem>{item.className}</TableDataItem>
+                <TableDataItem>{item.studentCount}</TableDataItem>
                 <TableDataItem>
                   {item?.teacher?.firstname && item?.teacher?.lastname
                     ? item.teacher.firstname + ' ' + item.teacher.lastname
@@ -602,6 +624,16 @@ const AdminClasses = () => {
                   className='px-2 py-1 rounded bg-primary-500 text-white text-xs cursor-pointer'
                 >
                   Update Class
+                </button>
+                <button
+                  onClick={() => {
+                    setDestinationClassId('');
+                    updateModalState({ key: 'type', value: 'move' });
+                    updateModalState({ key: 'isOpen', value: true });
+                  }}
+                  className='px-2 py-1 rounded bg-primary-500 text-white text-xs cursor-pointer'
+                >
+                  Move Class
                 </button>
                 <button
                   onClick={() => {
@@ -759,6 +791,59 @@ const AdminClasses = () => {
             closeModal={() => updateModalState({ key: 'isOpen', value: false })}
             coursesData={coursesData?.data ?? []}
           />
+        ) : modalState.type === 'move' ? (
+          <div className='flex w-full flex-col gap-4'>
+            <div>
+              <h2 className='text-lg font-semibold'>Move students</h2>
+              <p className='text-sm text-neutral-500'>
+                Move all students from {modalState.modalContent?.className} to
+                another class.
+              </p>
+            </div>
+            <label
+              htmlFor='destination-class'
+              className='flex flex-col gap-1 text-sm font-medium text-neutral-700'
+            >
+              Destination class
+              <select
+                id='destination-class'
+                value={destinationClassId}
+                onChange={(event) => setDestinationClassId(event.target.value)}
+                disabled={moveStudents.isPending}
+                className='h-10 rounded-md border border-neutral-300 bg-background px-3 text-foreground'
+              >
+                <option value=''>Select destination class</option>
+                {allAssignClasses?.data
+                  ?.filter(
+                    (classItem) => classItem.id !== modalState.modalContent?.id,
+                  )
+                  .map((classItem) => (
+                    <option key={classItem.id} value={classItem.id}>
+                      {classItem.className}
+                    </option>
+                  ))}
+              </select>
+            </label>
+            <div className='flex justify-end gap-2'>
+              <Button
+                type='button'
+                disabled={moveStudents.isPending}
+                onClick={() =>
+                  updateModalState({ key: 'isOpen', value: false })
+                }
+                variant='danger'
+              >
+                Cancel
+              </Button>
+              <Button
+                type='button'
+                disabled={!destinationClassId || moveStudents.isPending}
+                onClick={handleMoveStudents}
+              >
+                {moveStudents.isPending ? 'Moving...' : 'Move students'}
+              </Button>
+            </div>
+          </div>
         ) : (
           <div className='w-full h-full flex flex-col gap-6'>
             <div className='flex flex-col items-center gap-2 w-full'>

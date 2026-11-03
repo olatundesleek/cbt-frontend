@@ -201,6 +201,7 @@ export interface AllClasses {
     lastname: string;
   };
   courses: Courses[];
+  studentCount: number;
 }
 
 export interface AllClassesResponse {
@@ -386,4 +387,14 @@ export interface QuestionBankDetailsResponse {
   success: boolean;
   message: string;
   data: AllQuestionBank;
+}
+
+export interface MoveClassStudentsResponse {
+  success: boolean;
+  message: string;
+  data: {
+    sourceClassId: number;
+    destinationClassId: number;
+    movedCount: number;
+  };
 }

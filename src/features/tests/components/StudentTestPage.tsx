@@ -12,6 +12,10 @@ import ResultsFiltersBar, {
 } from '@/features/results/components/ResultsFiltersBar';
 import { useCallback, useMemo, useState } from 'react';
 import getErrorDetails from '@/utils/getErrorDetails';
+import {
+  useGetClasses,
+  useGetCourses,
+} from '@/features/dashboard/queries/useDashboard';
 
 export default function StudentTestPage() {
   // Add server pagination hook with sort/order for server
@@ -21,11 +25,14 @@ export default function StudentTestPage() {
   });
 
   const { testsData, testsDataError, isTestsDataLoading } = useTests(params);
+  const { data: allCourses } = useGetCourses({ limit: 1000, page: 1 });
+  const { data: allClasses } = useGetClasses({ limit: 1000, page: 1 });
 
   // Client-side filter state
   const [clientFilters, setClientFilters] = useState<{
     search?: string;
-    courseTitle?: string;
+    courseId?: string;
+    classId?: string;
     type?: string;
     testState?: string;
   }>({});
@@ -33,13 +40,22 @@ export default function StudentTestPage() {
   const handleFilterChange = useCallback(
     (nextParams: Record<string, string | number | undefined>) => {
       // Extract server params (sort, order) and client filters
-      const { sort, order, search, courseTitle, type, testState, ...rest } =
-        nextParams;
+      const {
+        sort,
+        order,
+        search,
+        courseId,
+        classId,
+        type,
+        testState,
+        ...rest
+      } = nextParams;
 
       // Update client filters
       setClientFilters({
         search: search as string | undefined,
-        courseTitle: courseTitle as string | undefined,
+        courseId: courseId as string | undefined,
+        classId: classId as string | undefined,
         type: type as string | undefined,
         testState: testState as string | undefined,
       });
@@ -49,6 +65,8 @@ export default function StudentTestPage() {
         page: 1,
         sort: sort as string | undefined,
         order: order as string | undefined,
+        courseId: courseId as string | undefined,
+        classId: classId as string | undefined,
         ...rest,
       });
     },
@@ -60,16 +78,22 @@ export default function StudentTestPage() {
     [testsData?.data.data],
   );
 
-  // Extract unique course titles for filter options
   const courseOptions = useMemo(
     () =>
-      Array.from(new Set(tests.map((t) => t.course.title))).map((title) => ({
-        value: title,
-        label: title,
+      (allCourses?.data ?? []).map((course) => ({
+        value: course.id,
+        label: course.title,
       })),
-    [tests],
+    [allCourses],
   );
-
+  const classOptions = useMemo(
+    () =>
+      (allClasses?.data ?? []).map((item) => ({
+        value: item.id,
+        label: item.className,
+      })),
+    [allClasses],
+  );
   // Filter fields configuration
   const filterFields = useMemo<ResultFilterField[]>(
     () => [
@@ -81,10 +105,17 @@ export default function StudentTestPage() {
       // },
       {
         type: 'select',
-        name: 'courseTitle',
+        name: 'courseId',
         label: 'Course',
         options: courseOptions,
         placeholder: 'All courses',
+      },
+      {
+        type: 'select',
+        name: 'classId',
+        label: 'Class',
+        options: classOptions,
+        placeholder: 'All classes',
       },
       {
         type: 'select',
@@ -132,7 +163,7 @@ export default function StudentTestPage() {
         placeholder: 'Default',
       },
     ],
-    [courseOptions],
+    [courseOptions, classOptions],
   );
 
   // Client-side filtering
@@ -142,12 +173,6 @@ export default function StudentTestPage() {
     if (clientFilters.search) {
       const search = clientFilters.search.toLowerCase();
       filtered = filtered.filter((t) => t.title.toLowerCase().includes(search));
-    }
-
-    if (clientFilters.courseTitle) {
-      filtered = filtered.filter(
-        (t) => t.course.title === clientFilters.courseTitle,
-      );
     }
 
     if (clientFilters.type) {
