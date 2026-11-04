@@ -29,6 +29,7 @@ type Props = {
   onChange?: (state: FilterState) => void;
   onReset?: () => void;
   tests?: FilterOption[];
+  showCourseFilter?: boolean;
   showStatusFilter?: boolean;
   showTestTitleFilter?: boolean;
   children?: ReactNode;
@@ -42,6 +43,7 @@ export default function FilterBar({
   onChange,
   onReset,
   tests = [],
+  showCourseFilter = true,
   showStatusFilter = true,
   showTestTitleFilter = true,
   children,
@@ -93,21 +95,26 @@ export default function FilterBar({
           </button>
         </div>
         <div className='flex gap-3 items-center flex-wrap '>
-          <select
-            aria-label='course-select'
-            className='w-full md:w-auto min-w-[140px] border border-slate-200 rounded-md px-3 py-2'
-            value={state.courseId ?? ''}
-            onChange={(e) =>
-              setState((s) => ({ ...s, courseId: e.target.value || undefined }))
-            }
-          >
-            <option value=''>Course</option>
-            {courses.map((course) => (
-              <option key={course.value} value={course.value}>
-                {course.label}
-              </option>
-            ))}
-          </select>
+          {showCourseFilter && (
+            <select
+              aria-label='course-select'
+              className='w-full md:w-auto min-w-[140px] border border-slate-200 rounded-md px-3 py-2'
+              value={state.courseId ?? ''}
+              onChange={(e) =>
+                setState((s) => ({
+                  ...s,
+                  courseId: e.target.value || undefined,
+                }))
+              }
+            >
+              <option value=''>Course</option>
+              {courses.map((course) => (
+                <option key={course.value} value={course.value}>
+                  {course.label}
+                </option>
+              ))}
+            </select>
+          )}
 
           <select
             aria-label='class-select'

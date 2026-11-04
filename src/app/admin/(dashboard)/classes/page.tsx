@@ -633,7 +633,7 @@ const AdminClasses = () => {
                   }}
                   className='px-2 py-1 rounded bg-primary-500 text-white text-xs cursor-pointer'
                 >
-                  Move Class
+                  Move students
                 </button>
                 <button
                   onClick={() => {

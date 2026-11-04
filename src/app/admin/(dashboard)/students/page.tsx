@@ -23,11 +23,7 @@ import StudentSummary from '@/components/tests/StudentSummary';
 import { useCallback, useMemo, useState } from 'react';
 import type { Student } from '@/types/students.types';
 import useAssignClass from '@/features/students/hooks/useAssignClass';
-import {
-  useGetClasses,
-  useGetCourses,
-} from '@/features/dashboard/queries/useDashboard';
-import { useAdminTest } from '@/features/tests/hooks/useTests';
+import { useGetClasses } from '@/features/dashboard/queries/useDashboard';
 import { AllClassesResponse } from '@/types/dashboard.types';
 import { useUserStore } from '@/store/useUserStore';
 import getErrorDetails from '@/utils/getErrorDetails';
@@ -49,24 +45,13 @@ export default function AdminStudentsPage() {
     limit: 1000,
     page: 1,
   });
-  const { data: allCourses, isLoading: coursesLoading } = useGetCourses({
-    limit: 1000,
-    page: 1,
-  });
-  const { data: allTests, isLoading: testsLoading } = useAdminTest({
-    limit: 1000,
-    page: 1,
-  });
-
   const handleFilterChange = useCallback(
     (nextFilter: FilterState) => {
       updateParams({
         page: 1,
         search: nextFilter.query || undefined,
-        courseId: nextFilter.courseId || undefined,
         classId: nextFilter.classId || undefined,
         status: nextFilter.status || undefined,
-        testId: nextFilter.testId || undefined,
         startDate: nextFilter.startDate || undefined,
       });
     },
@@ -95,24 +80,6 @@ export default function AdminStudentsPage() {
         label: item.className,
       })),
     [allClasses],
-  );
-
-  const courses = useMemo<FilterOption[]>(
-    () =>
-      (allCourses?.data ?? []).map((item) => ({
-        value: item.id,
-        label: item.title,
-      })),
-    [allCourses],
-  );
-
-  const tests = useMemo<FilterOption[]>(
-    () =>
-      (allTests?.data.data ?? []).map((item) => ({
-        value: item.id,
-        label: item.title,
-      })),
-    [allTests],
   );
 
   const tableHeaders = useMemo(
@@ -256,12 +223,12 @@ export default function AdminStudentsPage() {
           </div>
 
           <FilterBar
-            courses={courses}
             classes={classes}
-            tests={tests}
             onChange={handleFilterChange}
             onReset={handleOuterReset}
+            showCourseFilter={false}
             showStatusFilter={false}
+            showTestTitleFilter={false}
           >
             {/* Search and Filter Section */}
             <>
@@ -482,12 +449,7 @@ export default function AdminStudentsPage() {
       <div>
         {role === 'admin' ? (
           <AppTable
-            isLoading={
-              isStudentsLoading ||
-              classesLoading ||
-              coursesLoading ||
-              testsLoading
-            }
+            isLoading={isStudentsLoading || classesLoading}
             headerColumns={tableHeaders}
             data={students}
             itemKey={({ item }) => `${item.username}`}
@@ -586,12 +548,7 @@ export default function AdminStudentsPage() {
           />
         ) : (
           <AppTable
-            isLoading={
-              isStudentsLoading ||
-              classesLoading ||
-              coursesLoading ||
-              testsLoading
-            }
+            isLoading={isStudentsLoading || classesLoading}
             headerColumns={tableHeaders}
             data={filteredData}
             itemKey={({ item }) => `${item.username}`}
