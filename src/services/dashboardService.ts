@@ -83,6 +83,21 @@ export const dashboardServices = {
 
   getQuestionsTemplate: () => '/question/upload/template',
 
+  downloadQuestionsTemplate: async () => {
+    const response = await api.get(dashboardServices.getQuestionsTemplate(), {
+      responseType: 'blob',
+    });
+
+    const downloadUrl = window.URL.createObjectURL(response.data);
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = 'questions-template.xlsx';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(downloadUrl);
+  },
+
   uploadQuestions: async (formData: FormData) => {
     const response = await api.post('/question/upload', formData, {
       headers: {
