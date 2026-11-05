@@ -14,7 +14,6 @@ import { ChangeEvent, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { IoMdArrowRoundBack } from 'react-icons/io';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import CreateQuestion from './create-question';
 import { useMutation } from '@tanstack/react-query';
 import { dashboardServices } from '@/services/dashboardService';
@@ -127,6 +126,14 @@ const Questions = () => {
     }
   };
 
+  const handleDownloadTemplate = async () => {
+    try {
+      await dashboardServices.downloadQuestionsTemplate();
+    } catch (error) {
+      toast.error(getErrorDetails(error));
+    }
+  };
+
   const totalMarks =
     questions?.reduce((sum, question) => sum + question.marks, 0) ?? 0;
 
@@ -199,15 +206,13 @@ const Questions = () => {
               <div className='p-3 flex flex-col gap-3 w-full border border-neutral-200 rounded-2xl'>
                 <span className='text-base font-bold'>Upload Excel File</span>
 
-                <Link
-                  download
-                  href={`${
-                    process.env.NEXT_PUBLIC_API_URL
-                  }${dashboardServices.getQuestionsTemplate()}`}
+                <button
+                  type='button'
+                  onClick={handleDownloadTemplate}
                   className='px-3 py-2 text-sm font-semibold text-neutral-800 shadow-sm border border-neutral-200 focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer w-fit hover:bg-neutral-200 rounded-md'
                 >
                   Download Excel Template
-                </Link>
+                </button>
 
                 <div className='flex flex-col gap-4 w-full'>
                   {/* PUT QUESTIONS HERE */}
